@@ -1,35 +1,29 @@
-# ============================
-# Makefile for OC-Shortest
-# ============================
+# Simple Makefile for IDA* single-column placer
+CXX ?= g++
+CXXFLAGS ?= -O3 -std=gnu++17 -Wall -Wextra -Wno-sign-compare -Wno-unused-parameter
+LDFLAGS ?= 
 
-CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
-
-SRC_DIR := src
+SRC_DIR := .
 BUILD_DIR := build
-TARGET := oc_shortest
 
-SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
+TARGET := $(BUILD_DIR)/ida_star
+SRCS := IdaStarColumnPlacer.cpp main.cpp
+OBJS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+DEPS := $(OBJS:.o=.d)
 
-.PHONY: all clean run
-
-all: $(BIN)
+all: $(TARGET)
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
+	@mkdir -p $(BUILD_DIR)
 
 $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-	@echo "✅ Build complete: $(BIN)"
-
-run: all
-	$(BIN)
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean
+-include $(DEPS)

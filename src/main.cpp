@@ -1,4 +1,4 @@
-#include "ParamThresholdRefineOCPlacer.h"
+#include "KClosureParamOCPlacer.h"
 #include <iostream>
 #include <chrono>
 #include <cstdlib>
@@ -6,18 +6,19 @@
 using std::cout;
 using std::endl;
 
-static void run_case(int m, int h, long long dV, long long SCALE=1000) {
-    ParamThresholdRefineOCPlacer::Config cfg;
+static void run_case(int m, int h, long long dV) {
+    KClosureParamOCPlacer::Config cfg;
     cfg.dV = dV;
     cfg.verbose = true;
-    cfg.LAM_SCALE = SCALE;
+    cfg.LAM_SCALE = 1;
+    cfg.max_bisect_iter = 24;
 
-    cout << "\n=== λ-Refine (Max-Closure Chain) Single-Column Test m=" << m
-         << " h=" << h << " (dV=" << dV << ", SCALE=" << SCALE << ") ===\n";
+    cout << "\n=== k-Closure (Param Flow) Single-Column Test m=" << m
+         << " h=" << h << " (dV=" << dV << ") ===\n";
 
     auto t0 = std::chrono::high_resolution_clock::now();
-    ParamThresholdRefineOCPlacer placer(cfg);
-    auto R = placer.solve(m, h);
+    KClosureParamOCPlacer solver(cfg);
+    auto R = solver.solve(m, h);
     auto t1 = std::chrono::high_resolution_clock::now();
 
     cout << "y_order (1.." << m*h << "):\n";
@@ -40,18 +41,17 @@ int main(int argc, char** argv) {
     long long dV = 1;
     run_case(3, 3, dV);
     run_case(4, 4, dV);
-    run_case(8, 8, dV);   // 目标 472
+    run_case(8, 8, dV);   // 预期 HPWL=472
 
-    // 自定义： ./build/lam_refine m h [dV] [SCALE]
-    if (argc >= 3) {
+    // 自定义： ./build/kclosure_param m h [dV]
+    if (argc == 3 || argc == 4) {
         int m = std::atoi(argv[1]);
         int h = std::atoi(argv[2]);
-        long long DV = (argc>=4 ? std::atoll(argv[3]) : 1);
-        long long SCALE = (argc>=5 ? std::atoll(argv[4]) : 1000);
-        run_case(m, h, DV, SCALE);
+        long long DV = (argc==4 ? std::atoll(argv[3]) : 1);
+        run_case(m, h, DV);
     } else {
-        cout << "\n(可选) 自定义: ./build/lam_refine m h [dV] [SCALE]\n"
-             << "  例如 32×20: ./build/lam_refine 32 20 1 1000\n";
+        cout << "\n(可选) 自定义: ./build/kclosure_param m h [dV]\n"
+             << "  例如 32×20: ./build/kclosure_param 32 20 1\n";
     }
     return 0;
 }

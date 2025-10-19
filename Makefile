@@ -1,6 +1,6 @@
-# ==============================================
-# Makefile for λ-Refine (Param-Threshold-Refine)
-# ==============================================
+# ==========================================
+# Makefile for k-Closure (Param Flow + Cut)
+# ==========================================
 CXX := g++
 CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
 
@@ -12,9 +12,9 @@ LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := lam_refine
+TARGET := kclosure_param
 
-SRCS := $(SRC_DIR)/ParamThresholdRefineOCPlacer.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/KClosureParamOCPlacer.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 

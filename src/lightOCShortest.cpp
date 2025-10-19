@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <algorithm>
+#include <stdexcept>
 
 using std::vector;
 using std::unordered_map;
@@ -38,110 +39,101 @@ bool lightOCShortest::check_OC(const vector<vector<int>>& y){
     return true;
 }
 
-// 每层持久化的条目：仅存压缩状态key、到达距离、父在上一层的位置、扩展行
 struct Entry {
-    uint64_t key;          // base-(h+1) 编码后的 a[0..m-1]
-    long long dist;        // 到达该状态的最短距离
-    int parent_idx;        // 上一层的 index
-    int16_t move_i;        // 从 parent 到该状态时选择的行 i
+    uint64_t key;       // base-(h+1) 编码后的 a[0..m-1]
+    long long dist;     // 到达该状态的最短距离
+    int parent_idx;     // 上一层的 index
+    int16_t move_i;     // 从 parent 到该状态时选择的行 i
 };
 
 OCShortestResult lightOCShortest::solve(int m, int h){
     const int n_full = m*h;
     const int n = (cfg_.max_steps>0 && cfg_.max_steps<n_full) ? cfg_.max_steps : n_full;
 
-    // base 与幂表
+    // base 与幂表（powB[idx] = B^(m-1-idx)）
     const uint64_t B = (uint64_t)h + 1u;
     vector<uint64_t> powB(m);
-    // powB[idx] = B^(m-1-idx)
     powB[m-1] = 1ull;
-    for(int k=m-2;k>=0;--k) powB[k] = powB[k+1] * B;
+    for(int k=m-2;k>=0;--k){
+        __uint128_t tmp = (__uint128_t)powB[k+1] * (__uint128_t)B;
+        if (tmp > ( (__uint128_t)std::numeric_limits<uint64_t>::max() )) {
+            throw std::runtime_error("State key overflows 64-bit; switch to vector<int> key for this m,h");
+        }
+        powB[k] = (uint64_t)tmp;
+    }
 
-    // 层容器（持久化，用于回溯），只存本层条目
+    // 层容器（仅持久化各层用于回溯）
     vector<vector<Entry>> layers; layers.reserve(n+1);
+    layers.emplace_back();           // level 0
+    layers.back().push_back(Entry{0ull, 0ll, -1, -1});
 
-    // 当前层 & 下一层（去重用 map）
-    vector<Entry> cur; cur.reserve(4096);
-    vector<Entry> nxt; nxt.reserve(16384);
-    unordered_map<uint64_t,int> cur_id, nxt_id;
-    cur_id.reserve(4096); nxt_id.reserve(16384);
-
-    // 初始层（全 0，key=0）
-    cur.push_back(Entry{0ull, 0ll, -1, -1});
-    cur_id.emplace(0ull, 0);
-    layers.push_back(cur);
-
-    // 主循环：逐层 DP
+    // 主循环：逐层 DP（仅读上一层，构造下一层）
     for(int lvl=0; lvl<n; ++lvl){
-        nxt.clear(); nxt_id.clear();
+        const auto& cur = layers.back(); // 只读
+        vector<Entry> next;              next.reserve(std::max<size_t>(cur.size()*2, 16));
+        unordered_map<uint64_t,int> nxt_id; nxt_id.reserve(std::max<size_t>(cur.size()*2, 16));
 
         for(int u=0; u<(int)cur.size(); ++u){
             const uint64_t key_u = cur[u].key;
             const long long du  = cur[u].dist;
 
-            // 预取 digit（一次除法展开全部行）
-            // 为减少除法次数，这里只在需要的位置取 digit
-            // 检查每一行是否可扩（a[i]<h 且 a[i]+1<=a[i-1]）
             for(int i=0;i<m;++i){
-                const int ai   = digit_at(key_u, i, powB, B);
+                const int ai = digit_at(key_u, i, powB, B);
                 if(ai >= h) continue;
                 if(i>0){
                     const int aim1 = digit_at(key_u, i-1, powB, B);
                     if(ai + 1 > aim1) continue;
                 }
-                // 生成子状态
                 const uint64_t key_v = encode_digit_inc(key_u, i, powB);
-                const int j_new = ai; // 扩展前列号
+                const int j_new = ai;
                 const long long c = (long long)(lvl+1) * weight_ij(i, j_new, m, h) * cfg_.dV;
                 const long long nd = du + c;
 
                 auto it = nxt_id.find(key_v);
                 if(it == nxt_id.end()){
-                    int v = (int)nxt.size();
-                    nxt.push_back(Entry{ key_v, nd, u, (int16_t)i });
+                    int v = (int)next.size();
+                    next.push_back(Entry{ key_v, nd, u, (int16_t)i });
                     nxt_id.emplace(key_v, v);
                 }else{
                     int v = it->second;
-                    if(nd < nxt[v].dist){
-                        nxt[v].dist = nd;
-                        nxt[v].parent_idx = u;
-                        nxt[v].move_i = (int16_t)i;
+                    if(nd < next[v].dist){
+                        next[v].dist = nd;
+                        next[v].parent_idx = u;
+                        next[v].move_i = (int16_t)i;
                     }
                 }
             }
         }
 
-        // 进度
-        if(cfg_.progress && (lvl%16==0)){
-            cout << "[DP] level " << lvl << " states=" << cur.size() << " -> next=" << nxt.size() << endl;
+        if (cfg_.progress && (lvl % 16 == 0)) {
+            cout << "[DP] level " << lvl << " states=" << cur.size()
+                 << " -> next=" << next.size() << endl;
         }
 
-        layers.push_back(std::move(nxt));            // 保存当前“下一层”
-        nxt = vector<Entry>(); nxt.reserve(16384);   // 复位容器，避免深拷贝
-        cur.swap(layers.back());                     // cur 指向刚保存的层
-        cur_id.swap(nxt_id);                         // map 也对调
+        if (next.empty()) {
+            throw std::runtime_error("Empty next layer at level " + std::to_string(lvl));
+        }
+        // 持久化下一层（不要再 swap 回来！）
+        layers.emplace_back(std::move(next));
     }
 
-    // 从最后一层选最小 dist 的状态
+    // 选择最后一层的最短距离状态
     const auto& last = layers.back();
-    if(last.empty()){
-        throw std::runtime_error("Empty last layer (no feasible state)");
-    }
     int best_v = 0; long long best_d = last[0].dist;
     for(int v=1; v<(int)last.size(); ++v){
         if(last[v].dist < best_d){ best_d = last[v].dist; best_v = v; }
     }
 
-    // 回溯构造 y_order
+    // 回溯构造 y_order（只回放 T 层；若 T<n_full，剩余为 0）
     vector<vector<int>> y(m, vector<int>(h, 0));
     int v = best_v;
     for(int lvl=n; lvl>=1; --lvl){
         const auto& L  = layers[lvl];
-        const auto& Lp = layers[lvl-1];
-        const int u = L[v].parent_idx;
-        const int i = L[v].move_i;
-        const uint64_t key_u = Lp[u].key;
-        const int j0 = digit_at(key_u, i, powB, B); // 扩展前列号
+        const auto& P  = layers[lvl-1];
+        const int u    = L[v].parent_idx;
+        const int i    = L[v].move_i;
+        const uint64_t key_u = P[u].key;
+        const int j0   = digit_at(key_u, i, powB, B);
         y[i][j0] = lvl;
         v = u;
     }

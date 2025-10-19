@@ -1,4 +1,4 @@
-#include "ParamThresholdOCPlacer.h"
+#include "ParamThresholdRefineOCPlacer.h"
 #include <iostream>
 #include <chrono>
 #include <cstdlib>
@@ -6,16 +6,17 @@
 using std::cout;
 using std::endl;
 
-static void run_case(int m, int h, long long dV) {
-    ParamThresholdOCPlacer::Config cfg;
+static void run_case(int m, int h, long long dV, long long SCALE=1000) {
+    ParamThresholdRefineOCPlacer::Config cfg;
     cfg.dV = dV;
     cfg.verbose = true;
+    cfg.LAM_SCALE = SCALE;
 
-    cout << "\n=== λ-Closure (Threshold Sweep) Single-Column Test m=" << m << " h=" << h
-         << " (dV=" << dV << ") ===\n";
+    cout << "\n=== λ-Refine (Max-Closure Chain) Single-Column Test m=" << m
+         << " h=" << h << " (dV=" << dV << ", SCALE=" << SCALE << ") ===\n";
 
     auto t0 = std::chrono::high_resolution_clock::now();
-    ParamThresholdOCPlacer placer(cfg);
+    ParamThresholdRefineOCPlacer placer(cfg);
     auto R = placer.solve(m, h);
     auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -39,17 +40,18 @@ int main(int argc, char** argv) {
     long long dV = 1;
     run_case(3, 3, dV);
     run_case(4, 4, dV);
-    run_case(8, 8, dV);   // 预期 HPWL=472
+    run_case(8, 8, dV);   // 目标 472
 
-    // 自定义： ./build/lam_closure m h [dV]
-    if (argc == 3 || argc == 4) {
+    // 自定义： ./build/lam_refine m h [dV] [SCALE]
+    if (argc >= 3) {
         int m = std::atoi(argv[1]);
         int h = std::atoi(argv[2]);
-        long long DV = (argc==4 ? std::atoll(argv[3]) : 1);
-        run_case(m, h, DV);
+        long long DV = (argc>=4 ? std::atoll(argv[3]) : 1);
+        long long SCALE = (argc>=5 ? std::atoll(argv[4]) : 1000);
+        run_case(m, h, DV, SCALE);
     } else {
-        cout << "\n(可选) 自定义: ./build/lam_closure m h [dV]\n"
-             << "  例如 32×32: ./build/lam_closure 32 32 1\n";
+        cout << "\n(可选) 自定义: ./build/lam_refine m h [dV] [SCALE]\n"
+             << "  例如 32×20: ./build/lam_refine 32 20 1 1000\n";
     }
     return 0;
 }

@@ -1,10 +1,10 @@
-# ===========================================
-# Makefile for λ-Closure (Threshold Sweep)
-# ===========================================
+# ==============================================
+# Makefile for λ-Refine (Param-Threshold-Refine)
+# ==============================================
 CXX := g++
 CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
 
-# Use conda-forge lemon
+# lemon via conda-forge
 CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
 LEMON_PREFIX ?= $(CONDA_PREFIX)
 INCLUDES := -I$(LEMON_PREFIX)/include
@@ -12,9 +12,9 @@ LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := lam_closure
+TARGET := lam_refine
 
-SRCS := $(SRC_DIR)/ParamThresholdOCPlacer.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/ParamThresholdRefineOCPlacer.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 

@@ -1,23 +1,24 @@
-# ============================
-# Makefile for LightMCMF
-# ============================
-
+# ===========================================
+# Makefile for Sidney-Closure (P-time exact)
+# ===========================================
 CXX := g++
-CXXFLAGS := -O2 -std=c++17 -Wall -Wextra -Wshadow -Wconversion
+CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
+
+# Use conda-forge lemon
 CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
 LEMON_PREFIX ?= $(CONDA_PREFIX)
 INCLUDES := -I$(LEMON_PREFIX)/include
-LDFLAGS := -L$(LEMON_PREFIX)/lib -lemon
+LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := light_mcmf
+TARGET := sidney_closure
 
-SRCS := $(SRC_DIR)/lightPureMcmf.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/SidneyClosureOCPlacer.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 
-.PHONY: all clean run envcheck
+.PHONY: all run clean envcheck
 
 all: envcheck $(BIN)
 
@@ -35,17 +36,17 @@ $(BIN): $(OBJS)
 run: all
 	$(BIN)
 
+clean:
+	rm -rf $(BUILD_DIR)
+
 envcheck:
 	@if [ -z "$(CONDA_PREFIX)" ]; then \
-		echo "⚠️  Not inside conda environment."; \
+		echo "⚠️  Not inside conda env. Run: conda activate rsad_mcmf"; \
 	else \
 		echo "✅ Conda env: $(CONDA_PREFIX)"; \
 	fi
-	@if pkg-config --exists lemon; then \
-		echo "✅ LEMON found"; \
+	@if [ ! -f "$(LEMON_PREFIX)/include/lemon/preflow.h" ]; then \
+		echo "⚠️  lemon headers not found. Try: conda install -c conda-forge lemon"; \
 	else \
-		echo "⚠️  LEMON not found. Try: conda install -c conda-forge lemon"; \
+		echo "✅ lemon found in $(LEMON_PREFIX)"; \
 	fi
-
-clean:
-	rm -rf $(BUILD_DIR)

@@ -1,11 +1,15 @@
+# ============================
+# Makefile for OC-MaxT
+# ============================
+
 CXX := g++
 CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := oc_shortest
+TARGET := oc_maxt
 
-SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/lightOCMaxT.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 

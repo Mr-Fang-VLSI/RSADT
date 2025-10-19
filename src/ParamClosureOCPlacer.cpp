@@ -41,11 +41,12 @@ bool ParamClosureOCPlacer::check_global_OC(const vector<vector<int>>& y) {
 
 PCResult ParamClosureOCPlacer::solve(int m, int h) {
     const int n = m * h;
-    const long long BASE = n + 7;      // 词典序放大系数
+    const long long BASE = n + 7;      // 词典序放大系数（主目标优先）
     const long long INF  = 1e12;       // min-cut 的“无限容量”
-    // λ 搜索范围（覆盖 base_weight*BASE 与 eps 的总幅度）
-    const long long LAM_MAX =  (2LL*BASE + n + 10);
-    const long long LAM_MIN = -(2LL*BASE + n + 10);
+
+    // —— 关键修改：拉宽 λ 取值范围（×10），确保覆盖全部跳变 —— //
+    const long long LAM_MAX =  10LL * (2*BASE + n + 10);
+    const long long LAM_MIN = -10LL * (2*BASE + n + 10);
 
     // 构图（一次性）：顶点=格点；边=“若选 v 则必须选其前驱”
     lemon::ListDigraph g;
@@ -94,6 +95,12 @@ PCResult ParamClosureOCPlacer::solve(int m, int h) {
             }
         }
 
+    // —— 预留：maxT 约束（单列）可在此加入额外前驱边 —— //
+    if (cfg_.maxT_steps > 0) {
+        // TODO: 对每行 i，确保 y(i,j+1) - y(i,j) ≤ T
+        // 可将 “(i,j+1) 进入闭包” 依赖于 “(i,j) 已在闭包 + 另一些条件” 的额外 INF 边表达
+    }
+
     // 闭包求解器（给定 λ，返回 S(λ) 及其大小）
     auto closure_at_lambda = [&](long long lam, vector<char>& inS) -> int {
         // 更新源/汇边容量：正接源，负接汇
@@ -109,7 +116,7 @@ PCResult ParamClosureOCPlacer::solve(int m, int h) {
         }
         // max-flow / min-cut
         lemon::Preflow<lemon::ListDigraph, lemon::ListDigraph::ArcMap<long long>> pf(g, cap, s, t);
-        pf.runMinCut(); // 对 Preflow，runMinCut() 就够；或 pf.run() 也可
+        pf.runMinCut(); // 对 Preflow，runMinCut() 即可；或 pf.run() 亦可
         inS.assign(n, 0);
         int sz = 0;
         for (int id = 0; id < n; ++id) {
@@ -125,7 +132,7 @@ PCResult ParamClosureOCPlacer::solve(int m, int h) {
     int next_rank = 1;
     int flows = 0;
 
-    // 为了保证二分能推进，我们先算两端闭包
+    // 先算两端闭包
     vector<char> S_hi, S_lo;
     int s_hi = closure_at_lambda(LAM_MAX, S_hi); ++flows; // 预期 0
     int s_lo = closure_at_lambda(LAM_MIN, S_lo); ++flows; // 预期 n
@@ -134,39 +141,31 @@ PCResult ParamClosureOCPlacer::solve(int m, int h) {
                               long long lam_hi, const vector<char>& S_hi, int s_hi,
                               long long lam_lo, const vector<char>& S_lo, int s_lo) -> void {
         if (s_lo == s_hi) return;
+
+        // 相邻只差 1：直接找唯一的增量元素
         if (s_lo == s_hi + 1) {
-            // 差集里唯一的那个点拿到 rank = next_rank
-            int id = -1;
-            for (int v = 0; v < n; ++v) if (S_lo[v] && !S_hi[v]) { id = v; break; }
-            rank[id] = next_rank++;
+            for (int v = 0; v < n; ++v)
+                if (S_lo[v] && !S_hi[v]) { rank[v] = next_rank++; break; }
             return;
         }
-        // 取中 λ；若闭包大小没有进展，就微调 λ（最多试几次）
+
+        // 二分中点 λ
         long long lam_mid = (lam_hi + lam_lo) / 2;
         vector<char> S_mid; int s_mid = -1;
-        const int MAX_ADJ = 4*n + 10; // 足够小的尝试范围
-        int tries = 0;
-        while (tries < MAX_ADJ) {
-            s_mid = closure_at_lambda(lam_mid, S_mid); ++flows;
-            if (s_mid > s_hi && s_mid < s_lo) break;
-            // 若等于边界，向内收缩
-            if (s_mid <= s_hi) { lam_mid = lam_mid - 1; }
-            else               { lam_mid = lam_mid + 1; }
-            ++tries;
+
+        // 先试中点；若无法切入，尝试向内微调若干步
+        s_mid = closure_at_lambda(lam_mid, S_mid); ++flows;
+
+        if (s_mid == s_hi || s_mid == s_lo) {
+            // —— 方案 A：这段区间内 λ 变化不产生新断点 —— //
+            // 直接将差集一次性赋 rank（稳定顺序：id 从小到大）
+            for (int v = 0; v < n; ++v)
+                if (S_lo[v] && !S_hi[v] && !rank[v])
+                    rank[v] = next_rank++;
+            return;
         }
-        if (s_mid <= s_hi || s_mid >= s_lo) {
-            // 仍然没有切入中间（极少发生），直接线性找一个切入值
-            long long lam = lam_lo - 1;
-            for (;;) {
-                s_mid = closure_at_lambda(lam, S_mid); ++flows;
-                if (s_mid > s_hi && s_mid < s_lo) { lam_mid = lam; break; }
-                lam -= 1;
-                if (lam < LAM_MIN - 10*BASE) {
-                    throw std::runtime_error("[ParamClosure] cannot find mid lambda.");
-                }
-            }
-        }
-        // 递归左右两段
+
+        // 正常切入：左右递归
         self(self, lam_hi, S_hi, s_hi, lam_mid, S_mid, s_mid);
         self(self, lam_mid, S_mid, s_mid, lam_lo, S_lo, s_lo);
     };

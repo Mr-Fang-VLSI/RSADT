@@ -1,36 +1,31 @@
-# ==========================================
-# Makefile for k-Closure (Param Flow + Cut)
-# ==========================================
-CXX := g++
-CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
+# ============================
+# Makefile for OC-Shortest
+# ============================
 
-# lemon via conda-forge
-CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
-LEMON_PREFIX ?= $(CONDA_PREFIX)
-INCLUDES := -I$(LEMON_PREFIX)/include
-LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
+CXX := g++
+CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := kclosure_param
+TARGET := oc_shortest
 
-SRCS := $(SRC_DIR)/KClosureParamOCPlacer.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 
-.PHONY: all run clean envcheck
+.PHONY: all clean run
 
-all: envcheck $(BIN)
+all: $(BIN)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
 
 $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@
 	@echo "✅ Build complete: $(BIN)"
 
 run: all
@@ -38,15 +33,3 @@ run: all
 
 clean:
 	rm -rf $(BUILD_DIR)
-
-envcheck:
-	@if [ -z "$(CONDA_PREFIX)" ]; then \
-		echo "⚠️  Not inside conda env. Run: conda activate rsad_mcmf"; \
-	else \
-		echo "✅ Conda env: $(CONDA_PREFIX)"; \
-	fi
-	@if [ ! -f "$(LEMON_PREFIX)/include/lemon/preflow.h" ]; then \
-		echo "⚠️  lemon headers not found. Try: conda install -c conda-forge lemon"; \
-	else \
-		echo "✅ lemon found in $(LEMON_PREFIX)"; \
-	fi

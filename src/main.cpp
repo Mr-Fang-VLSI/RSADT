@@ -1,57 +1,33 @@
-#include "KClosureParamOCPlacer.h"
+#include "lightOCShortest.h"
 #include <iostream>
-#include <chrono>
 #include <cstdlib>
 
-using std::cout;
-using std::endl;
-
-static void run_case(int m, int h, long long dV) {
-    KClosureParamOCPlacer::Config cfg;
+static void run_case(int m, int h, long long dV){
+    lightOCShortest::Config cfg;
     cfg.dV = dV;
     cfg.verbose = true;
-    cfg.LAM_SCALE = 1;
-    cfg.max_bisect_iter = 24;
 
-    cout << "\n=== k-Closure (Param Flow) Single-Column Test m=" << m
-         << " h=" << h << " (dV=" << dV << ") ===\n";
+    std::cout << "\n=== OC-Shortest Test m="<<m<<" h="<<h<<" ===\n";
+    lightOCShortest solver(cfg);
+    auto R = solver.solve(m,h);
 
-    auto t0 = std::chrono::high_resolution_clock::now();
-    KClosureParamOCPlacer solver(cfg);
-    auto R = solver.solve(m, h);
-    auto t1 = std::chrono::high_resolution_clock::now();
-
-    cout << "y_order (1.." << m*h << "):\n";
-    for (int i = 0; i < m; ++i) {
-        cout << "  ";
-        for (int j = 0; j < h; ++j)
-            cout << R.y_order[i][j] << (j+1==h?'\n':' ');
-    }
-    cout << "[Check] OC=" << (R.oc_ok? "OK":"FAIL")
-         << ", Unique=" << (R.unique_ok? "OK":"FAIL")
-         << ", cost=" << R.cost
-         << ", HPWL=" << R.actual_hpwl
-         << ", Diff=" << (R.actual_hpwl - R.cost) << "\n";
-
-    auto us = std::chrono::duration_cast<std::chrono::microseconds>(t1-t0).count();
-    cout << "[Time] " << us << " us\n";
+    std::cout << "Result: cost=" << R.total_cost
+              << ", HPWL=" << R.hpwl
+              << ", OC=" << (R.oc_ok?"OK":"FAIL") << "\n";
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv){
     long long dV = 1;
-    run_case(3, 3, dV);
-    run_case(4, 4, dV);
-    run_case(8, 8, dV);   // 预期 HPWL=472
+    // sanity
+    run_case(4,4,dV);
 
-    // 自定义： ./build/kclosure_param m h [dV]
-    if (argc == 3 || argc == 4) {
+    if(argc==3 || argc==4){
         int m = std::atoi(argv[1]);
         int h = std::atoi(argv[2]);
-        long long DV = (argc==4 ? std::atoll(argv[3]) : 1);
-        run_case(m, h, DV);
+        long long DV = (argc==4? std::atoll(argv[3]) : 1);
+        run_case(m,h,DV);
     } else {
-        cout << "\n(可选) 自定义: ./build/kclosure_param m h [dV]\n"
-             << "  例如 32×20: ./build/kclosure_param 32 20 1\n";
+        std::cout << "\nUsage: ./build/oc_shortest m h [dV]\n";
     }
     return 0;
 }

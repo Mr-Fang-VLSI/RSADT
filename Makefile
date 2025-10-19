@@ -1,9 +1,5 @@
-# ============================
-# Makefile for OC-Shortest
-# ============================
-
 CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
+CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
 
 SRC_DIR := src
 BUILD_DIR := build

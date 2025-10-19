@@ -1,7 +1,6 @@
 #include "lightOCShortest.h"
 #include <iostream>
 #include <cstdlib>
-
 using std::cout; using std::endl;
 
 static void run_case(int m,int h,long long dV,int max_steps,int threads){
@@ -11,6 +10,7 @@ static void run_case(int m,int h,long long dV,int max_steps,int threads){
     cfg.progress = true;
     cfg.max_steps = max_steps;
     cfg.omp_threads = threads;
+    cfg.low_mem = true;   // ✅ 关键：启用低内存回溯
 
     cout << "\n=== OC-Shortest Test m="<<m<<" h="<<h
          << " T="<<(max_steps>0?max_steps:m*h)

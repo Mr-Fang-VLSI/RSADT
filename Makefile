@@ -1,10 +1,5 @@
-# ==========================================
-# Makefile for Assign+OC MCMF (Prefix-closure)
-# ==========================================
 CXX := g++
 CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
-
-# lemon via conda-forge
 CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
 LEMON_PREFIX ?= $(CONDA_PREFIX)
 INCLUDES := -I$(LEMON_PREFIX)/include
@@ -12,9 +7,9 @@ LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := assign_oc
+TARGET := kclosure_exact
 
-SRCS := $(SRC_DIR)/AssignOCMcmfPlacer.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/KClosureExactPlacer.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 
@@ -45,8 +40,8 @@ envcheck:
 	else \
 		echo "✅ Conda env: $(CONDA_PREFIX)"; \
 	fi
-	@if [ ! -f "$(LEMON_PREFIX)/include/lemon/network_simplex.h" ]; then \
-		echo "⚠️  lemon network_simplex not found. Try: conda install -c conda-forge lemon"; \
+	@if [ ! -f "$(LEMON_PREFIX)/include/lemon/preflow.h" ]; then \
+		echo "⚠️  lemon preflow not found. Try: conda install -c conda-forge lemon"; \
 	else \
 		echo "✅ lemon found in $(LEMON_PREFIX)"; \
 	fi

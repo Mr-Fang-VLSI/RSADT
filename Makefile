@@ -1,31 +1,36 @@
-# ============================
-# Makefile for OC-Shortest
-# ============================
-
+# ==========================================
+# Makefile for Assign+OC MCMF (Prefix-closure)
+# ==========================================
 CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
+CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
+
+# lemon via conda-forge
+CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
+LEMON_PREFIX ?= $(CONDA_PREFIX)
+INCLUDES := -I$(LEMON_PREFIX)/include
+LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := oc_shortest
+TARGET := assign_oc
 
-SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/AssignOCMcmfPlacer.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 
-.PHONY: all clean run
+.PHONY: all run clean envcheck
 
-all: $(BIN)
+all: envcheck $(BIN)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
 
 $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 	@echo "✅ Build complete: $(BIN)"
 
 run: all
@@ -33,3 +38,15 @@ run: all
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+envcheck:
+	@if [ -z "$(CONDA_PREFIX)" ]; then \
+		echo "⚠️  Not inside conda env. Run: conda activate rsad_mcmf"; \
+	else \
+		echo "✅ Conda env: $(CONDA_PREFIX)"; \
+	fi
+	@if [ ! -f "$(LEMON_PREFIX)/include/lemon/network_simplex.h" ]; then \
+		echo "⚠️  lemon network_simplex not found. Try: conda install -c conda-forge lemon"; \
+	else \
+		echo "✅ lemon found in $(LEMON_PREFIX)"; \
+	fi

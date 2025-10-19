@@ -1,4 +1,4 @@
-#include "SidneyClosureOCPlacer.h"
+#include "ParamThresholdOCPlacer.h"
 #include <iostream>
 #include <chrono>
 #include <cstdlib>
@@ -7,15 +7,15 @@ using std::cout;
 using std::endl;
 
 static void run_case(int m, int h, long long dV) {
-    SidneyClosureOCPlacer::Config cfg;
+    ParamThresholdOCPlacer::Config cfg;
     cfg.dV = dV;
     cfg.verbose = true;
 
-    cout << "\n=== Sidney-Closure Single-Column Test m=" << m << " h=" << h
+    cout << "\n=== λ-Closure (Threshold Sweep) Single-Column Test m=" << m << " h=" << h
          << " (dV=" << dV << ") ===\n";
 
     auto t0 = std::chrono::high_resolution_clock::now();
-    SidneyClosureOCPlacer placer(cfg);
+    ParamThresholdOCPlacer placer(cfg);
     auto R = placer.solve(m, h);
     auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -39,17 +39,17 @@ int main(int argc, char** argv) {
     long long dV = 1;
     run_case(3, 3, dV);
     run_case(4, 4, dV);
-    run_case(8, 8, dV);   // 这里应得到 472（一列最优）
+    run_case(8, 8, dV);   // 预期 HPWL=472
 
-    // 自定义： ./build/sidney_closure m h [dV]
+    // 自定义： ./build/lam_closure m h [dV]
     if (argc == 3 || argc == 4) {
         int m = std::atoi(argv[1]);
         int h = std::atoi(argv[2]);
         long long DV = (argc==4 ? std::atoll(argv[3]) : 1);
         run_case(m, h, DV);
     } else {
-        cout << "\n(可选) 自定义: ./build/sidney_closure m h [dV]\n"
-             << "  例如 32×32: ./build/sidney_closure 32 32 1\n";
+        cout << "\n(可选) 自定义: ./build/lam_closure m h [dV]\n"
+             << "  例如 32×32: ./build/lam_closure 32 32 1\n";
     }
     return 0;
 }

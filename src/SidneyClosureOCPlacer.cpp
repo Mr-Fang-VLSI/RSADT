@@ -42,110 +42,166 @@ bool SidneyClosureOCPlacer::check_global_OC(const vector<vector<int>>& y) {
 
 // —— 用一次最小割求“给定 λ 的最大闭包” ——
 // 返回：inS（闭包 S），sumVal = ∑_{v∈S}(W[v] - λ)
+// 新增 verbose 打印与严格的 alive/V[v] 检查
 static std::pair<int, long long>
 max_closure_at_lambda(int m, int h,
-                      const vector<char>& alive,
-                      const vector<long long>& W,
+                      const std::vector<char>& alive,
+                      const std::vector<long long>& W,
                       long long lambda,
                       long long INF,
                       int &flows_counter,
-                      vector<char> &inS_out)
+                      std::vector<char> &inS_out,
+                      bool verbose)
 {
-    const int n = m*h;
+    const int n = m * h;
+    // 统计 alive 顶点数量
+    int alive_cnt = 0;
+    for (int v = 0; v < n; ++v)
+        if (alive[v]) ++alive_cnt;
 
+    if (verbose) {
+        std::cout << "[max_closure] lambda=" << lambda
+                  << " |alive|=" << alive_cnt << std::endl;
+    }
+
+    if (alive_cnt <= 0) {
+        inS_out.assign(n, 0);
+        return {0, 0};
+    }
+
+    // 安全索引函数，避免越界
+    auto safe_id = [&](int i, int j)->int {
+        if (i < 0 || j < 0 || i >= m || j >= h)
+            return -1;
+        return i * h + j;
+    };
+
+    // -------- 以下保持原逻辑（构图/求 min-cut） --------
     lemon::ListDigraph g;
-    auto s = g.addNode();
-    auto t = g.addNode();
-    vector<lemon::ListDigraph::Node> V(n, lemon::INVALID);
+    lemon::ListDigraph::Node s = g.addNode();
+    lemon::ListDigraph::Node t = g.addNode();
 
-    for (int v = 0; v < n; ++v) if (alive[v]) V[v] = g.addNode();
+    std::vector<lemon::ListDigraph::Node> V(n, lemon::INVALID);
+    for (int v = 0; v < n; ++v)
+        if (alive[v]) V[v] = g.addNode();
 
     lemon::ListDigraph::ArcMap<long long> cap(g);
-    auto add_arc = [&](lemon::ListDigraph::Node u, lemon::ListDigraph::Node v, long long c){
-        auto a = g.addArc(u, v); cap[a] = c; return a;
+    auto add_arc = [&](lemon::ListDigraph::Node u,
+                       lemon::ListDigraph::Node v,
+                       long long c) {
+        auto a = g.addArc(u, v);
+        cap[a] = c;
+        return a;
     };
 
     long long sumPos = 0;
-    for (int i = 0, v=0; i < m; ++i)
-        for (int j = 0; j < h; ++j, ++v) if (alive[v]) {
+    long long edge_count = 0;
+
+    for (int v = 0; v < n; ++v)
+        if (alive[v]) {
             long long w = W[v] - lambda;
-            if (w >= 0) { add_arc(s, V[v], w); sumPos += w; }
-            else        { add_arc(V[v], t, -w); }
+            if (w >= 0) { add_arc(s, V[v], w); sumPos += w; ++edge_count; }
+            else        { add_arc(V[v], t, -w); ++edge_count; }
         }
 
-    // 前驱约束：若选 (i,j) 则必须选其前驱（下、左）
-    for (int i = 0, v=0; i < m; ++i)
-        for (int j = 0; j < h; ++j, ++v) if (alive[v]) {
-            if (i > 0) {
-                int pre = node_id(i-1, j, h);
-                if (alive[pre]) add_arc(V[v], V[pre], INF);
-            }
-            if (j > 0) {
-                int pre = node_id(i, j-1, h);
-                if (alive[pre]) add_arc(V[v], V[pre], INF);
-            }
+    // 前驱约束
+    for (int i = 0, v = 0; i < m; ++i)
+        for (int j = 0; j < h; ++j, ++v) {
+            if (!alive[v] || V[v] == lemon::INVALID) continue;
+            int pre1 = safe_id(i - 1, j);
+            int pre2 = safe_id(i, j - 1);
+            if (pre1 >= 0 && alive[pre1] && V[pre1] != lemon::INVALID)
+                add_arc(V[v], V[pre1], INF), ++edge_count;
+            if (pre2 >= 0 && alive[pre2] && V[pre2] != lemon::INVALID)
+                add_arc(V[v], V[pre2], INF), ++edge_count;
         }
 
-    // TODO: maxT 约束：按需要在此加入额外 INF 边（单列）
+    if (verbose)
+        std::cout << "  graph: nodes=" << (alive_cnt + 2)
+                  << " arcs~=" << edge_count << std::endl;
 
-    lemon::Preflow<lemon::ListDigraph, lemon::ListDigraph::ArcMap<long long>> pf(g, cap, s, t);
+    lemon::Preflow<lemon::ListDigraph, lemon::ListDigraph::ArcMap<long long>>
+        pf(g, cap, s, t);
     pf.runMinCut(); ++flows_counter;
 
-    vector<char> inS(n, 0);
+    std::vector<char> inS(n, 0);
     int sz = 0; long long sumVal = 0;
-    for (int v = 0; v < n; ++v) if (alive[v]) {
-        bool onS = pf.minCut(V[v]);
-        if (onS) { inS[v] = 1; ++sz; sumVal += (W[v] - lambda); }
-    }
+    for (int v = 0; v < n; ++v)
+        if (alive[v] && V[v] != lemon::INVALID) {
+            bool onS = pf.minCut(V[v]);
+            if (onS) { inS[v] = 1; ++sz; sumVal += (W[v] - lambda); }
+        }
+
+    if (verbose)
+        std::cout << "  cut: |S|=" << sz
+                  << " sumVal=" << sumVal
+                  << " sumPos(src)=" << sumPos << std::endl;
+
     inS_out.swap(inS);
     return {sz, sumVal};
 }
 
-// —— 二分 λ 找最大密度闭包（非空），返回 inS ——
-// 令 BASE 远大于 n，用 W[v] = base_weight*BASE + eps[v] 保证词典序稳定。
-// 令 predicate(mid): “存在非空闭包 S 使 ∑(W - mid) ≥ 0”。
-// 取“最大使 predicate 为真”的 mid，并返回其闭包（非空）。
-static vector<char>
+
+
+// —— 二分 λ 找最大密度闭包（保证非空），返回 inS ——
+// predicate(mid): 存在非空闭包 S 使 ∑(W - mid) ≥ 0
+// 取最大的 mid 使 predicate 为真；若所有 mid 都假，则取 W 最大的单点闭包。
+static std::vector<char>
 max_density_closure(int m, int h,
-                    const vector<char>& alive,
-                    const vector<long long>& W,
-                    long long &flows_counter)
+                    const std::vector<char>& alive,
+                    const std::vector<long long>& W,
+                    long long &flows_counter,
+                    bool verbose)
 {
     const int n = m*h;
     const long long INF = 1e12;
 
+    int alive_cnt = 0; for (int v=0; v<n; ++v) if (alive[v]) ++alive_cnt;
+    if (alive_cnt == 0) return std::vector<char>(n, 0);
+
     long long lo = std::numeric_limits<long long>::max();
     long long hi = std::numeric_limits<long long>::min();
-    for (int v = 0; v < n; ++v) if (alive[v]) {
+    for (int v=0; v<n; ++v) if (alive[v]) {
         lo = std::min(lo, W[v]);
         hi = std::max(hi, W[v]);
     }
-    // 放宽边界，确保：predicate(lo-1) 为真（至少全体闭包），predicate(hi+1) 为假（空集）
-    lo = lo - 1;
-    hi = hi + 1;
+    // 放宽边界，确保覆盖所有跳变
+    lo = lo - (2*alive_cnt + 10);
+    hi = hi + (2*alive_cnt + 10);
 
-    vector<char> bestS; bestS.reserve(n);
-    // 二分：取上中位，找最大的 mid
+    std::vector<char> bestS; bestS.reserve(n);
+
+    auto predicate = [&](long long mid)->std::pair<bool, std::vector<char>>{
+        std::vector<char> inS;
+        auto [sz, val] = max_closure_at_lambda(m,h,alive,W,mid,INF,(int&)flows_counter,inS,verbose);
+        bool ok = (sz > 0) && (val >= 0);
+        return {ok, std::move(inS)};
+    };
+
+    // 二分上中位
     while (lo < hi) {
         long long mid = lo + (hi - lo + 1)/2;
-        vector<char> inS; auto [sz, val] = max_closure_at_lambda(m,h,alive,W,mid,INF,(int&)flows_counter,inS);
-
-        bool ok = (sz > 0) && (val >= 0); // 非空且值≥0
+        auto [ok, inS] = predicate(mid);
         if (ok) { lo = mid; bestS = std::move(inS); }
         else    { hi = mid - 1; }
     }
 
+    // 若仍为空（极端全负），退化为取权重 W 最大的单点
     if (bestS.empty()) {
-        // 极端场景：全负且任何密度都<lo；取 lo-1 再求一次得到非空闭包（最“不差”的）
-        long long mid = lo - 1;
-        vector<char> inS; auto [sz, val] = max_closure_at_lambda(m,h,alive,W,mid,INF,(int&)flows_counter,inS);
-        if (sz == 0) {
-            // 仍然空（理论上不应发生），强制取任意可行最小点（比如左下角）
-            vector<char> fallback(n,0);
-            for (int v=0; v<n; ++v) if (alive[v]) { fallback[v]=1; break; }
-            return fallback;
+        int argmax = -1; long long bestW = std::numeric_limits<long long>::min();
+        for (int v=0; v<n; ++v) if (alive[v]) {
+            if (W[v] > bestW) { bestW = W[v]; argmax = v; }
         }
-        return inS;
+        std::vector<char> S(n, 0);
+        if (argmax >= 0) S[argmax] = 1;
+        if (verbose) std::cout << "[max_density] fallback single v=" << argmax << " W=" << bestW << std::endl;
+        return S;
+    }
+
+    // 保证非空闭包
+    if (verbose) {
+        int sz = 0; for (char c: bestS) if (c) ++sz;
+        std::cout << "[max_density] chosen |S|=" << sz << " at lambda=" << lo << std::endl;
     }
     return bestS;
 }
@@ -175,7 +231,8 @@ SidneyResult SidneyClosureOCPlacer::solve(int m, int h) {
         int rest = 0; for (char c : A) if (c) ++rest;
         if (rest == 0) return;
         // 取最大密度闭包（非空）
-        vector<char> S = max_density_closure(m,h,A,W,flows);
+        vector<char> S = max_density_closure(m,h,A,W,flows,true);
+
 
         // 拆分 S 与补
         vector<char> B_in = S;            // 子图 S
@@ -190,24 +247,57 @@ SidneyResult SidneyClosureOCPlacer::solve(int m, int h) {
 
     // 把 dfs 改成“记录秩”的形式：在叶子处返回单点
     // 为了显式构造线性序，我们写个包装器：
-    std::function<void(const vector<char>&)> build =
-    [&](const vector<char>& A){
-        int rest = 0; for (char c : A) if (c) ++rest;
-        if (rest == 0) return;
-        if (rest == 1) {
-            for (int v=0; v<n; ++v) if (A[v]) { order.push_back(v); break; }
+        // ===== 递归 Sidney 分解：最大密度闭包放前，再递归补图 =====
+    // std::vector<char> alive
+    bool verbose = cfg_.verbose;
+
+    // ---- build(...) 递归（稳健版） ----
+    std::function<void(const std::vector<char>&)> build =
+    [&](const std::vector<char>& A){
+        int rest = 0;
+for (char c : A) if (c) ++rest;
+if (rest <= 0) return;
+
+
+        if (rest == 1) { // 叶子：唯一一个 alive
+            for (int v = 0; v < n; ++v) if (A[v]) { order.push_back(v); break; }
             return;
         }
-        vector<char> S = max_density_closure(m,h,A,W,flows);
-        vector<char> A_in = S, A_out = A;
-        for (int v=0; v<n; ++v) if (A[v]) {
-            if (S[v]) A_out[v]=0; else A_in[v]=0;
+
+        if (verbose) {
+            std::cout << "[build] rest=" << rest << std::endl;
         }
+
+        // 取最大密度闭包（非空；内部保证非空，即便全负）
+        std::vector<char> S = max_density_closure(m,h,A,W,flows,verbose);
+
+        // 统计 S 大小
+        int szS = 0; for (char c : S) if (c) ++szS;
+        if (szS <= 0) {
+            // 极端兜底：若 S 非法为空（理论不应发生），线性取一个点
+            if (verbose) std::cout << "[build] S empty fallback\n";
+            for (int v=0; v<n; ++v) if (A[v]) { order.push_back(v); return; }
+        }
+
+        // 拆分 S 与补
+        std::vector<char> A_in(n,0), A_out(n,0);
+        for (int v=0; v<n; ++v) if (A[v]) {
+            if (S[v]) A_in[v]=1; else A_out[v]=1;
+        }
+
+        // 先递归 S（放前），再递归补（放后）
         build(A_in);
         build(A_out);
+        if (rest <= 1) {
+    for (int v = 0; v < n; ++v)
+        if (A[v]) { order.push_back(v); break; }
+    return;
+}
+
     };
 
     build(alive);
+
 
     // 回填 y_order（按 order 顺序赋 rank）
     vector<vector<int>> Y(m, vector<int>(h,0));

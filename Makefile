@@ -1,5 +1,5 @@
 # ===========================================
-# Makefile for Sidney-Closure (P-time exact)
+# Makefile for λ-Closure (Threshold Sweep)
 # ===========================================
 CXX := g++
 CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
@@ -12,9 +12,9 @@ LDFLAGS  := -L$(LEMON_PREFIX)/lib -lemon
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := sidney_closure
+TARGET := lam_closure
 
-SRCS := $(SRC_DIR)/SidneyClosureOCPlacer.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/ParamThresholdOCPlacer.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 

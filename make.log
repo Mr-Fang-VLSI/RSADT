@@ -1,0 +1,3 @@
+g++ -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG -I/home/donghao/anaconda3/envs/rsad_mcmf/include -c src/SidneyClosureOCPlacer.cpp -o build/src/SidneyClosureOCPlacer.o
+✅ Conda env: /home/donghao/anaconda3/envs/rsad_mcmf
+✅ lemon found in /home/donghao/anaconda3/envs/rsad_mcmf

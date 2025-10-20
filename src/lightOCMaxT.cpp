@@ -265,14 +265,18 @@ static void forward_to_level_map(
                         if(!(lb <= Lnext && Lnext <= ub)) continue;
                     }
                     // Δ≤T 动态充分约束（用父的 LB）
-                    if(LBwin){
-                        if(aii>0){
-                            if(Lnext > (*LBwin)[i][aii-1] + Tcap) continue; // 左父
-                        }
-                        if(i>0){
-                            if(Lnext > (*LBwin)[i-1][aii] + Tcap) continue; // 上父
-                        }
-                    }
+                    // Δ≤T 动态存在性充分：用 min(UB_parent, L) 作为父能取到的最晚层
+if(LBwin && UBwin){
+    if(aii>0){
+        int parUB = std::min((*UBwin)[i][aii-1], Lnext-1); // Lnext-1 就是当前 L
+        if(Lnext > parUB + Tcap) continue; // 左父
+    }
+    if(i>0){
+        int parUB = std::min((*UBwin)[i-1][aii], Lnext-1);
+        if(Lnext > parUB + Tcap) continue; // 上父
+    }
+}
+
 
                     uint64_t keyNew = lightOCMaxT::encode_digit_inc(ku,i,powB);
                     long long c = (long long)(Lnext) * weight_ij(i, aii, m, h) * dV;

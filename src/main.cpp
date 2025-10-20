@@ -1,10 +1,11 @@
 #include "lightOCMaxT.h"
+#include "networkOCMaxT.h"
 #include <iostream>
 #include <cstdlib>
 
 int main(int argc, char** argv){
     if(argc < 3){
-        std::cout << "Usage: ./build/oc_maxt m h [dV=1] [T=m*h] [threads=0] [progress=0/1] [mode=2] [vlevel=1..3]\n";
+        std::cout << "Usage: ./build/oc_maxt m h [dV=1] [T=m*h] [threads=0] [progress=0/1] [mode=2/3] [vlevel=1..3]\n";
         return 0;
     }
     int m = std::atoi(argv[1]);
@@ -16,28 +17,39 @@ int main(int argc, char** argv){
     int mode = (argc>=8)? std::atoi(argv[7]) : 2;
     int vlevel = (argc>=9)? std::atoi(argv[8]) : 1;
 
-    lightOCMaxT::Config cfg;
-    cfg.dV = dV;
-    cfg.progress = progress;
-    cfg.prefix_strategy = mode; // 当前实现 mode=2
-    cfg.omp_threads = threads;
-    cfg.verbose_level = vlevel;
-    cfg.logfile = "run.log";
-    cfg.log_append = false;
-
-    lightOCMaxT solver(cfg);
-
     std::cout << "\n=== OC-MaxT Test m="<<m<<" h="<<h<<" T="<<T
               << " thr="<<threads<<" mode="<<mode<<" v="<<vlevel<<" ===\n";
 
     try{
-        auto R = solver.solve(m,h,T);
-        std::cout << "Result: HPWL="<<R.total_cost<<", maxΔ≤T, OC=OK\n";
+        if(mode==3){
+            networkOCMaxT::Config c2;
+            c2.dV = dV;
+            c2.progress = progress;
+            c2.verbose_level = vlevel;
+            c2.logfile = "run.log";
+            c2.log_append = false;
+            networkOCMaxT solver2(c2);
+            auto R = solver2.solve(m,h,T);
+            std::cout << "[mode=3] Result: HPWL="<<R.total_cost<<", maxΔ≤T, OC=OK\n";
+        }else{
+            lightOCMaxT::Config cfg;
+            cfg.dV = dV;
+            cfg.progress = progress;
+            cfg.prefix_strategy = mode; // 当前使用 2 = Δ≤T + Hirschberg
+            cfg.omp_threads = threads;
+            cfg.verbose_level = vlevel;
+            cfg.logfile = "run.log";
+            cfg.log_append = false;
+            lightOCMaxT solver(cfg);
+            auto R = solver.solve(m,h,T);
+            std::cout << "[mode!=3] Result: HPWL="<<R.total_cost<<", maxΔ≤T, OC=OK\n";
+        }
     }catch(const std::exception& e){
         std::cout << "ERROR: " << e.what() << "\n";
         std::cout << "(See run.log for details)\n";
         return 1;
     }
+
     std::cout << "(Details logged to run.log)\n";
     return 0;
 }

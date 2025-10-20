@@ -1,35 +1,35 @@
-# ============================
-# Makefile for OC-MaxT with T-pruning
-# ============================
+# ======== Compiler & Flags ========
+CXX      := g++
+CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG -fopenmp
+LDFLAGS  := -fopenmp
+TARGET   := build/oc_maxt
 
-CXX := g++
-CXXFLAGS := -O3 -march=native -flto -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
+# ======== Source Files ========
+SRCS := src/main.cpp src/lightOCMaxT.cpp src/networkOCMaxT.cpp
+OBJS := $(SRCS:src/%.cpp=build/%.o)
 
-SRC_DIR := src
-BUILD_DIR := build
-TARGET := oc_maxt
+# ======== Build Rules ========
+all: $(TARGET)
 
-SRCS := $(SRC_DIR)/lightOCMaxT.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
+# 链接
+$(TARGET): $(OBJS)
+	@mkdir -p build
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+	@echo "✅ Build complete: $(TARGET)"
 
-.PHONY: all clean run
-
-all: $(BIN)
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
-
-$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+# 编译 src 下的所有 .cpp 文件到 build 目录
+build/%.o: src/%.cpp | build
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-	@echo "✅ Build complete: $(BIN)"
-
-run: all
-	$(BIN)
+# 若 build 目录不存在则创建
+build:
+	mkdir -p build
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf build
+	@echo "🧹 Cleaned."
+
+run:
+	./build/oc_maxt 8 8 1 16 4 1 3 3
+
+.PHONY: all clean run

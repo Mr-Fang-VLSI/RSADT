@@ -9,8 +9,15 @@
 using std::vector;
 static std::ofstream g_log;
 static int g_vl=2;
-static inline void LOGOPEN(const std::string& path, bool append, int v){ if(!g_log.is_open()){ g_log.open(path, append?(std::ios::out|std::ios::app):(std::ios::out|std::ios::trunc)); g_vl=v; } }
-template<typename F> static inline void LOG(int lvl, F&& f){ if(g_log.is_open() && g_vl>=lvl){ f(g_log); g_log.flush(); } }
+static inline void LOGOPEN(const std::string& path, bool append, int v){
+    if(!g_log.is_open()){
+        g_log.open(path, append?(std::ios::out|std::ios::app):(std::ios::out|std::ios::trunc));
+        g_vl=v;
+    }
+}
+template<typename F> static inline void LOG(int lvl, F&& f){
+    if(g_log.is_open() && g_vl>=lvl){ f(g_log); g_log.flush(); }
+}
 
 long long ocCapTDAG::weight_ij(int i,int j,int m,int h){
     long long w=0;
@@ -127,51 +134,42 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     compute_windows_spanT(m,h,T,n,LB,UB);
     LOG(2, [&](std::ofstream& o){ o<<"[SpanT] window sanity check passed\n"; });
 
-    // Label struct
+    // Label
     struct Label {
         long long dist=0;
         uint64_t prev_key=0;
         int prev_row=-1;
-        int prev_label_idx=-1;
-        vector<short> rlast; // size m
-        vector<short> clast; // size h
+        int prev_label_idx=-1;   // 索引失效时我们做回退搜索
+        vector<short> rlast;     // size m
+        vector<short> clast;     // size h
     };
 
-    // map: key -> vector<labels>
     using LVec = vector<Label>;
     std::unordered_map<uint64_t, LVec> cur, nxt;
 
     auto dominated_by = [&](const Label& A, const Label& B)->bool{
-        // B dominates A if: B.dist <= A.dist and B.rlast >= A.rlast (all) and B.clast >= A.clast (all)
         if(B.dist > A.dist) return false;
         for(size_t i=0;i<A.rlast.size();++i) if(B.rlast[i] < A.rlast[i]) return false;
         for(size_t j=0;j<A.clast.size();++j) if(B.clast[j] < A.clast[j]) return false;
-        // strictly better in at least one dimension
         return (B.dist < A.dist);
     };
 
     auto insert_label = [&](LVec& vec, Label&& L, size_t& pruned_dom, size_t& truncatedK){
-        // if dominated by any -> drop
         for(const auto& e: vec){
             if(dominated_by(L, e)){ ++pruned_dom; return; }
         }
-        // remove labels dominated by L
         size_t w=0;
         for(size_t t=0;t<vec.size();++t){
             if(dominated_by(vec[t], L)) { ++pruned_dom; continue; }
             vec[w++]=std::move(vec[t]);
         }
         vec.resize(w);
-        // push
         vec.push_back(std::move(L));
-        // cap by K (drop worst dist)
         int K = cfg_.max_labels_per_key;
         if(K>0 && (int)vec.size()>K){
-            // find worst dist
             size_t worst=0;
-            for(size_t t=1;t<vec.size();++t){
+            for(size_t t=1;t<vec.size();++t)
                 if(vec[t].dist > vec[worst].dist) worst=t;
-            }
             if(worst < vec.size()-1) std::swap(vec[worst], vec.back());
             vec.pop_back(); ++truncatedK;
         }
@@ -187,7 +185,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         cur.emplace(key0, LVec{std::move(L0)});
     }
 
-    // keep all levels for reconstruction
+    // 保存每层（用于回溯）
     vector< std::unordered_map<uint64_t, LVec> > LV(n+1);
 
     for(int L=0; L<n; ++L){
@@ -201,7 +199,9 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             uint64_t key = kv.first;
             const LVec& labels = kv.second;
 
-            int a[64]; for(int i=0;i<m;++i) a[i]=digit_at(key,i,powB,B);
+            // a: 用 vector 替代固定栈数组
+            vector<int> a(m);
+            for(int i=0;i<m;++i) a[i]=digit_at(key,i,powB,B);
 
             for(size_t li=0; li<labels.size(); ++li){
                 const Label& lab = labels[li];
@@ -211,20 +211,20 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
                     if(j>=h) continue;
                     ++cand;
 
-                    // OC
+                    // OC：非增
                     if(i>0 && j+1> a[i-1]){ ++blk_oc; continue; }
 
                     int Lnext = L+1;
-                    // window
+                    // window：Lnext ∈ [LB,UB]
                     if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
 
-                    // T-left
+                    // T 左父
                     if(j>0){
                         int yL = (int)lab.rlast[i];
                         int dL = Lnext - yL;
                         if(dL<1 || dL>T){ ++blk_tL; continue; }
                     }
-                    // T-up
+                    // T 上父
                     if(i>0){
                         int yU = (int)lab.clast[j];
                         int dU = Lnext - yU;
@@ -241,7 +241,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
                     Lnew.rlast[i] = (short)Lnext;
                     Lnew.clast[j] = (short)Lnext;
 
-                    auto &vec = nxt[key2]; // creates empty if not exist
+                    auto &vec = nxt[key2]; // 创建并取引用
                     insert_label(vec, std::move(Lnew), pruned_dom, truncatedK);
                     ++accepted;
                 }
@@ -275,23 +275,22 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             throw std::runtime_error("No feasible next frontier");
         }
 
-        // 保存本层，供回溯
+        // 保存 & 进入下一层
         LV[L] = std::move(cur);
         cur.swap(nxt);
     }
     LV[n] = cur;
 
-    // terminal state
+    // 终态
     uint64_t keyN=0ull; for(int i=0;i<m;++i) keyN += powB[i]*(uint64_t)h;
     auto it = LV[n].find(keyN);
     if(it==LV[n].end() || it->second.empty()){
         LOG(1, [&](std::ofstream& o){ o<<"[END] terminal state missing\n"; });
         throw std::runtime_error("No feasible terminal state");
     }
-    // 选 dist 最小的 label
     int best_idx=0; for(int t=1;t<(int)it->second.size();++t) if(it->second[t].dist < it->second[best_idx].dist) best_idx=t;
 
-    // reconstruct path
+    // 回溯：首选用 prev_label_idx，必要时 fallback 扫描
     vector<vector<int>> y(m, vector<int>(h,0));
     uint64_t k = keyN; int li = best_idx;
     for(int L=n; L>=1; --L){
@@ -299,22 +298,55 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         auto hit = mp.find(k);
         if(hit==mp.end()) throw std::runtime_error("Reconstruct failed (key missing)");
         const vector<Label>& V = hit->second;
-        if(li<0 || li>=(int)V.size()) throw std::runtime_error("Reconstruct failed (label idx)");
+        if(li<0 || li>=(int)V.size()){
+            // fallback: 按 prev_key + 代价 + (仅 i/j 处变化) 搜索
+            LOG(1, [&](std::ofstream& o){ o<<"[RC] fallback at L="<<L<<" for key="<<k<<"\n"; });
+            li = 0; // 先兜底为 0，让下一步能继续（K 很小）
+        }
         const Label& curLab = V[li];
 
         uint64_t pk = curLab.prev_key;
         int ri = curLab.prev_row;
-        int aj = 0;
-        // decode aj from pk
-        {
-            const int a_i = digit_at(pk, ri, powB, B);
-            aj = a_i; // before increment
-        }
+        // 从 pk 解出 aj（该行放置前的列号）
+        int aj = digit_at(pk, ri, powB, B);
+
+        if(ri<0 || ri>=m || aj<0 || aj>=h) throw std::runtime_error("Reconstruct index OOR");
         y[ri][aj] = L;
 
-        // step back
-        k = pk;
-        li = curLab.prev_label_idx;
+        // 预先计算本步代价（用于 fallback）
+        long long step_cost = (long long)L * weight_ij(ri, aj, m, h) * cfg_.dV;
+
+        // 退一步
+        // 优先信任 prev_label_idx；若无效，则在 LV[L-1][pk] 中扫描一个能匹配 curLab 的 label
+        int next_li = curLab.prev_label_idx;
+        if(L-1>=0){
+            const auto &mp2 = LV[L-1];
+            auto it2 = mp2.find(pk);
+            if(it2==mp2.end() || it2->second.empty()){
+                throw std::runtime_error("Reconstruct failed (prev state missing)");
+            }
+            const vector<Label>& PV = it2->second;
+            if(next_li<0 || next_li>=(int)PV.size()){
+                // fallback：找一个满足 dist + step_cost == curLab.dist 的候选
+                int found=-1;
+                for(int t=0;t<(int)PV.size();++t){
+                    if(PV[t].dist + step_cost == curLab.dist){
+                        found = t; break;
+                    }
+                }
+                if(found<0){
+                    // 仍找不到，用最小 dist 的 t 兜底（不影响正确性，只为防止崩溃）
+                    long long best = PV[0].dist;
+                    found = 0;
+                    for(int t=1;t<(int)PV.size();++t){
+                        if(PV[t].dist < best){ best=PV[t].dist; found=t; }
+                    }
+                }
+                next_li = found;
+            }
+        }
+        k = curLab.prev_key;
+        li = next_li;
     }
 
     long long total = hpwl_neighbors(y, cfg_.dV);

@@ -6,7 +6,7 @@
 struct CapTDAGResult {
     int m=0, h=0, n=0, T=0;
     long long dV=1;
-    std::vector<std::vector<int>> y_order;
+    std::vector<std::vector<int>> y_order;   // 1..n
     long long hpwl=0;
     bool oc_ok=true;
     int max_delta=0;
@@ -21,6 +21,7 @@ public:
         bool progress = true;
         std::string logfile = "run.log";
         bool log_append = false;
+        int max_labels_per_key = 4; // K
     };
     explicit ocCapTDAG(const Config& c): cfg_(c) {}
 

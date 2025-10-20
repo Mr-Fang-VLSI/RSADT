@@ -32,7 +32,6 @@ long long ocCapTDAG::hpwl_neighbors(const vector<vector<int>>& y, long long dV){
 bool ocCapTDAG::check_OC(const vector<vector<int>>& y){
     const int m=(int)y.size(), h=(int)y[0].size();
     for(int i1=0;i1<m;++i1) for(int j1=0;j1<h;++j1){
-        int v1=y[i1][j1];
         for(int i2=i1;i2<m;++i2) for(int j2=j1;j2<h;++j2)
             if(y[i1][j1]>y[i2][j2]) return false;
     }
@@ -101,7 +100,7 @@ void ocCapTDAG::compute_windows_spanT(int m,int h,int T,int n,
     }
 }
 
-// -------- solve: 单向前推 + “存在性建边” ----------
+// -------- APT 多标签前向 DP ----------
 CapTDAGResult ocCapTDAG::solve(int m, int h){
     LOGOPEN(cfg_.logfile, cfg_.log_append, cfg_.vlevel);
 
@@ -119,7 +118,8 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     }
 
     LOG(1, [&](std::ofstream& o){
-        o<<"[CapT-DAG] m="<<m<<" h="<<h<<" n="<<n<<" T="<<T<<" v="<<cfg_.vlevel<<"\n";
+        o<<"[CapT-DAG/APT] m="<<m<<" h="<<h<<" n="<<n<<" T="<<T<<" v="<<cfg_.vlevel
+         <<" K="<<cfg_.max_labels_per_key<<"\n";
     });
 
     // windows
@@ -127,68 +127,124 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     compute_windows_spanT(m,h,T,n,LB,UB);
     LOG(2, [&](std::ofstream& o){ o<<"[SpanT] window sanity check passed\n"; });
 
-    // DP maps
-    struct Node { long long dist; uint64_t prev; int prev_row; };
-    std::unordered_map<uint64_t, Node> cur, nxt;
-    cur.reserve(1024); nxt.reserve(4096);
-    vector< std::unordered_map<uint64_t, std::pair<uint64_t,int>> > parents(n+1);
-    for(auto& mp : parents) mp.reserve(1024);
-
-    uint64_t key0=0ull;
-    cur.emplace(key0, Node{0,0ull,-1});
-
-    auto parent_exists_within_T = [&](int pi,int pj,int L)->bool{
-        // 父的可能区间 ∩ [L+1-T, +∞) 非空，且父必须 ≤ L （已放置）
-        int Pmin = LB[pi][pj];
-        int Pmax = std::min(UB[pi][pj], L);
-        if(Pmin > Pmax) return false;                 // 父在 L 前不可放置
-        int need = L+1 - T;                           // y_p >= need
-        return Pmax >= need;                          // ∃ y_p ∈ [Pmin,Pmax] 且 y_p ≥ need
+    // Label struct
+    struct Label {
+        long long dist=0;
+        uint64_t prev_key=0;
+        int prev_row=-1;
+        int prev_label_idx=-1;
+        vector<short> rlast; // size m
+        vector<short> clast; // size h
     };
+
+    // map: key -> vector<labels>
+    using LVec = vector<Label>;
+    std::unordered_map<uint64_t, LVec> cur, nxt;
+
+    auto dominated_by = [&](const Label& A, const Label& B)->bool{
+        // B dominates A if: B.dist <= A.dist and B.rlast >= A.rlast (all) and B.clast >= A.clast (all)
+        if(B.dist > A.dist) return false;
+        for(size_t i=0;i<A.rlast.size();++i) if(B.rlast[i] < A.rlast[i]) return false;
+        for(size_t j=0;j<A.clast.size();++j) if(B.clast[j] < A.clast[j]) return false;
+        // strictly better in at least one dimension
+        return (B.dist < A.dist);
+    };
+
+    auto insert_label = [&](LVec& vec, Label&& L, size_t& pruned_dom, size_t& truncatedK){
+        // if dominated by any -> drop
+        for(const auto& e: vec){
+            if(dominated_by(L, e)){ ++pruned_dom; return; }
+        }
+        // remove labels dominated by L
+        size_t w=0;
+        for(size_t t=0;t<vec.size();++t){
+            if(dominated_by(vec[t], L)) { ++pruned_dom; continue; }
+            vec[w++]=std::move(vec[t]);
+        }
+        vec.resize(w);
+        // push
+        vec.push_back(std::move(L));
+        // cap by K (drop worst dist)
+        int K = cfg_.max_labels_per_key;
+        if(K>0 && (int)vec.size()>K){
+            // find worst dist
+            size_t worst=0;
+            for(size_t t=1;t<vec.size();++t){
+                if(vec[t].dist > vec[worst].dist) worst=t;
+            }
+            if(worst < vec.size()-1) std::swap(vec[worst], vec.back());
+            vec.pop_back(); ++truncatedK;
+        }
+    };
+
+    // init
+    uint64_t key0=0ull;
+    {
+        Label L0;
+        L0.dist=0; L0.prev_key=0; L0.prev_row=-1; L0.prev_label_idx=-1;
+        L0.rlast.assign(m, 0);
+        L0.clast.assign(h, 0);
+        cur.emplace(key0, LVec{std::move(L0)});
+    }
+
+    // keep all levels for reconstruction
+    vector< std::unordered_map<uint64_t, LVec> > LV(n+1);
 
     for(int L=0; L<n; ++L){
         nxt.clear();
         nxt.reserve(std::max<size_t>(cur.size()*2, 16));
 
-        // 统计信息（便于定位剪枝来源）
         size_t cand=0, blk_oc=0, blk_win=0, blk_tL=0, blk_tU=0, accepted=0;
+        size_t pruned_dom=0, truncatedK=0;
 
         for(auto &kv : cur){
             uint64_t key = kv.first;
-            long long d0 = kv.second.dist;
+            const LVec& labels = kv.second;
+
             int a[64]; for(int i=0;i<m;++i) a[i]=digit_at(key,i,powB,B);
 
-            for(int i=0;i<m;++i){
-                int j = a[i];
-                if(j>=h) continue;
-                ++cand;
+            for(size_t li=0; li<labels.size(); ++li){
+                const Label& lab = labels[li];
 
-                // OC：非增
-                if(i>0 && j+1> a[i-1]){ ++blk_oc; continue; }
+                for(int i=0;i<m;++i){
+                    int j = a[i];
+                    if(j>=h) continue;
+                    ++cand;
 
-                // 静态窗口：L+1 必须在 [LB,UB]
-                int Lnext = L+1;
-                if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
+                    // OC
+                    if(i>0 && j+1> a[i-1]){ ++blk_oc; continue; }
 
-                // T 约束（存在性判定）
-                if(j>0 && !parent_exists_within_T(i, j-1, L)){ ++blk_tL; continue; }
-                if(i>0 && !parent_exists_within_T(i-1, j, L)){ ++blk_tU; continue; }
+                    int Lnext = L+1;
+                    // window
+                    if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
 
-                uint64_t key2 = enc_inc(key,i,powB);
-                long long cost = (long long)(Lnext) * weight_ij(i,j,m,h) * cfg_.dV;
-                long long d1 = d0 + cost;
+                    // T-left
+                    if(j>0){
+                        int yL = (int)lab.rlast[i];
+                        int dL = Lnext - yL;
+                        if(dL<1 || dL>T){ ++blk_tL; continue; }
+                    }
+                    // T-up
+                    if(i>0){
+                        int yU = (int)lab.clast[j];
+                        int dU = Lnext - yU;
+                        if(dU<1 || dU>T){ ++blk_tU; continue; }
+                    }
 
-                auto it2 = nxt.find(key2);
-                if(it2==nxt.end()){
-                    nxt.emplace(key2, Node{d1, key, i});
-                    parents[Lnext].emplace(key2, std::make_pair(key, i));
-                }else if(d1 < it2->second.dist){
-                    it2->second.dist = d1;
-                    it2->second.prev = key;
-                    it2->second.prev_row = i;
-                    parents[Lnext][key2] = std::make_pair(key, i);
+                    uint64_t key2 = enc_inc(key,i,powB);
+                    long long cost = (long long)(Lnext) * weight_ij(i,j,m,h) * cfg_.dV;
+                    long long d1 = lab.dist + cost;
+
+                    Label Lnew;
+                    Lnew.dist=d1; Lnew.prev_key=key; Lnew.prev_row=i; Lnew.prev_label_idx=(int)li;
+                    Lnew.rlast = lab.rlast; Lnew.clast = lab.clast;
+                    Lnew.rlast[i] = (short)Lnext;
+                    Lnew.clast[j] = (short)Lnext;
+
+                    auto &vec = nxt[key2]; // creates empty if not exist
+                    insert_label(vec, std::move(Lnew), pruned_dom, truncatedK);
+                    ++accepted;
                 }
-                ++accepted;
             }
         }
 
@@ -198,11 +254,19 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             });
         }
         if(cfg_.vlevel>=3){
+            size_t next_labels=0;
+            for(auto &p: nxt) next_labels += p.second.size();
+            double avg = nxt.empty()?0.0: (double)next_labels / (double)nxt.size();
             LOG(3, [&](std::ofstream& o){
                 o<<"[DP-stat] L="<<L<<" cand="<<cand
                  <<" blk_oc="<<blk_oc<<" blk_win="<<blk_win
                  <<" blk_tL="<<blk_tL<<" blk_tU="<<blk_tU
-                 <<" accepted="<<accepted<<"\n";
+                 <<" accepted="<<accepted
+                 <<" pruned_dom="<<pruned_dom
+                 <<" truncK="<<truncatedK
+                 <<" next_keys="<<nxt.size()
+                 <<" avg_labels/key="<<avg
+                 <<"\n";
             });
         }
 
@@ -210,29 +274,47 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             LOG(1, [&](std::ofstream& o){ o<<"[DP] next empty at level "<<L<<"\n"; });
             throw std::runtime_error("No feasible next frontier");
         }
+
+        // 保存本层，供回溯
+        LV[L] = std::move(cur);
         cur.swap(nxt);
     }
+    LV[n] = cur;
 
     // terminal state
     uint64_t keyN=0ull; for(int i=0;i<m;++i) keyN += powB[i]*(uint64_t)h;
-    auto it = cur.find(keyN);
-    if(it==cur.end()){
+    auto it = LV[n].find(keyN);
+    if(it==LV[n].end() || it->second.empty()){
         LOG(1, [&](std::ofstream& o){ o<<"[END] terminal state missing\n"; });
         throw std::runtime_error("No feasible terminal state");
     }
+    // 选 dist 最小的 label
+    int best_idx=0; for(int t=1;t<(int)it->second.size();++t) if(it->second[t].dist < it->second[best_idx].dist) best_idx=t;
 
-    // reconstruct
+    // reconstruct path
     vector<vector<int>> y(m, vector<int>(h,0));
-    vector< std::unordered_map<uint64_t, std::pair<uint64_t,int>> >& P = parents;
-    uint64_t k = keyN; const int n_full=n;
-    for(int L=n_full; L>=1; --L){
-        auto pit = P[L].find(k);
-        if(pit==P[L].end()) throw std::runtime_error("Reconstruct failed");
-        uint64_t pk = pit->second.first;
-        int ri = pit->second.second;
-        int aj = digit_at(pk, ri, powB, B);
+    uint64_t k = keyN; int li = best_idx;
+    for(int L=n; L>=1; --L){
+        const auto &mp = LV[L];
+        auto hit = mp.find(k);
+        if(hit==mp.end()) throw std::runtime_error("Reconstruct failed (key missing)");
+        const vector<Label>& V = hit->second;
+        if(li<0 || li>=(int)V.size()) throw std::runtime_error("Reconstruct failed (label idx)");
+        const Label& curLab = V[li];
+
+        uint64_t pk = curLab.prev_key;
+        int ri = curLab.prev_row;
+        int aj = 0;
+        // decode aj from pk
+        {
+            const int a_i = digit_at(pk, ri, powB, B);
+            aj = a_i; // before increment
+        }
         y[ri][aj] = L;
+
+        // step back
         k = pk;
+        li = curLab.prev_label_idx;
     }
 
     long long total = hpwl_neighbors(y, cfg_.dV);
@@ -254,7 +336,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     }
     if(dmax > T){
         LOG(1, [&](std::ofstream& o){ o<<"[POST] maxΔ="<<dmax<<" > T="<<T<<"\n"; });
-        throw std::runtime_error("Post-check failed: max Δ > T (should not happen with cap-edges)");
+        throw std::runtime_error("Post-check failed: max Δ > T");
     }
 
     CapTDAGResult R;

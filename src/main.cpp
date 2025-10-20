@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv){
     if(argc<3){
-        std::cout<<"Usage: ./build/oc_captdag m h [dV=1] [T=0->no-limit] [v=2]\n";
+        std::cout<<"Usage: ./build/oc_captdag m h [dV=1] [T=0->no-limit] [v=2] [K=4]\n";
         return 0;
     }
     int m=std::atoi(argv[1]);
@@ -12,6 +12,7 @@ int main(int argc, char** argv){
     long long dV = (argc>=4)? std::atoll(argv[3]) : 1;
     int T = (argc>=5)? std::atoi(argv[4]) : 0;
     int v = (argc>=6)? std::atoi(argv[5]) : 2;
+    int K = (argc>=7)? std::atoi(argv[6]) : 4;
 
     ocCapTDAG::Config cfg;
     cfg.dV = dV;
@@ -20,9 +21,10 @@ int main(int argc, char** argv){
     cfg.progress = true;
     cfg.logfile = "run.log";
     cfg.log_append = false;
+    cfg.max_labels_per_key = K;
 
     ocCapTDAG solver(cfg);
-    std::cout<<"\n=== OC-CapT DAG m="<<m<<" h="<<h<<" T="<<(T>0?T:m*h)<<" v="<<v<<" ===\n";
+    std::cout<<"\n=== OC-CapT DAG (APT) m="<<m<<" h="<<h<<" T="<<(T>0?T:m*h)<<" v="<<v<<" K="<<K<<" ===\n";
 
     try{
         auto R = solver.solve(m,h);

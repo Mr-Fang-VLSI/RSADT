@@ -73,7 +73,6 @@ void ocCapTDAG::compute_windows_spanT(int m,int h,int T,int n,
     bool changed=true; int iter=0, iter_max=m*h*6;
     while(changed && ++iter<=iter_max){
         changed=false;
-        // 子受父（必要 + OC）
         for(int i=0;i<m;++i) for(int j=0;j<h;++j){
             int oL=LB[i][j], oU=UB[i][j];
             if(i>0)   LB[i][j] = std::max(LB[i][j], LB[i-1][j] + 1);
@@ -87,7 +86,7 @@ void ocCapTDAG::compute_windows_spanT(int m,int h,int T,int n,
     }
 }
 
-// ------------- APT 多标签 DP（ages + 活跃列 + 自适应 K）-------------
+// ------------- APT 多标签 DP（ages + 前缀列 + 自适应 K）-------------
 CapTDAGResult ocCapTDAG::solve(int m,int h){
     LOGOPEN(cfg_.logfile, cfg_.log_append, cfg_.vlevel);
 
@@ -105,7 +104,7 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
     }
 
     LOG(1, [&](std::ofstream& o){
-        o<<"[APT-ages+] m="<<m<<" h="<<h<<" n="<<n<<" T="<<T
+        o<<"[APT-ages/fprefix] m="<<m<<" h="<<h<<" n="<<n<<" T="<<T
          <<" v="<<cfg_.vlevel<<" K0="<<cfg_.max_labels_per_key<<"\n";
     });
 
@@ -121,23 +120,16 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
         int prev_row=-1;
         int prev_label_idx=-1;
         vector<uint16_t> r_age; // size=m（仅 a[i]>0 有意义）
-        vector<uint16_t> c_age; // size=h（仅活跃列 J_active 有意义）
+        vector<uint16_t> c_age; // size=h（仅 0..a0-1 前缀有意义）
     };
 
     using LVec = vector<Label>;
     std::unordered_map<uint64_t, LVec> cur, nxt;
 
-    auto build_active = [&](const vector<int>& a, vector<int>& J){
-        J.clear();
-        for(int i=1;i<m;++i) if(a[i]>0) J.push_back(a[i]);
-        std::sort(J.begin(),J.end());
-        J.erase(std::unique(J.begin(),J.end()), J.end());
-    };
-
-    const uint16_t AGE_CAP = (uint16_t)std::max(0, T-1); // 饱和到 T-1；T 表示下一步必超
+    const uint16_t AGE_CAP = (uint16_t)std::max(0, T-1); // 饱和到 T-1
 
     auto dominates = [&](const Label& B, const Label& A,
-                         const vector<int>& a, const vector<int>& J)->bool{
+                         const vector<int>& a, int a0)->bool{
         if(B.dist > A.dist) return false;
         bool strict = (B.dist < A.dist);
         for(int i=0;i<m;++i){
@@ -145,17 +137,17 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
             if(B.r_age[i] > A.r_age[i]) return false;
             if(B.r_age[i] < A.r_age[i]) strict = true;
         }
-        for(int x : J){
+        for(int x=0;x<a0;++x){
             if(B.c_age[x] > A.c_age[x]) return false;
             if(B.c_age[x] < A.c_age[x]) strict = true;
         }
         return strict;
     };
 
-    auto score = [&](const Label& L, const vector<int>& a, const vector<int>& J){
+    auto score = [&](const Label& L, const vector<int>& a, int a0){
         long long s = 0;
         for(int i=0;i<m;++i) if(a[i]>0) s += L.r_age[i];
-        for(int x : J) s += L.c_age[x];
+        for(int x=0;x<a0;++x) s += L.c_age[x];
         return std::pair<long long,long long>(L.dist, s); // 词典序：dist 主导，其次总龄值
     };
 
@@ -163,23 +155,21 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
     const int KMAX = 4096;
 
     auto insert_label = [&](LVec& vec, Label&& L, int Kcur,
-                            const vector<int>& a, const vector<int>& J,
+                            const vector<int>& a, int a0,
                             size_t& pruned_dom, size_t& truncatedK){
-        // 支配过滤
-        for(const auto& e : vec) if(dominates(e, L, a, J)){ ++pruned_dom; return; }
+        for(const auto& e : vec) if(dominates(e, L, a, a0)){ ++pruned_dom; return; }
         size_t w=0;
         for(size_t t=0;t<vec.size();++t){
-            if(dominates(L, vec[t], a, J)){ ++pruned_dom; continue; }
+            if(dominates(L, vec[t], a, a0)){ ++pruned_dom; continue; }
             if(w!=t) vec[w] = std::move(vec[t]);
             ++w;
         }
         vec.resize(w);
         vec.push_back(std::move(L));
 
-        // 截断：保留 Kcur 个最优 (dist, sum_active_ages)
         if((int)vec.size() > Kcur){
             std::nth_element(vec.begin(), vec.begin()+Kcur, vec.end(),
-                [&](const Label& A, const Label& B){ return score(A,a,J) < score(B,a,J); });
+                [&](const Label& A, const Label& B){ return score(A,a,a0) < score(B,a,a0); });
             truncatedK += (vec.size() - Kcur);
             vec.resize(Kcur);
         }
@@ -215,8 +205,7 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
 
                 vector<int> a(m);
                 for(int i=0;i<m;++i) a[i] = digit_at(key,i,powB,B);
-
-                vector<int> J; build_active(a, J); // 活跃列集合
+                int a0 = a[0];
 
                 for(size_t li=0; li<labels.size(); ++li){
                     const Label& lab = labels[li];
@@ -226,44 +215,41 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
                         if(j>=h) continue;
                         ++cand;
 
-                        // OC 非增：i>0 时需 j+1 ≤ a[i-1]
+                        // OC 非增
                         if(i>0 && j+1 > a[i-1]){ ++blk_oc; continue; }
 
                         int Lnext = L+1;
 
-                        // 窗口必要：Lnext ∈ [LB,UB]
+                        // 窗口必要
                         if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
 
-                        // Δ≤T：ages 判定（age + 1 ≤ T ↔ age ≤ T-1）
-                        if(j>0 && lab.r_age[i] >= (uint16_t)T){ ++blk_tL; continue; } // 左父
-                        if(i>0 && lab.c_age[j] >= (uint16_t)T){ ++blk_tU; continue; } // 上父（j 属于 J_active）
+                        // Δ≤T（ages）：r_age/c_age < T
+                        if(j>0 && lab.r_age[i] >= (uint16_t)T){ ++blk_tL; continue; }
+                        if(i>0 && lab.c_age[j] >= (uint16_t)T){ ++blk_tU; continue; }
 
                         uint64_t key2 = enc_inc(key, i, powB);
                         long long d1 = lab.dist + (long long)Lnext * weight_ij(i,j,m,h) * cfg_.dV;
 
-                        // 更新 ages：仅活跃维 +1 饱和；本行/本列清零；未启动行置 0
+                        // 更新 ages：行：a[i]>0 的 +1 饱和，其它 0；列：前缀 [0,a0) +1 饱和，其它 0
                         vector<uint16_t> r2 = lab.r_age, c2 = lab.c_age;
                         for(int k=0;k<m;++k){
                             if(a[k]>0) r2[k] = sat_inc(r2[k], AGE_CAP);
                             else       r2[k] = 0;
                         }
-                        for(int t=0;t<h;++t){
-                            if(std::binary_search(J.begin(), J.end(), t)) c2[t] = sat_inc(c2[t], AGE_CAP);
-                            else c2[t] = 0;
-                        }
+                        for(int t=0;t<a0;++t) c2[t] = sat_inc(c2[t], AGE_CAP);
+                        for(int t=a0;t<h;++t) c2[t] = 0;
+
+                        // 本次使用的行/列清零；若 i==0 新开列 a0 清零
                         r2[i] = 0;
-                        c2[j] = 0;
-                        if(i==0){ // 新开一列 j=a0
-                            int a0 = a[0];
-                            if(a0 < h) c2[a0] = 0;
-                        }
+                        if(i>0) c2[j] = 0;
+                        if(i==0 && a0 < h) c2[a0] = 0;
 
                         Label Lnew;
                         Lnew.dist=d1; Lnew.prev_key=key; Lnew.prev_row=i; Lnew.prev_label_idx=(int)li;
                         Lnew.r_age = std::move(r2);
                         Lnew.c_age = std::move(c2);
 
-                        insert_label(nxt[key2], std::move(Lnew), Kcur, a, J, pruned_dom, truncatedK);
+                        insert_label(nxt[key2], std::move(Lnew), Kcur, a, a0, pruned_dom, truncatedK);
                         ++accepted;
                     }
                 }
@@ -287,18 +273,15 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
                 });
             }
 
-            // 触发规则：空前沿 或 截断压力大（≥0.3）或 avg/key 逼近 Kcur（≥0.9·Kcur）
+            // 触发规则
             if( (nxt.empty() || pressure>=0.30 || (avg >= 0.90*Kcur)) && Kcur < KMAX ){
                 int old = Kcur; Kcur = std::min(KMAX, Kcur*2); ++retries;
                 LOG(1, [&](std::ofstream& o){ o<<"[DP] expand K "<<old<<" -> "<<Kcur<<" at L="<<L<<"\n"; });
                 // 重做本层
             }else if(nxt.empty()){
-                // 已到 KMAX 仍空前沿 ⇒ 确实无解
                 throw std::runtime_error("No feasible next frontier (even after K growth)");
             }else{
-                // 本层通过
                 layer_ok = true;
-                // 下一层的起始 K0 用当前 Kcur（避免层间振荡）
                 Kcur0 = Kcur;
             }
 
@@ -309,7 +292,7 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
     }
     LV[n] = cur;
 
-    // 终态挑最优标签
+    // 终态挑最优
     uint64_t keyN = 0ull;
     for(int i=0;i<m;++i) keyN += powB[i]*(uint64_t)h;
     auto it = LV[n].find(keyN);
@@ -349,7 +332,6 @@ CapTDAGResult ocCapTDAG::solve(int m,int h){
     LOG(1, [&](std::ofstream& o){
         o<<"[Verify] HPWL="<<total<<" maxΔ="<<dmax<<" OC="<<(oc_ok?"OK":"FAIL")<<"\n";
     });
-
     if(dmax > T){
         LOG(1, [&](std::ofstream& o){ o<<"[POST] maxΔ="<<dmax<<" > T="<<T<<"\n"; });
         throw std::runtime_error("Post-check failed: max Δ > T");

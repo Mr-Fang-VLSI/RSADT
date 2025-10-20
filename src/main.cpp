@@ -22,22 +22,25 @@ int main(int argc, char** argv){
 
     try{
         if(mode==3){
-            // 新：RCDC 完整 DAG 最短路
             networkOCMaxT::Config c2;
             c2.dV = dV;
             c2.progress = progress;
             c2.verbose_level = vlevel;
             c2.logfile = "run.log";
             c2.log_append = false;
+            // 建议：给每个 akey 一个温和的前沿上限以稳住内存（8x8 可设 2048/4096）
+            c2.cap_per_bucket   = 0;   // 如需更稳设 2048
+            c2.enable_dominance = true;
+            c2.log_every_levels = 1;
+
             networkOCMaxT solver2(c2);
             auto R = solver2.solve(m,h,T);
             std::cout << "[mode=3] Result: HPWL="<<R.total_cost<<", maxΔ≤T, OC=OK\n";
         }else{
-            // 旧：Hirschberg 分治（仍可对照）
             lightOCMaxT::Config cfg;
             cfg.dV = dV;
             cfg.progress = progress;
-            cfg.prefix_strategy = mode; // 保持你的原接口
+            cfg.prefix_strategy = mode; // 兼容你的旧实现
             cfg.omp_threads = threads;
             cfg.verbose_level = vlevel;
             cfg.logfile = "run.log";

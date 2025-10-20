@@ -23,7 +23,13 @@ clean:
 	rm -rf build
 	@echo "🧹 Cleaned."
 
+# AddressSanitizer 构建（如需快速定位越界）
+asan:
+	@mkdir -p build
+	$(CXX) -O1 -g -std=c++17 -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -Wshadow -Wconversion -o $(TARGET)_asan $(SRCS) $(LDFLAGS)
+	@echo "🔎 Built ASAN binary: $(TARGET)_asan"
+
 run:
 	./build/oc_maxt 8 8 1 20 0 1 3 3
 
-.PHONY: all clean run
+.PHONY: all clean run asan

@@ -21,7 +21,7 @@ public:
         bool progress = true;
         std::string logfile = "run.log";
         bool log_append = false;
-        int max_labels_per_key = 4; // K
+        int max_labels_per_key = 64; // 初始 K；层内会自适应增大（≤4096）
     };
     explicit ocCapTDAG(const Config& c): cfg_(c) {}
 

@@ -1,82 +1,28 @@
-[CapT-DAG/APT] m=8 h=8 n=64 T=12 v=3 K=40
-[SpanT] LB range=[1,64], UB range=[15,64]
-[SpanT] window sanity check passed
-[DP] level 0 states=1 -> next=1
-[DP-stat] L=0 cand=8 blk_oc=7 blk_win=0 blk_tL=0 blk_tU=0 accepted=1 pruned_dom=0 truncK=0 next_keys=1 avg_labels/key=1
-[DP-stat] L=1 cand=8 blk_oc=6 blk_win=0 blk_tL=0 blk_tU=0 accepted=2 pruned_dom=0 truncK=0 next_keys=2 avg_labels/key=1
-[DP-stat] L=2 cand=16 blk_oc=12 blk_win=0 blk_tL=0 blk_tU=0 accepted=4 pruned_dom=0 truncK=0 next_keys=3 avg_labels/key=1.33333
-[DP-stat] L=3 cand=32 blk_oc=22 blk_win=0 blk_tL=0 blk_tU=0 accepted=10 pruned_dom=0 truncK=0 next_keys=5 avg_labels/key=2
-[DP-stat] L=4 cand=80 blk_oc=54 blk_win=0 blk_tL=0 blk_tU=0 accepted=26 pruned_dom=4 truncK=0 next_keys=7 avg_labels/key=3.14286
-[DP-stat] L=5 cand=176 blk_oc=112 blk_win=0 blk_tL=0 blk_tU=0 accepted=64 pruned_dom=8 truncK=0 next_keys=11 avg_labels/key=5.09091
-[DP-stat] L=6 cand=448 blk_oc=282 blk_win=0 blk_tL=0 blk_tU=0 accepted=166 pruned_dom=34 truncK=0 next_keys=15 avg_labels/key=8.8
-[DP-stat] L=7 cand=1056 blk_oc=638 blk_win=0 blk_tL=0 blk_tU=0 accepted=418 pruned_dom=82 truncK=0 next_keys=22 avg_labels/key=15.2727
-[DP-stat] L=8 cand=2687 blk_oc=1597 blk_win=0 blk_tL=0 blk_tU=0 accepted=1090 pruned_dom=243 truncK=127 next_keys=28 avg_labels/key=25.7143
-[DP-stat] L=9 cand=5752 blk_oc=3314 blk_win=0 blk_tL=0 blk_tU=0 accepted=2438 pruned_dom=542 truncK=598 next_keys=38 avg_labels/key=34.1579
-[DP-stat] L=10 cand=10320 blk_oc=5924 blk_win=0 blk_tL=0 blk_tU=0 accepted=4396 pruned_dom=887 truncK=1699 next_keys=48 avg_labels/key=37.7083
-[DP-stat] L=11 cand=14360 blk_oc=8010 blk_win=0 blk_tL=0 blk_tU=0 accepted=6350 pruned_dom=1353 truncK=2615 next_keys=63 avg_labels/key=37.8095
-[DP-stat] L=12 cand=18856 blk_oc=10434 blk_win=0 blk_tL=0 blk_tU=0 accepted=8422 pruned_dom=1631 truncK=3807 next_keys=77 avg_labels/key=38.7532
-[DP-stat] L=13 cand=23597 blk_oc=12557 blk_win=0 blk_tL=0 blk_tU=0 accepted=11040 pruned_dom=2381 truncK=4926 next_keys=97 avg_labels/key=38.4845
-[DP-stat] L=14 cand=29445 blk_oc=15483 blk_win=0 blk_tL=63 blk_tU=63 accepted=13836 pruned_dom=2521 truncK=6794 next_keys=116 avg_labels/key=38.9741
-[DP-stat] L=15 cand=35602 blk_oc=18131 blk_win=0 blk_tL=128 blk_tU=120 accepted=17223 pruned_dom=3609 truncK=8074 next_keys=141 avg_labels/key=39.2908
-[DP] level 16 states=141 -> next=164
-[DP-stat] L=16 cand=43524 blk_oc=21968 blk_win=0 blk_tL=661 blk_tU=658 accepted=20237 pruned_dom=3449 truncK=10291 next_keys=164 avg_labels/key=39.6159
-[DP-stat] L=17 cand=50888 blk_oc=24925 blk_win=0 blk_tL=664 blk_tU=622 accepted=24677 pruned_dom=4363 truncK=12614 next_keys=194 avg_labels/key=39.6907
-[DP-stat] L=18 cand=60080 blk_oc=29258 blk_win=0 blk_tL=2435 blk_tU=2456 accepted=25931 pruned_dom=3849 truncK=13252 next_keys=221 avg_labels/key=39.9548
-[DP-stat] L=19 cand=68720 blk_oc=32510 blk_win=0 blk_tL=2379 blk_tU=2371 accepted=31460 pruned_dom=5161 truncK=16123 next_keys=255 avg_labels/key=39.9059
-[DP-stat] L=20 cand=78888 blk_oc=37160 blk_win=0 blk_tL=3238 blk_tU=2407 accepted=36083 pruned_dom=4925 truncK=19833 next_keys=284 avg_labels/key=39.8768
-[DP-stat] L=21 cand=87526 blk_oc=40047 blk_win=0 blk_tL=5195 blk_tU=4512 accepted=37772 pruned_dom=5500 truncK=19512 next_keys=319 avg_labels/key=40
-[DP-stat] L=22 cand=98200 blk_oc=44760 blk_win=0 blk_tL=5485 blk_tU=4691 accepted=43264 pruned_dom=6534 truncK=22865 next_keys=348 avg_labels/key=39.842
-[DP-stat] L=23 cand=106346 blk_oc=47204 blk_win=0 blk_tL=6692 blk_tU=4551 accepted=47899 pruned_dom=6950 truncK=25699 next_keys=383 avg_labels/key=39.8172
-[DP-stat] L=24 cand=116413 blk_oc=51541 blk_win=0 blk_tL=9666 blk_tU=8060 accepted=47146 pruned_dom=6815 truncK=23987 next_keys=409 avg_labels/key=39.9609
-[DP-stat] L=25 cand=124255 blk_oc=53888 blk_win=0 blk_tL=9652 blk_tU=8166 accepted=52549 pruned_dom=6974 truncK=27976 next_keys=440 avg_labels/key=39.9977
-[DP-stat] L=26 cand=133075 blk_oc=57717 blk_win=0 blk_tL=10708 blk_tU=7994 accepted=56656 pruned_dom=7944 truncK=30280 next_keys=461 avg_labels/key=39.9826
-[DP-stat] L=27 cand=138696 blk_oc=59000 blk_win=0 blk_tL=13041 blk_tU=8294 accepted=58361 pruned_dom=7248 truncK=31683 next_keys=486 avg_labels/key=39.9794
-[DP-stat] L=28 cand=145320 blk_oc=61944 blk_win=0 blk_tL=13777 blk_tU=9741 accepted=59858 pruned_dom=8470 truncK=31459 next_keys=499 avg_labels/key=39.9379
-[DP-stat] L=29 cand=148234 blk_oc=62088 blk_win=0 blk_tL=14348 blk_tU=9759 accepted=62039 pruned_dom=7366 truncK=34122 next_keys=515 avg_labels/key=39.9049
-[DP-stat] L=30 cand=151851 blk_oc=63790 blk_win=0 blk_tL=16011 blk_tU=10875 accepted=61175 pruned_dom=8590 truncK=31845 next_keys=519 avg_labels/key=39.9615
-[DP-stat] L=31 cand=152301 blk_oc=63150 blk_win=0 blk_tL=18058 blk_tU=9757 accepted=61336 pruned_dom=8132 truncK=32178 next_keys=526 avg_labels/key=39.9734
-[DP] level 32 states=526 -> next=519
-[DP-stat] L=32 cand=153204 blk_oc=64025 blk_win=0 blk_tL=19177 blk_tU=11912 accepted=58090 pruned_dom=8861 truncK=28484 next_keys=519 avg_labels/key=39.9711
-[DP-stat] L=33 cand=150054 blk_oc=61906 blk_win=0 blk_tL=18467 blk_tU=11454 accepted=58227 pruned_dom=7442 truncK=30213 next_keys=515 avg_labels/key=39.9456
-[DP-stat] L=34 cand=147472 blk_oc=61313 blk_win=0 blk_tL=18907 blk_tU=11500 accepted=55752 pruned_dom=7800 truncK=28026 next_keys=499 avg_labels/key=39.9319
-[DP-stat] L=35 cand=141668 blk_oc=58359 blk_win=0 blk_tL=19638 blk_tU=10901 accepted=52770 pruned_dom=6590 truncK=26770 next_keys=486 avg_labels/key=39.9383
-[DP-stat] L=36 cand=136592 blk_oc=56984 blk_win=0 blk_tL=19744 blk_tU=9255 accepted=50609 pruned_dom=7244 truncK=24962 next_keys=461 avg_labels/key=39.9197
-[DP-stat] L=37 cand=128279 blk_oc=53043 blk_win=0 blk_tL=17888 blk_tU=9504 accepted=47844 pruned_dom=6000 truncK=24279 next_keys=440 avg_labels/key=39.9205
-[DP-stat] L=38 cand=121014 blk_oc=50743 blk_win=0 blk_tL=16396 blk_tU=9325 accepted=44550 pruned_dom=6004 truncK=22234 next_keys=409 avg_labels/key=39.8826
-[DP-stat] L=39 cand=111096 blk_oc=46239 blk_win=0 blk_tL=15719 blk_tU=9267 accepted=39871 pruned_dom=4807 truncK=19780 next_keys=383 avg_labels/key=39.906
-[DP-stat] L=40 cand=102628 blk_oc=43434 blk_win=0 blk_tL=15108 blk_tU=8437 accepted=35649 pruned_dom=4647 truncK=17128 next_keys=348 avg_labels/key=39.8678
-[DP-stat] L=41 cand=91912 blk_oc=38619 blk_win=0 blk_tL=14171 blk_tU=7295 accepted=31827 pruned_dom=4154 truncK=14967 next_keys=319 avg_labels/key=39.8307
-[DP-stat] L=42 cand=82817 blk_oc=35407 blk_win=0 blk_tL=13132 blk_tU=7088 accepted=27190 pruned_dom=4102 truncK=11773 next_keys=284 avg_labels/key=39.8415
-[DP-stat] L=43 cand=72599 blk_oc=30969 blk_win=0 blk_tL=11321 blk_tU=6003 accepted=24306 pruned_dom=3626 truncK=10496 next_keys=255 avg_labels/key=39.9373
-[DP-stat] L=44 cand=64126 blk_oc=27937 blk_win=0 blk_tL=9691 blk_tU=5610 accepted=20888 pruned_dom=3051 truncK=8997 next_keys=221 avg_labels/key=40
-[DP-stat] L=45 cand=54600 blk_oc=23600 blk_win=0 blk_tL=7562 blk_tU=4384 accepted=19054 pruned_dom=2691 truncK=8603 next_keys=194 avg_labels/key=40
-[DP-stat] L=46 cand=46800 blk_oc=20680 blk_win=0 blk_tL=5593 blk_tU=3176 accepted=17351 pruned_dom=2864 truncK=7933 next_keys=164 avg_labels/key=39.9634
-[DP-stat] L=47 cand=38642 blk_oc=16934 blk_win=0 blk_tL=4066 blk_tU=2322 accepted=15320 pruned_dom=2193 truncK=7495 next_keys=141 avg_labels/key=39.9433
-[DP] level 48 states=141 -> next=116
-[DP-stat] L=48 cand=32233 blk_oc=14485 blk_win=0 blk_tL=2881 blk_tU=1926 accepted=12941 pruned_dom=2148 truncK=6156 next_keys=116 avg_labels/key=39.9741
-[DP-stat] L=49 cand=25827 blk_oc=11513 blk_win=0 blk_tL=2481 blk_tU=1374 accepted=10459 pruned_dom=1415 truncK=5164 next_keys=97 avg_labels/key=40
-[DP-stat] L=50 cand=20880 blk_oc=9560 blk_win=0 blk_tL=2130 blk_tU=1449 accepted=7741 pruned_dom=1183 truncK=3492 next_keys=77 avg_labels/key=39.8182
-[DP-stat] L=51 cand=15909 blk_oc=7151 blk_win=0 blk_tL=1674 blk_tU=753 accepted=6331 pruned_dom=952 truncK=2882 next_keys=63 avg_labels/key=39.6349
-[DP-stat] L=52 cand=12333 blk_oc=5722 blk_win=0 blk_tL=1147 blk_tU=531 accepted=4933 pruned_dom=900 truncK=2131 next_keys=48 avg_labels/key=39.625
-[DP-stat] L=53 cand=9001 blk_oc=4054 blk_win=0 blk_tL=846 blk_tU=403 accepted=3698 pruned_dom=733 truncK=1445 next_keys=38 avg_labels/key=40
-[DP-stat] L=54 cand=6800 blk_oc=3160 blk_win=0 blk_tL=498 blk_tU=118 accepted=3024 pruned_dom=541 truncK=1386 next_keys=28 avg_labels/key=39.1786
-[DP-stat] L=55 cand=4602 blk_oc=2048 blk_win=0 blk_tL=335 blk_tU=195 accepted=2024 pruned_dom=412 truncK=755 next_keys=22 avg_labels/key=38.9545
-[DP-stat] L=56 cand=3333 blk_oc=1556 blk_win=0 blk_tL=263 blk_tU=158 accepted=1356 pruned_dom=175 truncK=581 next_keys=15 avg_labels/key=40
-[DP-stat] L=57 cand=2160 blk_oc=960 blk_win=0 blk_tL=92 blk_tU=68 accepted=1040 pruned_dom=169 truncK=431 next_keys=11 avg_labels/key=40
-[DP-stat] L=58 cand=1400 blk_oc=640 blk_win=0 blk_tL=40 blk_tU=40 accepted=680 pruned_dom=94 truncK=306 next_keys=7 avg_labels/key=40
-[DP-stat] L=59 cand=800 blk_oc=320 blk_win=0 blk_tL=5 blk_tU=6 accepted=469 pruned_dom=94 truncK=175 next_keys=5 avg_labels/key=40
-[DP-stat] L=60 cand=480 blk_oc=200 blk_win=0 blk_tL=5 blk_tU=7 accepted=268 pruned_dom=47 truncK=101 next_keys=3 avg_labels/key=40
-[DP-stat] L=61 cand=240 blk_oc=80 blk_win=0 blk_tL=0 blk_tU=1 accepted=159 pruned_dom=34 truncK=45 next_keys=2 avg_labels/key=40
-[DP-stat] L=62 cand=120 blk_oc=40 blk_win=0 blk_tL=0 blk_tU=0 accepted=80 pruned_dom=24 truncK=16 next_keys=1 avg_labels/key=40
-[DP] level 63 states=1 -> next=1
-[DP-stat] L=63 cand=40 blk_oc=0 blk_win=0 blk_tL=0 blk_tU=0 accepted=40 pruned_dom=0 truncK=0 next_keys=1 avg_labels/key=40
-[Verify] HPWL=543 maxΔ=12 OC=OK
-[y_order top->bottom]
-    1   3   5  13  17  24  30  31
-    2   4   6  14  18  25  32  36
-    7   8   9  15  19  26  37  42
-   10  11  12  16  20  27  38  43
-   21  22  23  28  29  39  50  55
-   33  34  35  40  41  51  57  58
-   44  46  47  52  53  59  61  63
-   45  48  49  54  56  60  62  64
+[Greedy-NoT] m=8 h=8 n=64 v=3
+[Greedy-NoT] L=1 pick (0,0) w=-2
+[Greedy-NoT] L=2 pick (0,1) w=-1
+[Greedy-NoT] L=3 pick (0,2) w=-1
+[Greedy-NoT] L=4 pick (0,3) w=-1
+[Greedy-NoT] L=5 pick (0,4) w=-1
+[Greedy-NoT] L=6 pick (0,5) w=-1
+[Greedy-NoT] L=7 pick (0,6) w=-1
+[Greedy-NoT] L=8 pick (1,0) w=-1
+[Greedy-NoT] L=9 pick (2,0) w=-1
+[Greedy-NoT] L=10 pick (3,0) w=-1
+[Greedy-NoT] L=11 pick (4,0) w=-1
+[Greedy-NoT] L=12 pick (5,0) w=-1
+[Greedy-NoT] L=13 pick (6,0) w=-1
+[Greedy-NoT] L=14 pick (0,7) w=0
+[Greedy-NoT] L=15 pick (1,1) w=0
+[Greedy-NoT] L=16 pick (1,2) w=0
+[Greedy-NoT] L=64 pick (7,7) w=2
+[Greedy-NoT] HPWL=726 linear=726 eq=YES OC=OK
+[y_order]
+    1   2   3   4   5   6   7  14
+    8  15  16  17  18  19  20  52
+    9  21  22  23  24  25  26  53
+   10  27  28  29  30  31  32  54
+   11  33  34  35  36  37  38  55
+   12  39  40  41  42  43  44  56
+   13  45  46  47  48  49  50  57
+   51  58  59  60  61  62  63  64

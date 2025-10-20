@@ -1,39 +1,18 @@
-CXX := g++
-MODE ?= release
+# ===== Greedy (No-T) =====
+GREEDY_SRCS := src/greedy_main.cpp src/greedyNoT.cpp
+GREEDY_OBJS := $(GREEDY_SRCS:src/%.cpp=build/%.o)
+GREEDY_BIN  := build/oc_greedy
 
-ifeq ($(MODE),debug)
-  CXXFLAGS := -O0 -g -std=c++17 -Wall -Wextra -Wshadow -Wconversion \
-              -fsanitize=address,undefined -fno-omit-frame-pointer -D_GLIBCXX_ASSERTIONS
-else
-  CXXFLAGS := -O3 -march=native -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG
-  # 如需再开 LTO：在完全稳定后把下一行注释解除
-  # CXXFLAGS += -flto
-endif
+$(GREEDY_BIN): $(GREEDY_OBJS)
+	@mkdir -p build
+	$(CXX) $(CXXFLAGS) -o $@ $(GREEDY_OBJS) $(LDFLAGS)
+	@echo "✅ Build complete: $(GREEDY_BIN)"
 
-SRC_DIR := src
-BUILD_DIR := build
-TARGET := oc_captdag
-
-SRCS := $(SRC_DIR)/ocCapTDAG.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
-
-.PHONY: all clean run
-
-all: $(BIN)
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR) $(BUILD_DIR)/$(SRC_DIR)
-
-$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+# 通用规则已有的话可复用；若没有，请保留这一条
+build/%.o: src/%.cpp | build
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-	@echo "✅ Build complete: $(BIN)"
+greedy: $(GREEDY_BIN)
 
-run: all
-	$(BIN) 8 8 1 64 2 4
-
-clean:
-	rm -rf $(BUILD_DIR) run.log
+run_greedy: $(GREEDY_BIN)
+	./build/oc_greedy 8 8 1 3

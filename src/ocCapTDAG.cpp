@@ -32,8 +32,9 @@ long long ocCapTDAG::hpwl_neighbors(const vector<vector<int>>& y, long long dV){
 bool ocCapTDAG::check_OC(const vector<vector<int>>& y){
     const int m=(int)y.size(), h=(int)y[0].size();
     for(int i1=0;i1<m;++i1) for(int j1=0;j1<h;++j1){
-        int v1=y[i1][j1]; if(v1<=0) return false;
-        for(int i2=i1;i2<m;++i2) for(int j2=j1;j2<h;++j2) if(y[i1][j1]>y[i2][j2]) return false;
+        int v1=y[i1][j1];
+        for(int i2=i1;i2<m;++i2) for(int j2=j1;j2<h;++j2)
+            if(y[i1][j1]>y[i2][j2]) return false;
     }
     return true;
 }
@@ -100,7 +101,7 @@ void ocCapTDAG::compute_windows_spanT(int m,int h,int T,int n,
     }
 }
 
-// -------- solve: 单向前推 + cap=0 边 ----------
+// -------- solve: 单向前推 + “存在性建边” ----------
 CapTDAGResult ocCapTDAG::solve(int m, int h){
     LOGOPEN(cfg_.logfile, cfg_.log_append, cfg_.vlevel);
 
@@ -108,7 +109,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     int T = cfg_.T>0? cfg_.T : n;
     const uint64_t B = (uint64_t)h + 1u;
 
-    // precompute powB
+    // powB
     vector<uint64_t> powB(m);
     powB[m-1]=1ull;
     for(int k=m-2;k>=0;--k){
@@ -136,48 +137,75 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     uint64_t key0=0ull;
     cur.emplace(key0, Node{0,0ull,-1});
 
-    auto valid_trans = [&](int i,int j,int L)->bool{
-        if(!(LB[i][j] <= L+1 && L+1 <= UB[i][j])) return false;
-        if(j>0){ if(L+1 > LB[i][j-1] + T) return false; } // Δ upper bound via parent-LB
-        if(i>0){ if(L+1 > LB[i-1][j] + T) return false; }
-        return true;
+    auto parent_exists_within_T = [&](int pi,int pj,int L)->bool{
+        // 父的可能区间 ∩ [L+1-T, +∞) 非空，且父必须 ≤ L （已放置）
+        int Pmin = LB[pi][pj];
+        int Pmax = std::min(UB[pi][pj], L);
+        if(Pmin > Pmax) return false;                 // 父在 L 前不可放置
+        int need = L+1 - T;                           // y_p >= need
+        return Pmax >= need;                          // ∃ y_p ∈ [Pmin,Pmax] 且 y_p ≥ need
     };
 
     for(int L=0; L<n; ++L){
         nxt.clear();
         nxt.reserve(std::max<size_t>(cur.size()*2, 16));
+
+        // 统计信息（便于定位剪枝来源）
+        size_t cand=0, blk_oc=0, blk_win=0, blk_tL=0, blk_tU=0, accepted=0;
+
         for(auto &kv : cur){
             uint64_t key = kv.first;
             long long d0 = kv.second.dist;
-            // decode skyline
             int a[64]; for(int i=0;i<m;++i) a[i]=digit_at(key,i,powB,B);
+
             for(int i=0;i<m;++i){
                 int j = a[i];
                 if(j>=h) continue;
-                if(i>0 && j+1> a[i-1]) continue; // OC
-                if(!valid_trans(i,j,L)) continue; // cap=0 边: 直接丢弃
+                ++cand;
+
+                // OC：非增
+                if(i>0 && j+1> a[i-1]){ ++blk_oc; continue; }
+
+                // 静态窗口：L+1 必须在 [LB,UB]
+                int Lnext = L+1;
+                if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
+
+                // T 约束（存在性判定）
+                if(j>0 && !parent_exists_within_T(i, j-1, L)){ ++blk_tL; continue; }
+                if(i>0 && !parent_exists_within_T(i-1, j, L)){ ++blk_tU; continue; }
 
                 uint64_t key2 = enc_inc(key,i,powB);
-                long long cost = (long long)(L+1) * weight_ij(i,j,m,h) * cfg_.dV;
+                long long cost = (long long)(Lnext) * weight_ij(i,j,m,h) * cfg_.dV;
                 long long d1 = d0 + cost;
 
-                auto it = nxt.find(key2);
-                if(it==nxt.end()){
+                auto it2 = nxt.find(key2);
+                if(it2==nxt.end()){
                     nxt.emplace(key2, Node{d1, key, i});
-                    parents[L+1].emplace(key2, std::make_pair(key, i));
-                }else if(d1 < it->second.dist){
-                    it->second.dist = d1;
-                    it->second.prev = key;
-                    it->second.prev_row = i;
-                    parents[L+1][key2] = std::make_pair(key, i);
+                    parents[Lnext].emplace(key2, std::make_pair(key, i));
+                }else if(d1 < it2->second.dist){
+                    it2->second.dist = d1;
+                    it2->second.prev = key;
+                    it2->second.prev_row = i;
+                    parents[Lnext][key2] = std::make_pair(key, i);
                 }
+                ++accepted;
             }
         }
-        if(cfg_.progress && cfg_.vlevel>=2 && (L%16==0 || L+1==n)){
+
+        if(cfg_.progress && (cfg_.vlevel>=2) && (L%16==0 || L+1==n)){
             LOG(2, [&](std::ofstream& o){
                 o<<"[DP] level "<<L<<" states="<<cur.size()<<" -> next="<<nxt.size()<<"\n";
             });
         }
+        if(cfg_.vlevel>=3){
+            LOG(3, [&](std::ofstream& o){
+                o<<"[DP-stat] L="<<L<<" cand="<<cand
+                 <<" blk_oc="<<blk_oc<<" blk_win="<<blk_win
+                 <<" blk_tL="<<blk_tL<<" blk_tU="<<blk_tU
+                 <<" accepted="<<accepted<<"\n";
+            });
+        }
+
         if(nxt.empty()){
             LOG(1, [&](std::ofstream& o){ o<<"[DP] next empty at level "<<L<<"\n"; });
             throw std::runtime_error("No feasible next frontier");
@@ -193,15 +221,15 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         throw std::runtime_error("No feasible terminal state");
     }
 
-    // reconstruct path
+    // reconstruct
     vector<vector<int>> y(m, vector<int>(h,0));
-    uint64_t k = keyN;
-    for(int L=n; L>=1; --L){
-        auto pit = parents[L].find(k);
-        if(pit==parents[L].end()) throw std::runtime_error("Reconstruct failed");
+    vector< std::unordered_map<uint64_t, std::pair<uint64_t,int>> >& P = parents;
+    uint64_t k = keyN; const int n_full=n;
+    for(int L=n_full; L>=1; --L){
+        auto pit = P[L].find(k);
+        if(pit==P[L].end()) throw std::runtime_error("Reconstruct failed");
         uint64_t pk = pit->second.first;
         int ri = pit->second.second;
-        // j = a_i before inc
         int aj = digit_at(pk, ri, powB, B);
         y[ri][aj] = L;
         k = pk;
@@ -224,7 +252,6 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             }
         });
     }
-
     if(dmax > T){
         LOG(1, [&](std::ofstream& o){ o<<"[POST] maxΔ="<<dmax<<" > T="<<T<<"\n"; });
         throw std::runtime_error("Post-check failed: max Δ > T (should not happen with cap-edges)");

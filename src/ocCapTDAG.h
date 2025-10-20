@@ -6,7 +6,7 @@
 struct CapTDAGResult {
     int m=0, h=0, n=0, T=0;
     long long dV=1;
-    std::vector<std::vector<int>> y_order;   // 1..n
+    std::vector<std::vector<int>> y_order;
     long long hpwl=0;
     bool oc_ok=true;
     int max_delta=0;
@@ -40,7 +40,6 @@ private:
     static bool check_OC(const std::vector<std::vector<int>>& y);
     static int  max_delta_adj(const std::vector<std::vector<int>>& y);
 
-    // windows with Δ≤T necessary closure
     void compute_windows_spanT(int m,int h,int T,int n,
                                std::vector<std::vector<int>>& LB,
                                std::vector<std::vector<int>>& UB) const;

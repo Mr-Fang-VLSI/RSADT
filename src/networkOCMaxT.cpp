@@ -1,13 +1,14 @@
 #include "networkOCMaxT.h"
-#include "lightOCMaxT.h"    // 复用 OCMaxTResult、base 编码工具思想
+#include "lightOCMaxT.h"
+
 #include <vector>
 #include <unordered_map>
 #include <limits>
 #include <stdexcept>
 #include <fstream>
 #include <string>
-#include <cstring>
 #include <algorithm>
+#include <cstdint>
 
 using std::vector;
 using std::unordered_map;
@@ -27,7 +28,7 @@ inline void LOG2(int lvl, F&& f){
 }
 }
 
-// --------- helpers ----------
+// ---------- helpers ----------
 static inline long long weight_ij(int i,int j,int m,int h){
     long long w=0;
     if(i==0)     w -= 1;
@@ -36,8 +37,8 @@ static inline long long weight_ij(int i,int j,int m,int h){
     if(j==h-1)   w += 1;
     return w;
 }
-static inline int LB0(int i,int j){ return (i+1)*(j+1); }
 static inline long long llabsll(long long x){ return x>=0?x:-x; }
+static inline int LB0(int i,int j){ return (i+1)*(j+1); }
 
 // -------- Δ≤T: 窗口闭包（存在性必要 + OC 单调性）---------
 static void compute_windows_spanT(
@@ -98,42 +99,96 @@ static void compute_windows_spanT(
     LOG2(2, [&](std::ofstream& o){ o<<"[SpanT] window sanity check passed\n"; });
 }
 
-// ====== 状态 Key 编码（a + R + C）======
-// 为了简洁稳健，这里用字节串作为 key：8B(a_key) + 2B*m(R) + 2B*h(C)
-static inline void append_u16(std::string& s, uint16_t v){
-    char b[2]; b[0] = (char)(v & 0xFFu); b[1] = (char)((v>>8) & 0xFFu);
-    s.append(b, b+2);
+// ------------- base-(h+1) 编解码 -------------
+static void build_powB(int m, int h, vector<uint64_t>& powB, uint64_t& B){
+    B = (uint64_t)h + 1u;
+    powB.resize(m);
+    powB[m-1] = 1ull;
+    for(int k=m-2;k>=0;--k){
+        __uint128_t tmp = (__uint128_t)powB[k+1]*(__uint128_t)B;
+        if(tmp > (__uint128_t)std::numeric_limits<uint64_t>::max())
+            throw std::runtime_error("state key overflow");
+        powB[k]=(uint64_t)tmp;
+    }
 }
-static inline uint16_t read_u16(const std::string& s, size_t off){
-    return (uint16_t)((unsigned char)s[off] | ((unsigned char)s[off+1] << 8));
+static inline int digit_at(uint64_t key, int idx, const vector<uint64_t>& powB, uint64_t B){
+    return (int)((key / powB[idx]) % B);
 }
-static inline void append_u64(std::string& s, uint64_t v){
-    char b[8];
-    for(int k=0;k<8;++k) b[k] = (char)((v>>(8*k)) & 0xFFull);
-    s.append(b, b+8);
-}
-static inline uint64_t read_u64(const std::string& s, size_t off){
-    uint64_t v=0;
-    for(int k=7;k>=0;--k) v = (v<<8) | (unsigned char)s[off+k];
-    return v;
-}
-static inline std::string make_key(uint64_t akey, const vector<int>& R, const vector<int>& C){
-    std::string s; s.reserve(8 + 2*R.size() + 2*C.size());
-    append_u64(s, akey);
-    for(int x: R) append_u16(s, (uint16_t)x);
-    for(int x: C) append_u16(s, (uint16_t)x);
-    return s;
-}
-static inline void parse_key(const std::string& s, int m, int h,
-                             uint64_t& akey, vector<int>& R, vector<int>& C){
-    akey = read_u64(s, 0);
-    R.resize(m); C.resize(h);
-    size_t p=8;
-    for(int i=0;i<m;++i){ R[i] = (int)read_u16(s, p); p+=2; }
-    for(int j=0;j<h;++j){ C[j] = (int)read_u16(s, p); p+=2; }
+static inline uint64_t encode_inc(uint64_t key, int idx, const vector<uint64_t>& powB){
+    return key + powB[idx];
 }
 
-// ====== 主流程：RCDC 完整状态 DAG 最短路 ======
+// ----------- 按天际线分桶 + 主导裁剪 ------------
+struct NDState {
+    long long dist;
+    vector<uint16_t> r_age; // size = m；未启动行在 canonicalize 时置 0
+    vector<uint16_t> c_age; // size = a[0]（仅存启动列前缀）
+    // 回溯
+    uint64_t prev_akey{0};
+    int      prev_bucket{-1};
+    int      prev_state{-1};
+    int      prev_row{-1};
+};
+
+struct Bucket {
+    uint64_t akey{0};
+    vector<NDState> states; // 同一 akey 的非支配集
+};
+struct Layer {
+    vector<Bucket> buckets;
+    unordered_map<uint64_t,int> a2idx; // akey -> buckets 下标
+};
+
+// 判定 existing 是否主导 candidate（在相同 a 下）
+static inline bool dominates(const NDState& ex, const NDState& cand,
+                             const vector<int>& a, int a0)
+{
+    if(ex.dist > cand.dist) return false; // 代价必须不大于
+    // 行：仅比较已启动的行（a[i]>0）
+    const int m = (int)a.size();
+    for(int i=0;i<m;++i){
+        if(a[i]==0) continue;
+        if(ex.r_age[i] > cand.r_age[i]) return false;
+    }
+    // 列：仅比较已启动的列（j<a0）
+    const int sz_ex=(int)ex.c_age.size(), sz_cd=(int)cand.c_age.size();
+    if(sz_ex < a0 || sz_cd < a0) return false; // 不满足不变量者不参与主导（防御）
+    for(int j=0;j<a0;++j){
+        if(ex.c_age[j] > cand.c_age[j]) return false;
+    }
+    return true;
+}
+
+// 尝试把 cand 插入到 vec 的非支配集中；若被支配则返回 false，否则插入并移除它支配的旧状态
+static bool insert_nondominated(vector<NDState>& vec, NDState cand,
+                                const vector<int>& a, int a0,
+                                int cap_per_bucket, bool enable_dominance)
+{
+    if(enable_dominance){
+        for(const auto& ex : vec){
+            if(dominates(ex, cand, a, a0)) return false; // cand 被支配
+        }
+        // cand 支配谁？
+        int w=0;
+        for(int k=0;k<(int)vec.size();++k){
+            if(dominates(cand, vec[k], a, a0)) continue; // 丢弃被支配者
+            vec[w++] = std::move(vec[k]);                 // 保留非被支配者
+        }
+        vec.resize(w);
+    }
+    vec.push_back(std::move(cand));
+
+    // 可选：前沿上限（稳定内存；0=不开）
+    if(cap_per_bucket>0 && (int)vec.size()>cap_per_bucket){
+        // 以 dist 升序保留前 K
+        std::nth_element(vec.begin(), vec.begin()+cap_per_bucket, vec.end(),
+                         [](const NDState& A, const NDState& B){ return A.dist < B.dist; });
+        vec.resize(cap_per_bucket);
+    }
+    return true;
+}
+
+// ====== 主流程：RCDC + 相对龄值 + 主导裁剪 ======
 OCMaxTResult networkOCMaxT::solve(int m, int h, int T_in){
     LOGOPEN2(cfg_.logfile, cfg_.log_append, cfg_.verbose_level);
 
@@ -144,155 +199,208 @@ OCMaxTResult networkOCMaxT::solve(int m, int h, int T_in){
 
     LOG2(1, [&](std::ofstream& o){
         o<<"[OC-SpanT-NET] n="<<n_full<<" T="<<T<<" v="<<cfg_.verbose_level
-         <<" (RCDC full DAG shortest path)\n";
+         <<" (RCDC ages + dominance)\n";
     });
 
-    // base-(h+1) 编码
-    const uint64_t B = (uint64_t)h + 1u;
-    vector<uint64_t> powB(m);
-    powB[m-1] = 1ull;
-    for(int k=m-2;k>=0;--k){
-        __uint128_t tmp = (__uint128_t)powB[k+1]*(__uint128_t)B;
-        if(tmp > (__uint128_t)std::numeric_limits<uint64_t>::max())
-            throw std::runtime_error("state key overflow");
-        powB[k]=(uint64_t)tmp;
-    }
-    auto digit_at = [&](uint64_t key, int idx)->int{
-        return (int)((key / powB[idx]) % B);
-    };
-    auto encode_inc = [&](uint64_t key, int idx)->uint64_t{
-        return key + powB[idx];
+    // base 编码
+    vector<uint64_t> powB; uint64_t B=0;
+    build_powB(m,h,powB,B);
+    auto decode_a = [&](uint64_t akey)->vector<int>{
+        vector<int> a(m);
+        for(int i=0;i<m;++i) a[i] = digit_at(akey,i,powB,B);
+        return a;
     };
 
     // 窗口闭包
     vector<vector<int>> LB, UB;
     compute_windows_spanT(m,h,T,n_full,LB,UB,cfg_.verbose_level);
 
-    // 初始状态
-    uint64_t a0=0ull, aGoal=0ull;
+    // 起点
+    uint64_t a0key=0ull, aGoal=0ull;
     for(int i=0;i<m;++i) aGoal += powB[i]*(uint64_t)h;
-    vector<int> R0(m, 0), C0(h, 0); // 0 表示“尚未定义”（未放置）
-    std::string key0 = make_key(a0, R0, C0);
 
-    struct Node { long long dist; std::string prev; int prev_i; };
-    vector< unordered_map<std::string, Node> > layers(n_full+1);
-    layers[0].reserve(1);
-    layers[0].emplace(key0, Node{0, std::string(), -1});
+    Layer L0; L0.buckets.reserve(1); L0.a2idx.reserve(1);
+    {
+        Bucket b0; b0.akey=a0key;
+        NDState s0;
+        s0.dist=0;
+        s0.r_age.assign(m, 0); // 未启动行置 0
+        s0.c_age.clear();      // 未启动列：a[0]=0 → 空前缀
+        b0.states.push_back(std::move(s0));
+        L0.buckets.push_back(std::move(b0));
+        L0.a2idx.emplace(a0key,0);
+    }
 
-    // 逐层最短路
+    vector<Layer> layers; layers.reserve(n_full+1);
+    layers.push_back(std::move(L0));
+
+    // 逐层扩展
     for(int L=0; L<n_full; ++L){
-        auto &cur = layers[L];
-        auto &nxt = layers[L+1];
-        nxt.reserve(std::max<size_t>(cur.size()*4, 16));
+        const Layer& cur = layers.back();
+        Layer nxt; nxt.buckets.reserve(cur.buckets.size()*2+16);
+        nxt.a2idx.reserve(cur.buckets.size()*2+16);
 
-        size_t pruned_win=0, pruned_delta=0, gen_edges=0;
+        size_t total_states_cur=0, total_states_nxt=0;
+        size_t gen_edges=0, pruned_win=0, pruned_delta=0, pruned_invariant=0, inserted=0;
 
-        for(const auto& kv : cur){
-            const std::string &K = kv.first;
-            const Node &Nd = kv.second;
+        for(int b=0; b<(int)cur.buckets.size(); ++b){
+            const Bucket& BK = cur.buckets[b];
+            vector<int> a = decode_a(BK.akey);
+            const int a0 = a[0];
+            for(int s=0; s<(int)BK.states.size(); ++s){
+                const NDState& S = BK.states[s];
+                ++total_states_cur;
 
-            // 解码
-            uint64_t akey; vector<int> R(m), C(h);
-            parse_key(K, m, h, akey, R, C);
-            int a[64];
-            for(int i=0;i<m;++i) a[i] = digit_at(akey, i);
-
-            for(int i=0;i<m;++i){
-                int j = a[i];
-                if(j>=h) continue;
-                if(i>0 && j+1>a[i-1]) continue; // skyline 非增（OC）
-
-                int Lnext = L+1;
-
-                // 窗口存在性（必要）
-                if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])) { ++pruned_win; continue; }
-
-                // === Δ≤T 精确检查（行/列父的“实际时间”） ===
-                // 水平父：(i,j-1) 在同一行最后一次放置时间 R[i]
-                if(j>0){
-                    if(R[i]==0){ ++pruned_delta; continue; }        // 理论上不应发生；安全兜底
-                    if(Lnext > R[i] + T){ ++pruned_delta; continue; }
-                }
-                // 竖直父：(i-1,j) 的实际时间就是当前列时钟 C[j]
-                if(i>0){
-                    if(C[j]==0){ ++pruned_delta; continue; }        // 竖直父尚不存在，非法
-                    if(Lnext > C[j] + T){ ++pruned_delta; continue; }
+                // 防御：不变量（列龄前缀长度 == a0）
+                if((int)S.c_age.size() != a0){
+                    ++pruned_invariant;
+                    continue;
                 }
 
-                // 生成后继状态
-                uint64_t a2 = encode_inc(akey, i);
-                vector<int> R2 = R, C2 = C;
-                R2[i] = Lnext;
-                C2[j] = Lnext;
+                // 尝试在每一行放置
+                for(int i=0;i<m;++i){
+                    int j = a[i];
+                    if(j>=h) continue;
+                    if(i>0 && j+1 > a[i-1]) continue; // skyline 非增（OC）
 
-                long long c = (long long)Lnext * weight_ij(i, j, m, h) * cfg_.dV;
-                long long nd = Nd.dist + c;
+                    int Lnext = L+1;
 
-                std::string K2 = make_key(a2, R2, C2);
-                auto it = nxt.find(K2);
-                if(it==nxt.end()){
-                    nxt.emplace(std::move(K2), Node{nd, K, i});
-                }else if(nd < it->second.dist){
-                    it->second.dist = nd;
-                    it->second.prev = K;
-                    it->second.prev_i = i;
-                }
-                ++gen_edges;
-            }
-        }
+                    // 窗口存在性（必要条件）
+                    if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++pruned_win; continue; }
 
-        if(cfg_.progress && cfg_.verbose_level>=2 && ((L+1)%16==0)){
+                    // Δ≤T：相对龄值“≤ T-1”精确判断
+                    if(j>0 && S.r_age[i] >= (uint16_t)T){ ++pruned_delta; continue; }
+                    if(i>0){
+                        if(j >= a0){ ++pruned_invariant; continue; }           // 防御：必须已有该列
+                        if(S.c_age[j] >= (uint16_t)T){ ++pruned_delta; continue; }
+                    }
+
+                    // 生成后继
+                    vector<int> a2 = a; a2[i] = j+1;
+                    uint64_t a2key = encode_inc(BK.akey, i, powB);
+
+                    // 更新龄值（相对、截到 T）
+                    vector<uint16_t> r2 = S.r_age;
+                    for(int k=0;k<m;++k){
+                        if(k==i) r2[k] = 0; // 本行重置
+                        else     r2[k] = (r2[k] < (uint16_t)T) ? (r2[k]+1) : (uint16_t)T;
+                    }
+                    // 未启动行统一置 0（规范化，利于主导裁剪）
+                    for(int k=0;k<m;++k) if(a2[k]==0) r2[k]=0;
+
+                    vector<uint16_t> c2;
+                    if(i==0){
+                        // 新增一列 j=a0
+                        c2.resize(a0+1);
+                        for(int t=0;t<a0;++t){
+                            uint16_t v = (S.c_age[t] < (uint16_t)T) ? (S.c_age[t]+1) : (uint16_t)T;
+                            c2[t] = v;
+                        }
+                        c2[a0] = 0;
+                    }else{
+                        c2.resize(a0); // a0 不变
+                        for(int t=0;t<a0;++t){
+                            uint16_t v = (S.c_age[t] < (uint16_t)T) ? (S.c_age[t]+1) : (uint16_t)T;
+                            c2[t] = v;
+                        }
+                        // 本列重置
+                        if(j < a0) c2[j] = 0; else { ++pruned_invariant; continue; } // 保险
+                    }
+
+                    long long edge_cost = (long long)Lnext * weight_ij(i, j, m, h) * cfg_.dV;
+                    NDState NS;
+                    NS.dist = S.dist + edge_cost;
+                    NS.r_age = std::move(r2);
+                    NS.c_age = std::move(c2);
+                    NS.prev_akey = BK.akey;
+                    NS.prev_bucket = b;
+                    NS.prev_state  = s;
+                    NS.prev_row    = i;
+
+                    // 放入下一层的对应 bucket（按 a2key）
+                    auto it = nxt.a2idx.find(a2key);
+                    int bx = -1;
+                    if(it==nxt.a2idx.end()){
+                        bx = (int)nxt.buckets.size();
+                        Bucket nb; nb.akey = a2key;
+                        nxt.buckets.push_back(std::move(nb));
+                        nxt.a2idx.emplace(a2key, bx);
+                    }else bx = it->second;
+
+                    if(insert_nondominated(nxt.buckets[bx].states,
+                                           std::move(NS), a2, a2[0],
+                                           cfg_.cap_per_bucket,
+                                           cfg_.enable_dominance))
+                    {
+                        ++inserted;
+                    }
+                    ++gen_edges;
+                } // for i
+            } // for s
+        } // for buckets
+
+        for(const auto& b : nxt.buckets) total_states_nxt += b.states.size();
+
+        if(cfg_.progress && ((cfg_.verbose_level>=3) ||
+                             (cfg_.verbose_level>=2 && ((L+1)%std::max(1,cfg_.log_every_levels)==0)))){
             LOG2(2, [&](std::ofstream& o){
-                o<<"[NET-RCDC] level "<<L<<" states="<<cur.size()
-                 <<" -> next="<<layers[L+1].size()
+                o<<"[NET-RCDC] level "<<L
+                 <<" buckets="<<cur.buckets.size()<<" -> "<<nxt.buckets.size()
+                 <<" | states="<<total_states_cur<<" -> "<<total_states_nxt
                  <<" | gen_edges="<<gen_edges
                  <<" pruned(win)="<<pruned_win
-                 <<" pruned(Δ)="<<pruned_delta<<"\n";
+                 <<" pruned(Δ)="<<pruned_delta
+                 <<" pruned(inv)="<<pruned_invariant
+                 <<" inserted="<<inserted<<"\n";
             });
         }
-        if(layers[L+1].empty()){
+        if(nxt.buckets.empty()){
             LOG2(1, [&](std::ofstream& o){
                 o<<"[NET-RCDC] dead at level "<<(L+1)<<", no feasible transitions\n";
             });
-            throw std::runtime_error("No feasible state at some level (RCDC)");
+            throw std::runtime_error("No feasible state at some level (RCDC-ages)");
         }
-    }
+        layers.push_back(std::move(nxt));
+    } // for L
 
-    // 在最后一层选择 a=Goal 的最优状态
-    long long best = std::numeric_limits<long long>::max();
-    std::string Kbest;
-    for(const auto& kv : layers[n_full]){
-        uint64_t akey; vector<int> R(m), C(h);
-        parse_key(kv.first, m, h, akey, R, C);
-        if(akey!=aGoal) continue;
-        if(kv.second.dist < best){ best = kv.second.dist; Kbest = kv.first; }
-    }
-    if(Kbest.empty()){
+    // 选择 a=Goal 的最优终态
+    const Layer& Last = layers.back();
+    auto itg = Last.a2idx.find( (uint64_t)aGoal );
+    if(itg==Last.a2idx.end() || Last.buckets[itg->second].states.empty()){
         LOG2(1, [&](std::ofstream& o){ o<<"[NET-RCDC] cannot reach goal state\n"; });
-        throw std::runtime_error("Goal unreachable (RCDC)");
+        throw std::runtime_error("Goal unreachable (RCDC-ages)");
+    }
+    int best_idx = 0;
+    const vector<NDState>& finals = Last.buckets[itg->second].states;
+    for(int k=1;k<(int)finals.size();++k){
+        if(finals[k].dist < finals[best_idx].dist) best_idx = k;
     }
 
-    // 复原 y
-    vector<vector<int>> y(m, vector<int>(h, 0));
-    std::string K = Kbest;
-    for(int L=n_full-1; L>=0; --L){
-        const Node &Nd = layers[L+1].at(K);
-        // 找出是哪一行增加
-        uint64_t akey; vector<int> R(m), C(h);
-        parse_key(K, m, h, akey, R, C);
-        // 前驱 a
-        uint64_t akey_prev; vector<int> Rprev(m), Cprev(h);
-        parse_key(Nd.prev, m, h, akey_prev, Rprev, Cprev);
-        int sel_i=-1, sel_j=-1;
-        for(int i=0;i<m;++i){
-            int ai_prev = (int)((akey_prev / powB[i]) % B);
-            int ai_now  = (int)((akey      / powB[i]) % B);
-            if(ai_now == ai_prev+1){ sel_i = i; sel_j = ai_prev; break; }
-        }
-        if(sel_i<0) throw std::runtime_error("Reconstruct mismatch");
-        y[sel_i][sel_j] = L+1;
-        K = Nd.prev;
-        if(L==0) break;
+    // 回溯 y
+    vector<vector<int>> y(m, vector<int>(h,0));
+    int Lcur = n_full;
+    uint64_t cur_akey = aGoal;
+    int cur_bucket = itg->second;
+    int cur_state  = best_idx;
+
+    // 预解码函数
+    auto decode_digit = [&](uint64_t akey, int idx)->int{
+        return digit_at(akey, idx, powB, B);
+    };
+
+    while(Lcur>0){
+        const NDState& S = layers[Lcur].buckets[cur_bucket].states[cur_state];
+        int i = S.prev_row;
+        if(i<0) throw std::runtime_error("Reconstruct error: invalid prev");
+
+        const uint64_t prev_akey = S.prev_akey;
+        int j = decode_digit(prev_akey, i); // 放置前该行的下一列索引
+        y[i][j] = Lcur;
+
+        cur_akey  = prev_akey;
+        cur_bucket= S.prev_bucket;
+        cur_state = S.prev_state;
+        --Lcur;
     }
 
     // 评估与校验
@@ -308,7 +416,7 @@ OCMaxTResult networkOCMaxT::solve(int m, int h, int T_in){
 
     if(dmax>T){
         LOG2(1, [&](std::ofstream& o){ o<<"[POST-RCDC] maxΔ="<<dmax<<" > T="<<T<<"\n"; });
-        throw std::runtime_error("Post-check failed: max Δ > T (RCDC)"); // 理论不应触发
+        throw std::runtime_error("Post-check failed: max Δ > T (RCDC-ages)");
     }
     LOG2(1, [&](std::ofstream& o){ o<<"[POST-RCDC] HPWL="<<HPWL<<" maxΔ="<<dmax<<" OK\n"; });
 

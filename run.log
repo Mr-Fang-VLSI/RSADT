@@ -1,4 +1,8 @@
-[OC-SpanT-NET] n=64 T=20 v=3 (RCDC full DAG shortest path)
+[OC-SpanT-NET] n=64 T=20 v=3 (RCDC ages + dominance)
 [SpanT] LB range=[1,64], UB range=[15,64]
 [SpanT] window sanity check passed
-[NET-RCDC] level 15 states=1345840 -> next=4008776 | gen_edges=5250154 pruned(win)=0 pruned(Δ)=0
+[NET-RCDC] level 0 buckets=1 -> 1 | states=1 -> 1 | gen_edges=1 pruned(win)=0 pruned(Δ)=0 pruned(inv)=0 inserted=1
+[NET-RCDC] level 1 buckets=1 -> 2 | states=1 -> 2 | gen_edges=2 pruned(win)=0 pruned(Δ)=0 pruned(inv)=0 inserted=2
+[NET-RCDC] level 2 buckets=2 -> 3 | states=2 -> 4 | gen_edges=4 pruned(win)=0 pruned(Δ)=0 pruned(inv)=0 inserted=4
+[NET-RCDC] level 3 buckets=3 -> 5 | states=4 -> 7 | gen_edges=7 pruned(win)=0 pruned(Δ)=0 pruned(inv)=1 inserted=7
+[NET-RCDC] level 4 buckets=5 -> 7 | states=7 -> 12 | gen_edges=12 pruned(win)=0 pruned(Δ)=0 pruned(inv)=2 inserted=12

@@ -1,36 +1,23 @@
 #pragma once
-#include <vector>
+#include "lightOCMaxT.h"   // 直接复用 OCMaxTResult 定义
 #include <string>
-#include <cstdint>
-#include "lightOCMaxT.h"
-// 与 lightOCMaxT.h 中的结构保持一致（用于统一输出结果）
-// struct OCMaxTResult {
-//     int m=0, h=0, n_full=0, T=0;
-//     long long dV=1;
-//     std::vector<std::vector<int>> y_order;
-//     long long hpwl_full=0;
-//     long long hpwl_prefix=0;
-//     long long total_cost=0;
-//     bool oc_ok=true;
-// };
 
-// ============ RCDC 完整 DAG 版本 ============
-// 说明：该类实现“网络化”的完整层序最短路。
-// 状态包含：天际线 a、行时钟 R[i]（该行最近一次放置层号）
-// 和列时钟 C[j]（该列竖直父的实际层号），从而在每次转移时
-// 精确检查 Δ≤T（避免 post-check 失败）。
 class networkOCMaxT {
 public:
     struct Config {
-        long long dV = 1;           // 邻接边权的缩放（等价 HPWL 的系数）
-        bool progress = true;       // 是否打印分层统计到日志
-        int  verbose_level = 2;     // 0~3
+        long long dV = 1;            // 邻接边权缩放（HPWL 等价因子）
+        bool progress = true;         // 是否输出层级统计
+        int  verbose_level = 2;       // 0~3；3 打每层
         std::string logfile = "run.log";
-        bool log_append = false;    // true: 追加; false: 覆盖
+        bool log_append = false;
+
+        // 性能/稳健选项
+        int  log_every_levels = 1;    // v>=3 时每几层记一条（1=每层）
+        int  cap_per_bucket   = 0;    // 每个 akey 的非支配前沿上限（0=不开）
+        bool enable_dominance = true; // 主导裁剪开关
     };
     explicit networkOCMaxT(const Config& c): cfg_(c) {}
 
-    // 求解入口：m 行、h 列、Δ≤T
     OCMaxTResult solve(int m, int h, int T_in);
 
 private:

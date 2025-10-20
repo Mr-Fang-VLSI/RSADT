@@ -1,36 +1,57 @@
-#include "ocCapTDAG.h"
+#include "lightOCMaxT.h"
+#include "networkOCMaxT.h"
 #include <iostream>
 #include <cstdlib>
 
 int main(int argc, char** argv){
-    if(argc<3){
-        std::cout<<"Usage: ./build/oc_captdag m h [dV=1] [T=0->no-limit] [v=2]\n";
+    if(argc < 3){
+        std::cout << "Usage: ./build/oc_maxt m h [dV=1] [T=m*h] [threads=0] [progress=0/1] [mode=2/3] [vlevel=1..3]\n";
         return 0;
     }
-    int m=std::atoi(argv[1]);
-    int h=std::atoi(argv[2]);
+    int m = std::atoi(argv[1]);
+    int h = std::atoi(argv[2]);
     long long dV = (argc>=4)? std::atoll(argv[3]) : 1;
-    int T = (argc>=5)? std::atoi(argv[4]) : 0;
-    int v = (argc>=6)? std::atoi(argv[5]) : 2;
+    int T = (argc>=5)? std::atoi(argv[4]) : m*h;
+    int threads = (argc>=6)? std::atoi(argv[5]) : 0;
+    bool progress = (argc>=7)? (std::atoi(argv[6])!=0) : true;
+    int mode = (argc>=8)? std::atoi(argv[7]) : 2;
+    int vlevel = (argc>=9)? std::atoi(argv[8]) : 1;
 
-    ocCapTDAG::Config cfg;
-    cfg.dV = dV;
-    cfg.T = T;
-    cfg.vlevel = v;
-    cfg.progress = true;
-    cfg.logfile = "run.log";
-    cfg.log_append = false;
-
-    ocCapTDAG solver(cfg);
-    std::cout<<"\n=== OC-CapT DAG m="<<m<<" h="<<h<<" T="<<(T>0?T:m*h)<<" v="<<v<<" ===\n";
+    std::cout << "\n=== OC-MaxT Test m="<<m<<" h="<<h<<" T="<<T
+              << " thr="<<threads<<" mode="<<mode<<" v="<<vlevel<<" ===\n";
 
     try{
-        auto R = solver.solve(m,h);
-        std::cout<<"Result: HPWL="<<R.hpwl<<", maxΔ="<<R.max_delta<<", OC="<<(R.oc_ok?"OK":"FAIL")<<"\n";
-        std::cout<<"(details in run.log)\n";
+        if(mode==3){
+            // 新：RCDC 完整 DAG 最短路
+            networkOCMaxT::Config c2;
+            c2.dV = dV;
+            c2.progress = progress;
+            c2.verbose_level = vlevel;
+            c2.logfile = "run.log";
+            c2.log_append = false;
+            networkOCMaxT solver2(c2);
+            auto R = solver2.solve(m,h,T);
+            std::cout << "[mode=3] Result: HPWL="<<R.total_cost<<", maxΔ≤T, OC=OK\n";
+        }else{
+            // 旧：Hirschberg 分治（仍可对照）
+            lightOCMaxT::Config cfg;
+            cfg.dV = dV;
+            cfg.progress = progress;
+            cfg.prefix_strategy = mode; // 保持你的原接口
+            cfg.omp_threads = threads;
+            cfg.verbose_level = vlevel;
+            cfg.logfile = "run.log";
+            cfg.log_append = false;
+            lightOCMaxT solver(cfg);
+            auto R = solver.solve(m,h,T);
+            std::cout << "[mode!=3] Result: HPWL="<<R.total_cost<<", maxΔ≤T, OC=OK\n";
+        }
     }catch(const std::exception& e){
-        std::cout<<"ERROR: "<<e.what()<<"\n(details in run.log)\n";
+        std::cout << "ERROR: " << e.what() << "\n";
+        std::cout << "(See run.log for details)\n";
         return 1;
     }
+
+    std::cout << "(Details logged to run.log)\n";
     return 0;
 }

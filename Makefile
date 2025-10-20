@@ -1,54 +1,33 @@
-# ============================
-# Makefile for OC-CapT DAG
-# ============================
+# ======== Compiler & Flags ========
+CXX      := g++
+CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG -fopenmp
+LDFLAGS  := -fopenmp
+TARGET   := build/oc_maxt
 
-CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
-# 如需调试可换成: -O0 -g -std=c++17 ...
+# ======== Source Files ========
+# 注意：networkOCMax.cpp 是 RCDC 的实现文件（实现 networkOCMaxT 类）
+SRCS := src/main.cpp src/lightOCMaxT.cpp src/networkOCMaxT.cpp
+OBJS := $(SRCS:src/%.cpp=build/%.o)
 
-# 使用 conda 环境中的 LEMON（不强依赖本目标）
-CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
-LEMON_PREFIX ?= $(CONDA_PREFIX)
-INCLUDES := -I$(LEMON_PREFIX)/include
-LDFLAGS := -L$(LEMON_PREFIX)/lib
+# ======== Build Rules ========
+all: $(TARGET)
 
-SRC_DIR := src
-BUILD_DIR := build
-TARGET := oc_captdag
+$(TARGET): $(OBJS)
+	@mkdir -p build
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
+	@echo "✅ Build complete: $(TARGET)"
 
-SRCS := $(SRC_DIR)/ocCapTDAG.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
+build/%.o: src/%.cpp | build
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: all clean run envcheck
-
-all: envcheck $(BIN)
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
-
-$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
-	@echo "✅ Build complete: $(BIN)"
-
-run: all
-	$(BIN) 8 20 1 16 3
-
-envcheck:
-	@if [ -z "$(CONDA_PREFIX)" ]; then \
-		echo "ℹ️  Not inside conda env (OK). If you need LEMON headers: conda activate <env>"; \
-	else \
-		echo "✅ Conda env: $(CONDA_PREFIX)"; \
-	fi
-	@if [ -d "$(LEMON_PREFIX)/include/lemon" ]; then \
-		echo "✅ LEMON headers found (not required for this target)"; \
-	else \
-		echo "ℹ️  LEMON headers not found (OK)."; \
-	fi
+build:
+	mkdir -p build
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf build
+	@echo "🧹 Cleaned."
+
+run:
+	./build/oc_maxt 8 8 1 16 0 1 3 3
+
+.PHONY: all clean run

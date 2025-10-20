@@ -45,3 +45,32 @@
 [DP] L=34 states=515 -> next=499 | Kcur=1024 retries=0 | pressure=0.24518 avg/key=873.078 | cand=3184960 truncK=473777 blk_oc=1252599 blk_win=0 blk_tL=0 blk_tU=0
 [DP] L=35 states=499 -> next=486 | Kcur=1024 retries=0 | pressure=0.249139 avg/key=882.829 | cand=3086063 truncK=467982 blk_oc=1207668 blk_win=0 blk_tL=0 blk_tU=0
 [DP] L=36 states=486 -> next=461 | Kcur=1024 retries=0 | pressure=0.244941 avg/key=890.722 | cand=3008258 truncK=445695 blk_oc=1188660 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=37 states=461 -> next=440 | Kcur=1024 retries=0 | pressure=0.232202 avg/key=882.357 | cand=2852239 truncK=401238 blk_oc=1124267 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=38 states=440 -> next=409 | Kcur=1024 retries=0 | pressure=0.226414 avg/key=881.433 | cand=2664404 truncK=363391 blk_oc=1059419 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=39 states=409 -> next=383 | Kcur=1024 retries=0 | pressure=0.219867 avg/key=873.509 | cand=2445601 truncK=324760 blk_oc=968523 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=40 states=383 -> next=348 | Kcur=1024 retries=0 | pressure=0.208563 avg/key=869.264 | cand=2238687 truncK=280144 blk_oc=895477 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=41 states=348 -> next=319 | Kcur=1024 retries=0 | pressure=0.196021 avg/key=860.15 | cand=1994777 truncK=234920 blk_oc=796335 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=42 states=319 -> next=284 | Kcur=1024 retries=0 | pressure=0.182165 avg/key=868.183 | cand=1776157 truncK=192682 blk_oc=718422 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=43 states=284 -> next=255 | Kcur=1024 retries=0 | pressure=0.177826 avg/key=851.757 | cand=1570175 truncK=166218 blk_oc=635451 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=44 states=255 -> next=221 | Kcur=1024 retries=0 | pressure=0.172507 avg/key=851.213 | cand=1353745 truncK=138651 blk_oc=550003 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=45 states=221 -> next=194 | Kcur=1024 retries=0 | pressure=0.163056 avg/key=833.469 | cand=1148353 truncK=111434 blk_oc=464942 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=46 states=194 -> next=164 | Kcur=1024 retries=0 | pressure=0.157356 avg/key=824.518 | cand=963336 truncK=89230 blk_oc=396279 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=47 states=164 -> next=141 | Kcur=1024 retries=0 | pressure=0.150127 avg/key=795.135 | cand=784939 truncK=69723 blk_oc=320513 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=48 states=141 -> next=116 | Kcur=1024 retries=0 | pressure=0.125198 avg/key=793.491 | cand=630798 truncK=46429 blk_oc=259952 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=49 states=116 -> next=97 | Kcur=1024 retries=0 | pressure=0.129288 avg/key=778.34 | cand=500966 truncK=38202 blk_oc=205485 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=50 states=97 -> next=77 | Kcur=1024 retries=0 | pressure=0.0953449 avg/key=773.649 | cand=395537 truncK=22018 blk_oc=164607 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=51 states=77 -> next=63 | Kcur=1024 retries=0 | pressure=0.113227 avg/key=741.603 | cand=302261 truncK=20085 blk_oc=124874 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=52 states=63 -> next=48 | Kcur=1024 retries=0 | pressure=0.0694682 avg/key=721.188 | cand=224146 truncK=9236 blk_oc=91193 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=53 states=48 -> next=38 | Kcur=1024 retries=0 | pressure=0.0712459 avg/key=697.132 | cand=158539 truncK=6799 blk_oc=63109 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=54 states=38 -> next=28 | Kcur=1024 retries=0 | pressure=0.0468642 avg/key=683.536 | cand=113698 truncK=3199 blk_oc=45437 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=55 states=28 -> next=22 | Kcur=1024 retries=0 | pressure=0.0291446 avg/key=631 | cand=76668 truncK=1383 blk_oc=29215 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=56 states=22 -> next=15 | Kcur=1024 retries=0 | pressure=0.0149707 avg/key=626.2 | cand=51899 truncK=478 blk_oc=19970 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=57 states=15 -> next=11 | Kcur=1024 retries=0 | pressure=0 avg/key=594.909 | cand=32562 truncK=0 blk_oc=11842 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=58 states=11 -> next=7 | Kcur=1024 retries=0 | pressure=0 avg/key=548 | cand=20224 truncK=0 blk_oc=7329 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=59 states=7 -> next=5 | Kcur=1024 retries=0 | pressure=0 avg/key=410.6 | cand=10425 truncK=0 blk_oc=3171 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=60 states=5 -> next=3 | Kcur=1024 retries=0 | pressure=0 avg/key=321 | cand=4657 truncK=0 blk_oc=1285 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=61 states=3 -> next=2 | Kcur=1024 retries=0 | pressure=0 avg/key=186.5 | cand=1730 truncK=0 blk_oc=274 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=62 states=2 -> next=1 | Kcur=1024 retries=0 | pressure=0 avg/key=91 | cand=502 truncK=0 blk_oc=129 blk_win=0 blk_tL=0 blk_tU=0
+[DP] L=63 states=1 -> next=1 | Kcur=1024 retries=0 | pressure=0 avg/key=13 | cand=91 truncK=0 blk_oc=0 blk_win=0 blk_tL=0 blk_tU=0
+[Verify] HPWL=472 maxΔ=18 OC=OK
+[POST] maxΔ=18 > T=8

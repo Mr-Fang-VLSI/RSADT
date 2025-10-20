@@ -19,6 +19,13 @@ template<typename F> static inline void LOG(int lvl, F&& f){
     if(g_log.is_open() && g_vl>=lvl){ f(g_log); g_log.flush(); }
 }
 
+static inline long long llabsll(long long x){ return x>=0?x:-x; }
+
+static inline void ensure_label_dims(vector<short>& rlast, vector<short>& clast, int m, int h){
+    if((int)rlast.size()!=m) rlast.resize(m, 0);
+    if((int)clast.size()!=h) clast.resize(h, 0);
+}
+
 long long ocCapTDAG::weight_ij(int i,int j,int m,int h){
     long long w=0;
     if(i==0)   w -= 1;
@@ -27,8 +34,6 @@ long long ocCapTDAG::weight_ij(int i,int j,int m,int h){
     if(j==h-1) w += 1;
     return w;
 }
-static inline long long llabsll(long long x){ return x>=0?x:-x; }
-
 long long ocCapTDAG::hpwl_neighbors(const vector<vector<int>>& y, long long dV){
     const int m=(int)y.size(), h=(int)y[0].size();
     long long S=0;
@@ -139,7 +144,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         long long dist=0;
         uint64_t prev_key=0;
         int prev_row=-1;
-        int prev_label_idx=-1;   // 索引失效时我们做回退搜索
+        int prev_label_idx=-1;
         vector<short> rlast;     // size m
         vector<short> clast;     // size h
     };
@@ -147,33 +152,62 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     using LVec = vector<Label>;
     std::unordered_map<uint64_t, LVec> cur, nxt;
 
-    auto dominated_by = [&](const Label& A, const Label& B)->bool{
-        if(B.dist > A.dist) return false;
-        for(size_t i=0;i<A.rlast.size();++i) if(B.rlast[i] < A.rlast[i]) return false;
-        for(size_t j=0;j<A.clast.size();++j) if(B.clast[j] < A.clast[j]) return false;
-        return (B.dist < A.dist);
-    };
+    // 加固版支配判断：维度不一致 => 不支配（并记录日志）
+    auto dominates = [&](const Label& B, const Label& A)->bool{
+    // B 是否支配 A：代价不大于，且所有 last 不晚于（越小越好），至少一处严格更好
+    if (B.rlast.size()!=A.rlast.size() || B.clast.size()!=A.clast.size()) {
+        // 维度不一致不判支配（保守）
+        return false;
+    }
+    bool strictly = false;
+
+    if (B.dist > A.dist) return false;
+    if (B.dist < A.dist) strictly = true;
+
+    for (size_t i=0; i<A.rlast.size(); ++i) {
+        if (B.rlast[i] > A.rlast[i]) return false;   // 方向：B 要 ≤ A
+        if (B.rlast[i] < A.rlast[i]) strictly = true;
+    }
+    for (size_t j=0; j<A.clast.size(); ++j) {
+        if (B.clast[j] > A.clast[j]) return false;   // 方向：B 要 ≤ A
+        if (B.clast[j] < A.clast[j]) strictly = true;
+    }
+    return strictly;
+};
+
+
 
     auto insert_label = [&](LVec& vec, Label&& L, size_t& pruned_dom, size_t& truncatedK){
-        for(const auto& e: vec){
-            if(dominated_by(L, e)){ ++pruned_dom; return; }
-        }
-        size_t w=0;
-        for(size_t t=0;t<vec.size();++t){
-            if(dominated_by(vec[t], L)) { ++pruned_dom; continue; }
-            vec[w++]=std::move(vec[t]);
-        }
-        vec.resize(w);
-        vec.push_back(std::move(L));
-        int K = cfg_.max_labels_per_key;
-        if(K>0 && (int)vec.size()>K){
-            size_t worst=0;
-            for(size_t t=1;t<vec.size();++t)
-                if(vec[t].dist > vec[worst].dist) worst=t;
-            if(worst < vec.size()-1) std::swap(vec[worst], vec.back());
-            vec.pop_back(); ++truncatedK;
-        }
-    };
+    ensure_label_dims(L.rlast, L.clast, m, h);
+
+    // 若已有标签支配新标签，则直接丢弃
+    for (const auto& e : vec) {
+        if (dominates(e, L)) { ++pruned_dom; return; }
+    }
+
+    // 用输出缓冲构造新的标签集合，剔除被新标签支配的旧标签
+    LVec out;
+    out.reserve(vec.size() + 1);
+    for (auto &e : vec) {
+        if (dominates(L, e)) { ++pruned_dom; continue; }
+        // 修正维度（防御性）
+        ensure_label_dims(e.rlast, e.clast, m, h);
+        out.push_back(std::move(e));
+    }
+    out.push_back(std::move(L));
+
+    // 截断到 K：保留最优 K 个（按 dist 升序）
+    int K = cfg_.max_labels_per_key;
+    if (K > 0 && (int)out.size() > K) {
+        std::nth_element(out.begin(), out.begin()+K, out.end(),
+                         [](const Label& a, const Label& b){ return a.dist < b.dist; });
+        out.resize(K);
+        ++truncatedK;
+    }
+
+    vec.swap(out);
+};
+
 
     // init
     uint64_t key0=0ull;
@@ -182,6 +216,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         L0.dist=0; L0.prev_key=0; L0.prev_row=-1; L0.prev_label_idx=-1;
         L0.rlast.assign(m, 0);
         L0.clast.assign(h, 0);
+        ensure_label_dims(L0.rlast, L0.clast, m, h);
         cur.emplace(key0, LVec{std::move(L0)});
     }
 
@@ -199,7 +234,6 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             uint64_t key = kv.first;
             const LVec& labels = kv.second;
 
-            // a: 用 vector 替代固定栈数组
             vector<int> a(m);
             for(int i=0;i<m;++i) a[i]=digit_at(key,i,powB,B);
 
@@ -220,13 +254,19 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
 
                     // T 左父
                     if(j>0){
-                        int yL = (int)lab.rlast[i];
+                        if((int)lab.rlast.size()!=m){
+                            LOG(3, [&](std::ofstream& o){ o<<"[tL] dim fix rlast="<<lab.rlast.size()<<" m="<<m<<"\n"; });
+                        }
+                        int yL = (j>0 ? (int) (lab.rlast.size()==(size_t)m ? lab.rlast[i] : 0) : 0);
                         int dL = Lnext - yL;
                         if(dL<1 || dL>T){ ++blk_tL; continue; }
                     }
                     // T 上父
                     if(i>0){
-                        int yU = (int)lab.clast[j];
+                        if((int)lab.clast.size()!=h){
+                            LOG(3, [&](std::ofstream& o){ o<<"[tU] dim fix clast="<<lab.clast.size()<<" h="<<h<<"\n"; });
+                        }
+                        int yU = (i>0 ? (int) (lab.clast.size()==(size_t)h ? lab.clast[j] : 0) : 0);
                         int dU = Lnext - yU;
                         if(dU<1 || dU>T){ ++blk_tU; continue; }
                     }
@@ -238,10 +278,11 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
                     Label Lnew;
                     Lnew.dist=d1; Lnew.prev_key=key; Lnew.prev_row=i; Lnew.prev_label_idx=(int)li;
                     Lnew.rlast = lab.rlast; Lnew.clast = lab.clast;
+                    ensure_label_dims(Lnew.rlast, Lnew.clast, m, h);
                     Lnew.rlast[i] = (short)Lnext;
                     Lnew.clast[j] = (short)Lnext;
 
-                    auto &vec = nxt[key2]; // 创建并取引用
+                    auto &vec = nxt[key2]; // 取或建
                     insert_label(vec, std::move(Lnew), pruned_dom, truncatedK);
                     ++accepted;
                 }
@@ -275,7 +316,6 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             throw std::runtime_error("No feasible next frontier");
         }
 
-        // 保存 & 进入下一层
         LV[L] = std::move(cur);
         cur.swap(nxt);
     }
@@ -290,7 +330,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     }
     int best_idx=0; for(int t=1;t<(int)it->second.size();++t) if(it->second[t].dist < it->second[best_idx].dist) best_idx=t;
 
-    // 回溯：首选用 prev_label_idx，必要时 fallback 扫描
+    // 回溯 + fallback
     vector<vector<int>> y(m, vector<int>(h,0));
     uint64_t k = keyN; int li = best_idx;
     for(int L=n; L>=1; --L){
@@ -299,25 +339,19 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         if(hit==mp.end()) throw std::runtime_error("Reconstruct failed (key missing)");
         const vector<Label>& V = hit->second;
         if(li<0 || li>=(int)V.size()){
-            // fallback: 按 prev_key + 代价 + (仅 i/j 处变化) 搜索
-            LOG(1, [&](std::ofstream& o){ o<<"[RC] fallback at L="<<L<<" for key="<<k<<"\n"; });
-            li = 0; // 先兜底为 0，让下一步能继续（K 很小）
+            LOG(1, [&](std::ofstream& o){ o<<"[RC] fallback A at L="<<L<<" for key="<<k<<"\n"; });
+            li = 0;
         }
         const Label& curLab = V[li];
 
         uint64_t pk = curLab.prev_key;
         int ri = curLab.prev_row;
-        // 从 pk 解出 aj（该行放置前的列号）
         int aj = digit_at(pk, ri, powB, B);
-
         if(ri<0 || ri>=m || aj<0 || aj>=h) throw std::runtime_error("Reconstruct index OOR");
         y[ri][aj] = L;
 
-        // 预先计算本步代价（用于 fallback）
         long long step_cost = (long long)L * weight_ij(ri, aj, m, h) * cfg_.dV;
 
-        // 退一步
-        // 优先信任 prev_label_idx；若无效，则在 LV[L-1][pk] 中扫描一个能匹配 curLab 的 label
         int next_li = curLab.prev_label_idx;
         if(L-1>=0){
             const auto &mp2 = LV[L-1];
@@ -327,15 +361,11 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
             }
             const vector<Label>& PV = it2->second;
             if(next_li<0 || next_li>=(int)PV.size()){
-                // fallback：找一个满足 dist + step_cost == curLab.dist 的候选
                 int found=-1;
                 for(int t=0;t<(int)PV.size();++t){
-                    if(PV[t].dist + step_cost == curLab.dist){
-                        found = t; break;
-                    }
+                    if(PV[t].dist + step_cost == curLab.dist){ found = t; break; }
                 }
                 if(found<0){
-                    // 仍找不到，用最小 dist 的 t 兜底（不影响正确性，只为防止崩溃）
                     long long best = PV[0].dist;
                     found = 0;
                     for(int t=1;t<(int)PV.size();++t){

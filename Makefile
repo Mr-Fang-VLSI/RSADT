@@ -1,9 +1,9 @@
 # ============================
-# Makefile for OC-MaxT
+# Makefile for OC-MaxT with T-pruning
 # ============================
 
 CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
+CXXFLAGS := -O3 -march=native -flto -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
 
 SRC_DIR := src
 BUILD_DIR := build

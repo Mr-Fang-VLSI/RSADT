@@ -1,61 +1,48 @@
 #pragma once
 #include <vector>
+#include <string>
 #include <cstdint>
 
 struct OCMaxTResult {
-    int m = 0, h = 0, n_full = 0;   // n_full = m*h
-    int T = 0;                      // 实际使用的层数（钳制后的）
-    long long dV = 1;
-
-    // y_order[i][j]：若 1..T 内被赋值则为其秩，否则为 0（当 T<n_full）
+    int m=0, h=0, n_full=0, T=0;
+    long long dV=1;
     std::vector<std::vector<int>> y_order;
-
-    // 目标值（分层 DAG 0..T 的最短路成本）
-    long long total_cost = 0;
-
-    // 仅当 T==n_full 时：完整 HPWL（与 total_cost 一致）
-    long long hpwl_full = 0;
-
-    // 当 T<n_full 时：只统计两端都已赋秩的相邻边
-    long long hpwl_prefix = 0;
-
-    bool oc_ok = false;
+    long long hpwl_full=0;
+    long long hpwl_prefix=0;
+    long long total_cost=0;
+    bool oc_ok=true;
 };
 
 class lightOCMaxT {
 public:
     struct Config {
         long long dV = 1;
-        bool verbose = true;
-        bool progress = false;
-        int  omp_threads = 0;   // 0 -> all cores
-        bool low_mem = true;    // 使用 Hirschberg 低内存回溯
+        bool progress = false;        // 是否记录分层进度
+        int prefix_strategy = 2;      // 当前使用 2 = Δ≤T 窗口 + Hirschberg
+        int omp_threads = 0;          // 0=auto
+        int verbose_level = 1;        // 0~3，3 最详细
+        std::string logfile = "run.log";
+        bool log_append = false;
     };
-    explicit lightOCMaxT(const Config& cfg) : cfg_(cfg) {}
+    explicit lightOCMaxT(const Config& c): cfg_(c) {}
 
-    // 主入口：m,h, 以及 Max-T（可>min(m,h)，最终 T 会被钳制到 [1, m*h]）
-    OCMaxTResult solve(int m, int h, int T);
+    OCMaxTResult solve(int m, int h, int T_in);
 
-    // === 工具函数（类外也要用，公开） ===
-    static inline uint64_t encode_digit_inc(uint64_t key, int idx,
-                                            const std::vector<uint64_t>& powB) {
+    // Base-(h+1) 编码/解码（m≤32, h≤32）
+    static inline uint64_t encode_digit_inc(uint64_t key, int idx, const std::vector<uint64_t>& powB) {
         return key + powB[idx];
     }
-    static inline uint64_t encode_digit_dec(uint64_t key, int idx,
-                                            const std::vector<uint64_t>& powB) {
+    static inline uint64_t encode_digit_dec(uint64_t key, int idx, const std::vector<uint64_t>& powB) {
         return key - powB[idx];
     }
-    static inline int digit_at(uint64_t key, int idx,
-                               const std::vector<uint64_t>& powB, uint64_t B){
-        return int((key / powB[idx]) % B);
+    static inline int digit_at(uint64_t key, int idx, const std::vector<uint64_t>& powB, uint64_t B){
+        return (int)((key / powB[idx]) % B);
     }
 
-private:
-    Config cfg_;
-
-    // 邻接 HPWL（完整网格）
+    // 评估/校验
     static long long hpwl_full_neighbors(const std::vector<std::vector<int>>& y, long long dV);
-    // 前缀 HPWL：仅统计两端都>0 的相邻边
     static long long hpwl_prefix_neighbors(const std::vector<std::vector<int>>& y, long long dV);
-    static bool check_OC(const std::vector<std::vector<int>>& y);
+    static bool check_OC_prefix(const std::vector<std::vector<int>>& y);
+
+    Config cfg_;
 };

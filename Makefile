@@ -1,35 +1,51 @@
-CXX      := g++
-CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG -fopenmp
-LDFLAGS  := -fopenmp
-TARGET   := build/oc_maxt
+# ============================
+# Makefile for OC-CapT-DAG (APT)
+# ============================
 
-SRCS := src/main.cpp src/lightOCMaxT.cpp src/networkOCMaxT.cpp
-OBJS := $(SRCS:src/%.cpp=build/%.o)
+CXX := g++
+MODE ?= release
 
-all: $(TARGET)
+# Common
+CXXSTD := -std=c++17
+WARN   := -Wall -Wextra -Wshadow -Wconversion
+INCS   :=
+LIBS   :=
+DEFS   :=
 
-$(TARGET): $(OBJS)
-	@mkdir -p build
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
-	@echo "✅ Build complete: $(TARGET)"
+# Flags per mode
+ifeq ($(MODE),debug)
+  CXXFLAGS := -O0 -g $(CXXSTD) $(WARN) -fno-omit-frame-pointer -D_GLIBCXX_ASSERTIONS
+  SAN      := -fsanitize=address,undefined
+else
+  CXXFLAGS := -O3 -march=native -flto -DNDEBUG $(CXXSTD) $(WARN)
+  SAN      :=
+endif
 
-build/%.o: src/%.cpp | build
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+SRC_DIR   := src
+BUILD_DIR := build
+TARGET    := oc_captdag
 
-build:
-	mkdir -p build
+SRCS := $(SRC_DIR)/ocCapTDAG.cpp $(SRC_DIR)/main.cpp
+OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
+BIN  := $(BUILD_DIR)/$(TARGET)
+
+.PHONY: all clean run
+
+all: $(BIN)
+
+$(BUILD_DIR):
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)/$(SRC_DIR)
+
+$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCS) -c $< -o $@
+
+$(BIN): $(OBJS)
+	$(CXX) $(CXXFLAGS) $^ $(LIBS) $(SAN) -o $@
+	@echo "✅ Build complete: $(BIN)  (MODE=$(MODE))"
+
+run: all
+	$(BIN) 8 8 1 16 3 0
 
 clean:
-	rm -rf build
-	@echo "🧹 Cleaned."
-
-# AddressSanitizer 构建（如需快速定位越界）
-asan:
-	@mkdir -p build
-	$(CXX) -O1 -g -std=c++17 -fsanitize=address -fno-omit-frame-pointer -Wall -Wextra -Wshadow -Wconversion -o $(TARGET)_asan $(SRCS) $(LDFLAGS)
-	@echo "🔎 Built ASAN binary: $(TARGET)_asan"
-
-run:
-	./build/oc_maxt 8 8 1 20 0 1 3 3
-
-.PHONY: all clean run asan
+	rm -rf $(BUILD_DIR) *.dSYM *.prof *.out run.log

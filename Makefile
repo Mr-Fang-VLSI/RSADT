@@ -1,35 +1,54 @@
-# ======== Compiler & Flags ========
-CXX      := g++
-CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -Wshadow -Wconversion -DNDEBUG -fopenmp
-LDFLAGS  := -fopenmp
-TARGET   := build/oc_maxt
+# ============================
+# Makefile for OC-CapT DAG
+# ============================
 
-# ======== Source Files ========
-SRCS := src/main.cpp src/lightOCMaxT.cpp src/networkOCMaxT.cpp
-OBJS := $(SRCS:src/%.cpp=build/%.o)
+CXX := g++
+CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
+# 如需调试可换成: -O0 -g -std=c++17 ...
 
-# ======== Build Rules ========
-all: $(TARGET)
+# 使用 conda 环境中的 LEMON（不强依赖本目标）
+CONDA_PREFIX ?= $(shell echo $$CONDA_PREFIX)
+LEMON_PREFIX ?= $(CONDA_PREFIX)
+INCLUDES := -I$(LEMON_PREFIX)/include
+LDFLAGS := -L$(LEMON_PREFIX)/lib
 
-# 链接
-$(TARGET): $(OBJS)
-	@mkdir -p build
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS)
-	@echo "✅ Build complete: $(TARGET)"
+SRC_DIR := src
+BUILD_DIR := build
+TARGET := oc_captdag
 
-# 编译 src 下的所有 .cpp 文件到 build 目录
-build/%.o: src/%.cpp | build
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+SRCS := $(SRC_DIR)/ocCapTDAG.cpp $(SRC_DIR)/main.cpp
+OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
+BIN := $(BUILD_DIR)/$(TARGET)
 
-# 若 build 目录不存在则创建
-build:
-	mkdir -p build
+.PHONY: all clean run envcheck
+
+all: envcheck $(BIN)
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
+
+$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+$(BIN): $(OBJS)
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
+	@echo "✅ Build complete: $(BIN)"
+
+run: all
+	$(BIN) 8 20 1 16 3
+
+envcheck:
+	@if [ -z "$(CONDA_PREFIX)" ]; then \
+		echo "ℹ️  Not inside conda env (OK). If you need LEMON headers: conda activate <env>"; \
+	else \
+		echo "✅ Conda env: $(CONDA_PREFIX)"; \
+	fi
+	@if [ -d "$(LEMON_PREFIX)/include/lemon" ]; then \
+		echo "✅ LEMON headers found (not required for this target)"; \
+	else \
+		echo "ℹ️  LEMON headers not found (OK)."; \
+	fi
 
 clean:
-	rm -rf build
-	@echo "🧹 Cleaned."
-
-run:
-	./build/oc_maxt 8 8 1 16 4 1 3 3
-
-.PHONY: all clean run
+	rm -rf $(BUILD_DIR)

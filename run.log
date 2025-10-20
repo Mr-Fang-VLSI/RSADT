@@ -1,4 +1,8 @@
-[OC-SpanT-NET] n=64 T=16 v=3 (full DAG shortest path)
+[CapT-DAG] m=8 h=8 n=64 T=21 v=3
 [SpanT] LB range=[1,64], UB range=[15,64]
 [SpanT] window sanity check passed
-[POST-NET] maxΔ=20 > T=16
+[DP] level 0 states=1 -> next=1
+[DP] level 16 states=141 -> next=164
+[DP] level 32 states=511 -> next=494
+[DP] level 48 states=5 -> next=3
+[DP] next empty at level 49

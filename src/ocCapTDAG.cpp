@@ -4,28 +4,29 @@
 #include <stdexcept>
 #include <fstream>
 #include <limits>
-#include <cassert>
+#include <cstdint>
+#include <climits>
 
 using std::vector;
+
+// ------------- Logger -------------
 static std::ofstream g_log;
-static int g_vl=2;
-static inline void LOGOPEN(const std::string& path, bool append, int v){
-    if(!g_log.is_open()){
-        g_log.open(path, append?(std::ios::out|std::ios::app):(std::ios::out|std::ios::trunc));
-        g_vl=v;
-    }
+static int g_vl = 2;
+template<typename F>
+static inline void LOG(int lvl, F&& f){
+    if (g_log.is_open() && g_vl >= lvl) { f(g_log); g_log.flush(); }
 }
-template<typename F> static inline void LOG(int lvl, F&& f){
-    if(g_log.is_open() && g_vl>=lvl){ f(g_log); g_log.flush(); }
+static inline void LOGOPEN(const std::string& path, bool append, int v){
+    if (!g_log.is_open()){
+        g_log.open(path, append ? (std::ios::out|std::ios::app) : (std::ios::out|std::ios::trunc));
+        g_vl = v;
+    }
 }
 
 static inline long long llabsll(long long x){ return x>=0?x:-x; }
+static inline uint16_t sat_inc(uint16_t v, uint16_t cap){ return (v<cap)? (uint16_t)(v+1) : cap; }
 
-static inline void ensure_label_dims(vector<short>& rlast, vector<short>& clast, int m, int h){
-    if((int)rlast.size()!=m) rlast.resize(m, 0);
-    if((int)clast.size()!=h) clast.resize(h, 0);
-}
-
+// ------------- Helpers -------------
 long long ocCapTDAG::weight_ij(int i,int j,int m,int h){
     long long w=0;
     if(i==0)   w -= 1;
@@ -43,10 +44,9 @@ long long ocCapTDAG::hpwl_neighbors(const vector<vector<int>>& y, long long dV){
 }
 bool ocCapTDAG::check_OC(const vector<vector<int>>& y){
     const int m=(int)y.size(), h=(int)y[0].size();
-    for(int i1=0;i1<m;++i1) for(int j1=0;j1<h;++j1){
+    for(int i1=0;i1<m;++i1) for(int j1=0;j1<h;++j1)
         for(int i2=i1;i2<m;++i2) for(int j2=j1;j2<h;++j2)
-            if(y[i1][j1]>y[i2][j2]) return false;
-    }
+            if(y[i1][j1] > y[i2][j2]) return false;
     return true;
 }
 int ocCapTDAG::max_delta_adj(const vector<vector<int>>& y){
@@ -57,7 +57,7 @@ int ocCapTDAG::max_delta_adj(const vector<vector<int>>& y){
     return dmax;
 }
 
-// Δ≤T necessary + OC closure on [LB,UB]
+// ------------- Δ≤T 窗口闭包（必要 + OC 单调）-------------
 void ocCapTDAG::compute_windows_spanT(int m,int h,int T,int n,
                                       vector<vector<int>>& LB,
                                       vector<vector<int>>& UB) const
@@ -73,65 +73,40 @@ void ocCapTDAG::compute_windows_spanT(int m,int h,int T,int n,
     bool changed=true; int iter=0, iter_max=m*h*6;
     while(changed && ++iter<=iter_max){
         changed=false;
-        // 子受父
+        // 子受父（必要 + OC）
         for(int i=0;i<m;++i) for(int j=0;j<h;++j){
-            int oldL=LB[i][j], oldU=UB[i][j];
-            if(i>0)   LB[i][j]=std::max(LB[i][j], LB[i-1][j]+1);
-            if(j>0)   LB[i][j]=std::max(LB[i][j], LB[i][j-1]+1);
-            if(i>0)   UB[i][j]=std::min(UB[i][j], UB[i-1][j]+T);
-            if(j>0)   UB[i][j]=std::min(UB[i][j], UB[i][j-1]+T);
-            if(i<m-1) UB[i][j]=std::min(UB[i][j], UB[i+1][j]-1);
-            if(j<h-1) UB[i][j]=std::min(UB[i][j], UB[i][j+1]-1);
-            if(LB[i][j]!=oldL || UB[i][j]!=oldU) changed=true;
+            int oL=LB[i][j], oU=UB[i][j];
+            if(i>0)   LB[i][j] = std::max(LB[i][j], LB[i-1][j] + 1);
+            if(j>0)   LB[i][j] = std::max(LB[i][j], LB[i][j-1] + 1);
+            if(i>0)   UB[i][j] = std::min(UB[i][j], UB[i-1][j] + T);
+            if(j>0)   UB[i][j] = std::min(UB[i][j], UB[i][j-1] + T);
+            if(i<m-1) UB[i][j] = std::min(UB[i][j], UB[i+1][j] - 1);
+            if(j<h-1) UB[i][j] = std::min(UB[i][j], UB[i][j+1] - 1);
+            if(oL!=LB[i][j] || oU!=UB[i][j]) changed=true;
         }
-        // 父受子
-        for(int i=m-1;i>=0;--i) for(int j=h-1;j>=0;--j){
-            int oldL=LB[i][j], oldU=UB[i][j];
-            if(i<m-1) LB[i][j]=std::max(LB[i][j], LB[i+1][j]-T);
-            if(j<h-1) LB[i][j]=std::max(LB[i][j], LB[i][j+1]-T);
-            if(i<m-1) UB[i][j]=std::min(UB[i][j], UB[i+1][j]-1);
-            if(j<h-1) UB[i][j]=std::min(UB[i][j], UB[i][j+1]-1);
-            if(LB[i][j]!=oldL || UB[i][j]!=oldU) changed=true;
-        }
-        for(int i=0;i<m;++i) for(int j=0;j<h;++j){
-            if(LB[i][j]>UB[i][j]){
-                LOG(1, [&](std::ofstream& o){ o<<"[SpanT] infeasible at ("<<i<<","<<j<<") LB="<<LB[i][j]<<" UB="<<UB[i][j]<<"\n"; });
-                throw std::runtime_error("Δ≤T infeasible after closure");
-            }
-        }
-    }
-    if(cfg_.vlevel>=3){
-        int LBmin=1e9,LBmax=-1e9,UBmin=1e9,UBmax=-1e9;
-        for(int i=0;i<m;++i) for(int j=0;j<h;++j){
-            LBmin=std::min(LBmin,LB[i][j]); LBmax=std::max(LBmax,LB[i][j]);
-            UBmin=std::min(UBmin,UB[i][j]); UBmax=std::max(UBmax,UB[i][j]);
-        }
-        LOG(3, [&](std::ofstream& o){
-            o<<"[SpanT] LB range=["<<LBmin<<","<<LBmax<<"], UB range=["<<UBmin<<","<<UBmax<<"]\n";
-        });
     }
 }
 
-// -------- APT 多标签前向 DP ----------
-CapTDAGResult ocCapTDAG::solve(int m, int h){
+// ------------- APT 多标签 DP（ages + 活跃列 + 自适应 K）-------------
+CapTDAGResult ocCapTDAG::solve(int m,int h){
     LOGOPEN(cfg_.logfile, cfg_.log_append, cfg_.vlevel);
 
     const int n = m*h;
-    int T = cfg_.T>0? cfg_.T : n;
+    int T = cfg_.T>0 ? cfg_.T : n;
     const uint64_t B = (uint64_t)h + 1u;
 
-    // powB
+    // powB for base-(h+1)
     vector<uint64_t> powB(m);
     powB[m-1]=1ull;
     for(int k=m-2;k>=0;--k){
-        __uint128_t t=(__uint128_t)powB[k+1]*(__uint128_t)B;
-        if(t > (__uint128_t)std::numeric_limits<uint64_t>::max()) throw std::runtime_error("state key overflow");
-        powB[k]=(uint64_t)t;
+        __uint128_t t = (__uint128_t)powB[k+1]*(__uint128_t)B;
+        if(t > (__uint128_t)ULLONG_MAX) throw std::runtime_error("state key overflow");
+        powB[k] = (uint64_t)t;
     }
 
     LOG(1, [&](std::ofstream& o){
-        o<<"[CapT-DAG/APT] m="<<m<<" h="<<h<<" n="<<n<<" T="<<T<<" v="<<cfg_.vlevel
-         <<" K="<<cfg_.max_labels_per_key<<"\n";
+        o<<"[APT-ages+] m="<<m<<" h="<<h<<" n="<<n<<" T="<<T
+         <<" v="<<cfg_.vlevel<<" K0="<<cfg_.max_labels_per_key<<"\n";
     });
 
     // windows
@@ -139,198 +114,213 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     compute_windows_spanT(m,h,T,n,LB,UB);
     LOG(2, [&](std::ofstream& o){ o<<"[SpanT] window sanity check passed\n"; });
 
-    // Label
-    struct Label {
+    // Label：相对龄值（0..T-1），未活跃维强制为 0
+    struct Label{
         long long dist=0;
         uint64_t prev_key=0;
         int prev_row=-1;
         int prev_label_idx=-1;
-        vector<short> rlast;     // size m
-        vector<short> clast;     // size h
+        vector<uint16_t> r_age; // size=m（仅 a[i]>0 有意义）
+        vector<uint16_t> c_age; // size=h（仅活跃列 J_active 有意义）
     };
 
     using LVec = vector<Label>;
     std::unordered_map<uint64_t, LVec> cur, nxt;
 
-    // 加固版支配判断：维度不一致 => 不支配（并记录日志）
-    auto dominates = [&](const Label& B, const Label& A)->bool{
-    // B 是否支配 A：代价不大于，且所有 last 不晚于（越小越好），至少一处严格更好
-    if (B.rlast.size()!=A.rlast.size() || B.clast.size()!=A.clast.size()) {
-        // 维度不一致不判支配（保守）
-        return false;
-    }
-    bool strictly = false;
+    auto build_active = [&](const vector<int>& a, vector<int>& J){
+        J.clear();
+        for(int i=1;i<m;++i) if(a[i]>0) J.push_back(a[i]);
+        std::sort(J.begin(),J.end());
+        J.erase(std::unique(J.begin(),J.end()), J.end());
+    };
 
-    if (B.dist > A.dist) return false;
-    if (B.dist < A.dist) strictly = true;
+    const uint16_t AGE_CAP = (uint16_t)std::max(0, T-1); // 饱和到 T-1；T 表示下一步必超
 
-    for (size_t i=0; i<A.rlast.size(); ++i) {
-        if (B.rlast[i] > A.rlast[i]) return false;   // 方向：B 要 ≤ A
-        if (B.rlast[i] < A.rlast[i]) strictly = true;
-    }
-    for (size_t j=0; j<A.clast.size(); ++j) {
-        if (B.clast[j] > A.clast[j]) return false;   // 方向：B 要 ≤ A
-        if (B.clast[j] < A.clast[j]) strictly = true;
-    }
-    return strictly;
-};
+    auto dominates = [&](const Label& B, const Label& A,
+                         const vector<int>& a, const vector<int>& J)->bool{
+        if(B.dist > A.dist) return false;
+        bool strict = (B.dist < A.dist);
+        for(int i=0;i<m;++i){
+            if(a[i]==0) continue; // 未启动行不比较
+            if(B.r_age[i] > A.r_age[i]) return false;
+            if(B.r_age[i] < A.r_age[i]) strict = true;
+        }
+        for(int x : J){
+            if(B.c_age[x] > A.c_age[x]) return false;
+            if(B.c_age[x] < A.c_age[x]) strict = true;
+        }
+        return strict;
+    };
 
+    auto score = [&](const Label& L, const vector<int>& a, const vector<int>& J){
+        long long s = 0;
+        for(int i=0;i<m;++i) if(a[i]>0) s += L.r_age[i];
+        for(int x : J) s += L.c_age[x];
+        return std::pair<long long,long long>(L.dist, s); // 词典序：dist 主导，其次总龄值
+    };
 
+    int Kcur0 = std::max(1, cfg_.max_labels_per_key);
+    const int KMAX = 4096;
 
-    auto insert_label = [&](LVec& vec, Label&& L, size_t& pruned_dom, size_t& truncatedK){
-    ensure_label_dims(L.rlast, L.clast, m, h);
+    auto insert_label = [&](LVec& vec, Label&& L, int Kcur,
+                            const vector<int>& a, const vector<int>& J,
+                            size_t& pruned_dom, size_t& truncatedK){
+        // 支配过滤
+        for(const auto& e : vec) if(dominates(e, L, a, J)){ ++pruned_dom; return; }
+        size_t w=0;
+        for(size_t t=0;t<vec.size();++t){
+            if(dominates(L, vec[t], a, J)){ ++pruned_dom; continue; }
+            if(w!=t) vec[w] = std::move(vec[t]);
+            ++w;
+        }
+        vec.resize(w);
+        vec.push_back(std::move(L));
 
-    // 若已有标签支配新标签，则直接丢弃
-    for (const auto& e : vec) {
-        if (dominates(e, L)) { ++pruned_dom; return; }
-    }
-
-    // 用输出缓冲构造新的标签集合，剔除被新标签支配的旧标签
-    LVec out;
-    out.reserve(vec.size() + 1);
-    for (auto &e : vec) {
-        if (dominates(L, e)) { ++pruned_dom; continue; }
-        // 修正维度（防御性）
-        ensure_label_dims(e.rlast, e.clast, m, h);
-        out.push_back(std::move(e));
-    }
-    out.push_back(std::move(L));
-
-    // 截断到 K：保留最优 K 个（按 dist 升序）
-    int K = cfg_.max_labels_per_key;
-    if (K > 0 && (int)out.size() > K) {
-        std::nth_element(out.begin(), out.begin()+K, out.end(),
-                         [](const Label& a, const Label& b){ return a.dist < b.dist; });
-        out.resize(K);
-        ++truncatedK;
-    }
-
-    vec.swap(out);
-};
-
+        // 截断：保留 Kcur 个最优 (dist, sum_active_ages)
+        if((int)vec.size() > Kcur){
+            std::nth_element(vec.begin(), vec.begin()+Kcur, vec.end(),
+                [&](const Label& A, const Label& B){ return score(A,a,J) < score(B,a,J); });
+            truncatedK += (vec.size() - Kcur);
+            vec.resize(Kcur);
+        }
+    };
 
     // init
     uint64_t key0=0ull;
     {
         Label L0;
         L0.dist=0; L0.prev_key=0; L0.prev_row=-1; L0.prev_label_idx=-1;
-        L0.rlast.assign(m, 0);
-        L0.clast.assign(h, 0);
-        ensure_label_dims(L0.rlast, L0.clast, m, h);
+        L0.r_age.assign(m, 0);
+        L0.c_age.assign(h, 0);
         cur.emplace(key0, LVec{std::move(L0)});
     }
 
-    // 保存每层（用于回溯）
-    vector< std::unordered_map<uint64_t, LVec> > LV(n+1);
+    // 保存每层的前沿（用于回溯）
+    vector<std::unordered_map<uint64_t, LVec>> LV(n+1);
 
     for(int L=0; L<n; ++L){
-        nxt.clear();
-        nxt.reserve(std::max<size_t>(cur.size()*2, 16));
+        bool layer_ok=false;
+        int retries=0;
+        int Kcur = Kcur0;
 
-        size_t cand=0, blk_oc=0, blk_win=0, blk_tL=0, blk_tU=0, accepted=0;
-        size_t pruned_dom=0, truncatedK=0;
+        do{
+            nxt.clear();
+            nxt.reserve(std::max<size_t>(cur.size()*2, 16));
 
-        for(auto &kv : cur){
-            uint64_t key = kv.first;
-            const LVec& labels = kv.second;
+            size_t cand=0, blk_oc=0, blk_win=0, blk_tL=0, blk_tU=0, accepted=0, pruned_dom=0, truncatedK=0;
 
-            vector<int> a(m);
-            for(int i=0;i<m;++i) a[i]=digit_at(key,i,powB,B);
+            for(auto &kv : cur){
+                uint64_t key = kv.first;
+                const LVec& labels = kv.second;
 
-            for(size_t li=0; li<labels.size(); ++li){
-                const Label& lab = labels[li];
+                vector<int> a(m);
+                for(int i=0;i<m;++i) a[i] = digit_at(key,i,powB,B);
 
-                for(int i=0;i<m;++i){
-                    int j = a[i];
-                    if(j>=h) continue;
-                    ++cand;
+                vector<int> J; build_active(a, J); // 活跃列集合
 
-                    // OC：非增
-                    if(i>0 && j+1> a[i-1]){ ++blk_oc; continue; }
+                for(size_t li=0; li<labels.size(); ++li){
+                    const Label& lab = labels[li];
 
-                    int Lnext = L+1;
-                    // window：Lnext ∈ [LB,UB]
-                    if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
+                    for(int i=0;i<m;++i){
+                        int j = a[i];
+                        if(j>=h) continue;
+                        ++cand;
 
-                    // T 左父
-                    if(j>0){
-                        if((int)lab.rlast.size()!=m){
-                            LOG(3, [&](std::ofstream& o){ o<<"[tL] dim fix rlast="<<lab.rlast.size()<<" m="<<m<<"\n"; });
+                        // OC 非增：i>0 时需 j+1 ≤ a[i-1]
+                        if(i>0 && j+1 > a[i-1]){ ++blk_oc; continue; }
+
+                        int Lnext = L+1;
+
+                        // 窗口必要：Lnext ∈ [LB,UB]
+                        if(!(LB[i][j] <= Lnext && Lnext <= UB[i][j])){ ++blk_win; continue; }
+
+                        // Δ≤T：ages 判定（age + 1 ≤ T ↔ age ≤ T-1）
+                        if(j>0 && lab.r_age[i] >= (uint16_t)T){ ++blk_tL; continue; } // 左父
+                        if(i>0 && lab.c_age[j] >= (uint16_t)T){ ++blk_tU; continue; } // 上父（j 属于 J_active）
+
+                        uint64_t key2 = enc_inc(key, i, powB);
+                        long long d1 = lab.dist + (long long)Lnext * weight_ij(i,j,m,h) * cfg_.dV;
+
+                        // 更新 ages：仅活跃维 +1 饱和；本行/本列清零；未启动行置 0
+                        vector<uint16_t> r2 = lab.r_age, c2 = lab.c_age;
+                        for(int k=0;k<m;++k){
+                            if(a[k]>0) r2[k] = sat_inc(r2[k], AGE_CAP);
+                            else       r2[k] = 0;
                         }
-                        int yL = (j>0 ? (int) (lab.rlast.size()==(size_t)m ? lab.rlast[i] : 0) : 0);
-                        int dL = Lnext - yL;
-                        if(dL<1 || dL>T){ ++blk_tL; continue; }
-                    }
-                    // T 上父
-                    if(i>0){
-                        if((int)lab.clast.size()!=h){
-                            LOG(3, [&](std::ofstream& o){ o<<"[tU] dim fix clast="<<lab.clast.size()<<" h="<<h<<"\n"; });
+                        for(int t=0;t<h;++t){
+                            if(std::binary_search(J.begin(), J.end(), t)) c2[t] = sat_inc(c2[t], AGE_CAP);
+                            else c2[t] = 0;
                         }
-                        int yU = (i>0 ? (int) (lab.clast.size()==(size_t)h ? lab.clast[j] : 0) : 0);
-                        int dU = Lnext - yU;
-                        if(dU<1 || dU>T){ ++blk_tU; continue; }
+                        r2[i] = 0;
+                        c2[j] = 0;
+                        if(i==0){ // 新开一列 j=a0
+                            int a0 = a[0];
+                            if(a0 < h) c2[a0] = 0;
+                        }
+
+                        Label Lnew;
+                        Lnew.dist=d1; Lnew.prev_key=key; Lnew.prev_row=i; Lnew.prev_label_idx=(int)li;
+                        Lnew.r_age = std::move(r2);
+                        Lnew.c_age = std::move(c2);
+
+                        insert_label(nxt[key2], std::move(Lnew), Kcur, a, J, pruned_dom, truncatedK);
+                        ++accepted;
                     }
-
-                    uint64_t key2 = enc_inc(key,i,powB);
-                    long long cost = (long long)(Lnext) * weight_ij(i,j,m,h) * cfg_.dV;
-                    long long d1 = lab.dist + cost;
-
-                    Label Lnew;
-                    Lnew.dist=d1; Lnew.prev_key=key; Lnew.prev_row=i; Lnew.prev_label_idx=(int)li;
-                    Lnew.rlast = lab.rlast; Lnew.clast = lab.clast;
-                    ensure_label_dims(Lnew.rlast, Lnew.clast, m, h);
-                    Lnew.rlast[i] = (short)Lnext;
-                    Lnew.clast[j] = (short)Lnext;
-
-                    auto &vec = nxt[key2]; // 取或建
-                    insert_label(vec, std::move(Lnew), pruned_dom, truncatedK);
-                    ++accepted;
                 }
             }
-        }
 
-        if(cfg_.progress && (cfg_.vlevel>=2) && (L%16==0 || L+1==n)){
-            LOG(2, [&](std::ofstream& o){
-                o<<"[DP] level "<<L<<" states="<<cur.size()<<" -> next="<<nxt.size()<<"\n";
-            });
-        }
-        if(cfg_.vlevel>=3){
-            size_t next_labels=0;
-            for(auto &p: nxt) next_labels += p.second.size();
-            double avg = nxt.empty()?0.0: (double)next_labels / (double)nxt.size();
-            LOG(3, [&](std::ofstream& o){
-                o<<"[DP-stat] L="<<L<<" cand="<<cand
-                 <<" blk_oc="<<blk_oc<<" blk_win="<<blk_win
-                 <<" blk_tL="<<blk_tL<<" blk_tU="<<blk_tU
-                 <<" accepted="<<accepted
-                 <<" pruned_dom="<<pruned_dom
-                 <<" truncK="<<truncatedK
-                 <<" next_keys="<<nxt.size()
-                 <<" avg_labels/key="<<avg
-                 <<"\n";
-            });
-        }
+            // 统计 + 自适应 K（不仅空前沿才扩容）
+            size_t next_labels=0; for(auto &p: nxt) next_labels += p.second.size();
+            double avg = nxt.empty()? 0.0 : (double)next_labels / (double)nxt.size();
+            double pressure = accepted ? (double)truncatedK / (double)accepted : 0.0;
 
-        if(nxt.empty()){
-            LOG(1, [&](std::ofstream& o){ o<<"[DP] next empty at level "<<L<<"\n"; });
-            throw std::runtime_error("No feasible next frontier");
-        }
+            if(cfg_.vlevel>=2){
+                LOG(2, [&](std::ofstream& o){
+                    o<<"[DP] L="<<L
+                     <<" states="<<cur.size()<<" -> next="<<nxt.size()
+                     <<" | Kcur="<<Kcur<<" retries="<<retries
+                     <<" | pressure="<<pressure<<" avg/key="<<avg
+                     <<" | cand="<<cand<<" truncK="<<truncatedK
+                     <<" blk_oc="<<blk_oc<<" blk_win="<<blk_win
+                     <<" blk_tL="<<blk_tL<<" blk_tU="<<blk_tU
+                     <<"\n";
+                });
+            }
+
+            // 触发规则：空前沿 或 截断压力大（≥0.3）或 avg/key 逼近 Kcur（≥0.9·Kcur）
+            if( (nxt.empty() || pressure>=0.30 || (avg >= 0.90*Kcur)) && Kcur < KMAX ){
+                int old = Kcur; Kcur = std::min(KMAX, Kcur*2); ++retries;
+                LOG(1, [&](std::ofstream& o){ o<<"[DP] expand K "<<old<<" -> "<<Kcur<<" at L="<<L<<"\n"; });
+                // 重做本层
+            }else if(nxt.empty()){
+                // 已到 KMAX 仍空前沿 ⇒ 确实无解
+                throw std::runtime_error("No feasible next frontier (even after K growth)");
+            }else{
+                // 本层通过
+                layer_ok = true;
+                // 下一层的起始 K0 用当前 Kcur（避免层间振荡）
+                Kcur0 = Kcur;
+            }
+
+        }while(!layer_ok);
 
         LV[L] = std::move(cur);
         cur.swap(nxt);
     }
     LV[n] = cur;
 
-    // 终态
-    uint64_t keyN=0ull; for(int i=0;i<m;++i) keyN += powB[i]*(uint64_t)h;
+    // 终态挑最优标签
+    uint64_t keyN = 0ull;
+    for(int i=0;i<m;++i) keyN += powB[i]*(uint64_t)h;
     auto it = LV[n].find(keyN);
     if(it==LV[n].end() || it->second.empty()){
-        LOG(1, [&](std::ofstream& o){ o<<"[END] terminal state missing\n"; });
-        throw std::runtime_error("No feasible terminal state");
+        throw std::runtime_error("No terminal state");
     }
-    int best_idx=0; for(int t=1;t<(int)it->second.size();++t) if(it->second[t].dist < it->second[best_idx].dist) best_idx=t;
+    int best_idx=0;
+    for(int t=1;t<(int)it->second.size();++t)
+        if(it->second[t].dist < it->second[best_idx].dist) best_idx=t;
 
-    // 回溯 + fallback
+    // 回溯
     vector<vector<int>> y(m, vector<int>(h,0));
     uint64_t k = keyN; int li = best_idx;
     for(int L=n; L>=1; --L){
@@ -338,45 +328,18 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
         auto hit = mp.find(k);
         if(hit==mp.end()) throw std::runtime_error("Reconstruct failed (key missing)");
         const vector<Label>& V = hit->second;
-        if(li<0 || li>=(int)V.size()){
-            LOG(1, [&](std::ofstream& o){ o<<"[RC] fallback A at L="<<L<<" for key="<<k<<"\n"; });
-            li = 0;
-        }
-        const Label& curLab = V[li];
+        if(li<0 || li>=(int)V.size()) li = 0; // 兜底
 
-        uint64_t pk = curLab.prev_key;
-        int ri = curLab.prev_row;
+        const Label& curL = V[li];
+        uint64_t pk = curL.prev_key;
+        int ri = curL.prev_row;
         int aj = digit_at(pk, ri, powB, B);
-        if(ri<0 || ri>=m || aj<0 || aj>=h) throw std::runtime_error("Reconstruct index OOR");
+        if(ri<0||ri>=m||aj<0||aj>=h) throw std::runtime_error("Reconstruct index OOR");
+
         y[ri][aj] = L;
-
-        long long step_cost = (long long)L * weight_ij(ri, aj, m, h) * cfg_.dV;
-
-        int next_li = curLab.prev_label_idx;
-        if(L-1>=0){
-            const auto &mp2 = LV[L-1];
-            auto it2 = mp2.find(pk);
-            if(it2==mp2.end() || it2->second.empty()){
-                throw std::runtime_error("Reconstruct failed (prev state missing)");
-            }
-            const vector<Label>& PV = it2->second;
-            if(next_li<0 || next_li>=(int)PV.size()){
-                int found=-1;
-                for(int t=0;t<(int)PV.size();++t){
-                    if(PV[t].dist + step_cost == curLab.dist){ found = t; break; }
-                }
-                if(found<0){
-                    long long best = PV[0].dist;
-                    found = 0;
-                    for(int t=1;t<(int)PV.size();++t){
-                        if(PV[t].dist < best){ best=PV[t].dist; found=t; }
-                    }
-                }
-                next_li = found;
-            }
-        }
-        k = curLab.prev_key;
-        li = next_li;
+        k = pk;
+        li = curL.prev_label_idx;
+        if(li<0) li=0;
     }
 
     long long total = hpwl_neighbors(y, cfg_.dV);
@@ -386,16 +349,7 @@ CapTDAGResult ocCapTDAG::solve(int m, int h){
     LOG(1, [&](std::ofstream& o){
         o<<"[Verify] HPWL="<<total<<" maxΔ="<<dmax<<" OC="<<(oc_ok?"OK":"FAIL")<<"\n";
     });
-    if(cfg_.vlevel>=3){
-        LOG(3, [&](std::ofstream& o){
-            o<<"[y_order top->bottom]\n";
-            for(int i=0;i<m;++i){
-                o<<"  ";
-                for(int j=0;j<h;++j) o<< (j?" ":"") << (y[i][j]<10?"  ":" ") << y[i][j];
-                o<<"\n";
-            }
-        });
-    }
+
     if(dmax > T){
         LOG(1, [&](std::ofstream& o){ o<<"[POST] maxΔ="<<dmax<<" > T="<<T<<"\n"; });
         throw std::runtime_error("Post-check failed: max Δ > T");

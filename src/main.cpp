@@ -24,7 +24,7 @@ static void run_case(int m,int h,long long dV,int max_steps,int threads){
 
 int main(int argc,char** argv){
     long long dV = 1;
-    run_case(4,4,dV,-1,0); // sanity
+    //run_case(4,4,dV,-1,0); // sanity
 
     // Usage: ./build/oc_shortest m h [dV] [T=max_steps] [threads]
     if(argc>=3){

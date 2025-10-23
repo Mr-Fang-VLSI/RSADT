@@ -140,8 +140,8 @@ static void forward_to_level_map(
             }
         }
 #endif
-        if(progress && ((l0+lvl)%16==0))
-            cout << "[DP-fwd] level " << (l0+lvl) << " states="<<cur.size()<<" -> next="<<next.size()<<endl;
+        //if(progress && ((l0+lvl)%16==0))
+          //  cout << "[DP-fwd] level " << (l0+lvl) << " states="<<cur.size()<<" -> next="<<next.size()<<endl;
 
         cur.swap(next);
     }
@@ -246,8 +246,8 @@ static void backward_to_level_map(
             }
         }
 #endif
-        if(progress && ((lN-t)%16==0))
-            cout << "[DP-bwd] level " << (lN-t) << " states="<<cur.size()<<" -> next="<<next.size()<<endl;
+        //if(progress && ((lN-t)%16==0))
+          //  cout << "[DP-bwd] level " << (lN-t) << " states="<<cur.size()<<" -> next="<<next.size()<<endl;
 
         cur.swap(next);
     }

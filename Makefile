@@ -1,35 +1,20 @@
-# ============================
-# Makefile for OC-Shortest
-# ============================
+CXX ?= g++
+# 屏蔽 timespec_get 相关的 LIB EXT1；避免 <ctime> 干扰
+CXXFLAGS ?= -O3 -std=c++17 -DNDEBUG -D__STDC_WANT_LIB_EXT1__=0
+LDFLAGS ?=
 
-CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
+OBJS = dp_oc.o main_dp.o
 
-SRC_DIR := src
-BUILD_DIR := build
-TARGET := oc_shortest
+all: dp_model
 
-SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
+dp_model: $(OBJS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-.PHONY: all clean run
-
-all: $(BIN)
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
-
-$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+dp_oc.o: dp_oc.cpp dp_oc.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-	@echo "✅ Build complete: $(BIN)"
-
-run: all
-	$(BIN)
+main_dp.o: main_dp.cpp dp_oc.h
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -f *.o dp_model

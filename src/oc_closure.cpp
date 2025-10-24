@@ -4,8 +4,9 @@
 #include <limits>
 #include <cassert>
 #include <iostream>
+#include <unordered_set>
 
-using std::vector; using std::string; using std::int64_t; using std::uint64_t;
+using std::vector; using std::string;
 
 // ---------- 验证/统计 ----------
 bool OCClosure::check_OC_lin(const vector<vector<int>>& y){
@@ -61,6 +62,9 @@ void OCClosure::build_phi(int m,int h, const OCWeights& W){
         if(inb(i+1,0,m)) succ_[u].push_back(id(i+1,j));
         if(inb(j+1,0,h)) succ_[u].push_back(id(i,j+1));
     }
+    if(cfg_.verbose){
+        std::cout << "[phi] built, m="<<m_<<" h="<<h_<<" N="<<N_<<"\n";
+    }
 }
 
 // ---------- 小工具 ----------
@@ -87,12 +91,20 @@ void OCClosure::sinks_upward_closed(const vector<char>& mask, vector<char>& S_si
         for(int v: succ_[u]) if(mask[v]){ hasSucc=true; break; }
         if(!hasSucc){ S_sink[u]=1; any=true; }
     }
-    // 极端情况（不该发生）：若 mask 非空却没找到 sink，退化取最右下合法点
     if(!any){
         for(int i=m_-1;i>=0;--i) for(int j=h_-1;j>=0;--j){
             int u=id(i,j); if(mask[u]){ S_sink[u]=1; return; }
         }
     }
+}
+bool OCClosure::is_upward_closed_on_mask(const vector<char>& mask, const vector<char>& S) const{
+    for(int u=0; u<N_; ++u){
+        if(!mask[u] || !S[u]) continue;
+        for(int v: succ_[u]){
+            if(mask[v] && !S[v]) return false; // u in S but succ v not in S
+        }
+    }
+    return true;
 }
 
 // ---------- Dinic for min-cut ----------
@@ -104,7 +116,6 @@ struct Dinic {
 
     explicit Dinic(int n_): n(n_), g(n_), lvl(n_), it(n_) {}
     void addEdge(int u,int v,long long c){
-        // 保护：负容量当0
         if(c<0) c=0;
         E a{v,c,(int)g[v].size()};
         E b{u,0,(int)g[u].size()};
@@ -169,18 +180,20 @@ long long OCClosure::max_weight_upward_closure(const vector<char>& mask,
     const int S = N_, T = N_+1;
     Dinic D(N_+2);
 
-    long long sumPos = 0;
+    long long sumPos = 0, sumNeg = 0, sumAbs = 0;
     for(int u=0; u<N_; ++u){
         if(!mask[u]) continue;
         long long qi = q[u];
-        if(qi>0){ D.addEdge(S,u,qi); sumPos += qi; }
-        else if(qi<0){ D.addEdge(u,T,-qi); }
+        if(qi>0){ D.addEdge(S,u,qi); sumPos += qi; sumAbs += qi; }
+        else if(qi<0){ D.addEdge(u,T,-qi); sumNeg += -qi; sumAbs += -qi; }
     }
-    long long INF = (sumPos>0? sumPos : 1) + 1; // 至少为2
+    long long INF = sumAbs + 1; if(INF < 2) INF = 2; // 关键修复：必须大于任意可行割容量
+
+    // upward-closed: 选 u 必须选其后继 v
     for(int u=0; u<N_; ++u){
         if(!mask[u]) continue;
         for(int v: succ_[u]){
-            if(mask[v]) D.addEdge(u, v, INF); // upward-closed: 选 u 必须选其后继 v
+            if(mask[v]) D.addEdge(u, v, INF);
         }
     }
     (void)D.maxflow(S,T);
@@ -192,6 +205,17 @@ long long OCClosure::max_weight_upward_closure(const vector<char>& mask,
     for(int u=0; u<N_; ++u){
         if(mask[u] && reach[u]){ maskS[u]=1; sumQ += q[u]; }
     }
+
+    if(cfg_.verbose){
+        int cnt=0; for(int u=0;u<N_;++u) if(maskS[u]) ++cnt;
+        std::cout << "[closure] |mask|="<<count_on_mask(mask)
+                  << " sumPos="<<sumPos<<" sumNeg="<<sumNeg
+                  << " sumAbs="<<sumAbs<<" INF="<<INF
+                  << "  => |S|="<<cnt<<" sumQ="<<sumQ
+                  << " upClosed="<<(is_upward_closed_on_mask(mask,maskS)?"Y":"N")
+                  << "\n";
+    }
+
     return sumQ;
 }
 
@@ -225,9 +249,12 @@ void OCClosure::find_max_density_upward_closed(const vector<char>& mask,
         long long sumQ = max_weight_upward_closure(mask, q, S);
 
         if(cfg_.progress){
+            long long As=0; int Bs=0;
+            for(int u=0;u<N_;++u) if(mask[u] && S[u]){ ++Bs; int ii=u/h_, jj=u%h_; As+=phi_[ii][jj]; }
             std::cout << "[Dinkelbach] iter="<<guard
                       << " B="<<B<<" A="<<A
-                      << " sumQ="<<sumQ << std::endl;
+                      << " sumQ="<<sumQ
+                      << " -> |S|="<<Bs<<" sumW="<<As << std::endl;
         }
 
         if(sumQ==0){
@@ -239,10 +266,10 @@ void OCClosure::find_max_density_upward_closed(const vector<char>& mask,
             ++Bnew; int i=u/h_, j=u%h_; Anew += phi_[i][j];
         }
         if(Bnew==0){
-            // 极罕见时的兜底：取一个 sink 的 upward-closure（即它自己）
+            // 极罕见兜底
             sinks_upward_closed(mask, S);
             Anew=0; Bnew=0;
-            for(int u=0;u<N_;++u) if(S[u]){ ++Bnew; int i=u/h_, j=u%h_; Anew+=phi_[i][j]; }
+            for(int u=0;u<N_;++u) if(mask[u] && S[u]){ ++Bnew; int i=u/h_, j=u%h_; Anew+=phi_[i][j]; }
             break;
         }
         if(S == S_prev) break; // 数值反复
@@ -252,8 +279,6 @@ void OCClosure::find_max_density_upward_closed(const vector<char>& mask,
     }
 
     // —— 字典序择优：在 λ*=A/B 下，取“最小基数”的最优闭合集 ——
-    // 令 qi* = w_i*B - A；设 U = sum |qi*|，取 K = U + 1；
-    // 最大化 sum (qi* * K - 1) 等价于：先最大化 sum qi*，再在 tie 下最大化 (-|S|)（即最小基数）
     vector<long long> qstar(N_,0);
     long long U=0;
     for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
@@ -265,7 +290,7 @@ void OCClosure::find_max_density_upward_closed(const vector<char>& mask,
         qstar[u]=(long long)t;
         U += (qstar[u]>=0? qstar[u] : -qstar[u]);
     }
-    long long K = U + 1; if(K<2) K=2; // 至少2
+    long long K = U + 1; if(K<2) K=2;
 
     vector<long long> qlex(N_,0);
     for(int u=0;u<N_;++u){
@@ -277,11 +302,15 @@ void OCClosure::find_max_density_upward_closed(const vector<char>& mask,
     }
     long long sumQlex = max_weight_upward_closure(mask, qlex, S);
 
-    // —— 安全兜底：若 S==mask（极少数），取 sink 集合作为最后块，保证严格缩小 ——
-    bool same=true;
-    for(int u=0;u<N_;++u) if( (bool)S[u] != (bool)mask[u] ){ same=false; break; }
-    if(same){
+    // —— 安全兜底：若 S==mask 或 S 为空，取 sink 集合 ——
+    int Bs=0; for(int u=0;u<N_;++u) if(mask[u] && S[u]) ++Bs;
+    bool same=true; for(int u=0;u<N_;++u) if((bool)S[u]!=(bool)mask[u]){ same=false; break; }
+    if(same || Bs==0){
+        if(cfg_.verbose){
+            std::cout << "[lex] same="<<same<<" |S|="<<Bs<<" -> fallback to sinks\n";
+        }
         sinks_upward_closed(mask, S);
+        Bs=0; for(int u=0;u<N_;++u) if(mask[u] && S[u]) ++Bs;
     }
 
     // 输出
@@ -301,28 +330,59 @@ std::vector<int> OCClosure::solve_recursive(const vector<char>& mask) const{
         for(int u=0; u<N_; ++u) if(mask[u]) return {u};
         return {};
     }
+    if(cfg_.verbose){
+        std::cout << "[rec] enter |mask|="<<cnt<<" sumW="<<sum_w_on_mask(mask) << "\n";
+    }
+
     vector<char> S, Lmask;
     long long As=0; int Bs=0;
     find_max_density_upward_closed(mask, S, As, Bs);
 
-    // 保险：若出现空 S（不该发生），取一个 sink
+    // 保险：若出现空 S（不应发生），取一个 sink
     if(Bs<=0){
+        if(cfg_.verbose) std::cout << "[rec] Bs==0 -> sinks\n";
         sinks_upward_closed(mask, S);
         Bs = count_on_mask(S);
     }
-    // 保险：若 S==mask（理论上已避免），仍强拆为 sink 集合
+    // 再保：若 S==mask（理论上已避免），仍强拆为 sink 集合
     bool same=true; for(int u=0;u<N_;++u) if((bool)S[u]!=(bool)mask[u]){ same=false; break; }
     if(same){
+        if(cfg_.verbose) std::cout << "[rec] S==mask -> sinks fallback\n";
         sinks_upward_closed(mask, S);
+        Bs = count_on_mask(S);
     }
 
     complement_mask(mask, S, Lmask);
+    int Lcnt = count_on_mask(Lmask);
+    if(cfg_.verbose){
+        std::cout << "[rec] choose |S|="<<Bs<<" |Left|="<<Lcnt
+                  << " (upClosed="<<(is_upward_closed_on_mask(mask,S)?"Y":"N")<<")\n";
+    }
 
     auto left = solve_recursive(Lmask); // 先排剩余
     auto tail = solve_recursive(S);     // 再排该块（放在最后）
 
-    left.insert(left.end(), tail.begin(), tail.end());
-    return left;
+    std::vector<int> out;
+    out.reserve(left.size()+tail.size());
+    out.insert(out.end(), left.begin(), left.end());
+    out.insert(out.end(), tail.begin(), tail.end());
+
+    if((int)out.size()!=cnt){
+        std::cerr << "[FATAL] recursion size mismatch: out="<<out.size()<<" vs cnt="<<cnt<<"\n";
+        // 打印未覆盖/重复的 id 以便定位
+        std::vector<int> mark(N_,0);
+        for(int u=0;u<N_;++u) if(mask[u]) mark[u]-=1; // 期望 -1
+        for(int x: out) mark[x]+=1; // 实际 +1
+        int miss=0, dup=0;
+        for(int u=0;u<N_;++u){
+            if(!mask[u]) continue;
+            if(mark[u]==-1){ ++miss; std::cerr<<"  missing u="<<u<<"\n"; }
+            else if(mark[u]>0){ ++dup; std::cerr<<"  duplicated u="<<u<<" count="<<mark[u]<<"\n"; }
+        }
+        std::cerr << "[FATAL] miss="<<miss<<" dup="<<dup<<"\n";
+        std::exit(2);
+    }
+    return out;
 }
 
 // ---------- 顶层求解 ----------
@@ -336,11 +396,22 @@ OCClosureResult OCClosure::solve(int m, int h, const OCWeights& W){
     }
 
     auto order = solve_recursive(full); // 从早到晚的 id 序列
+
+    if((int)order.size()!=N_){
+        std::cerr << "[FATAL] order.size()!=N_: "<<order.size()<<" vs "<<N_<<"\n";
+        std::exit(3);
+    }
+
     // 转 rank 矩阵
     vector<vector<int>> y(m, vector<int>(h, 0));
     for(int t=0; t<N_; ++t){
         int u = order[t];
-        int i=u/h_, j=u%h_; y[i][j] = t+1;
+        if(u<0 || u>=N_){
+            std::cerr << "[FATAL] u out of range: u="<<u<<" N="<<N_<<"\n";
+            std::exit(4);
+        }
+        int i=u/h_, j=u%h_;
+        y[i][j] = t+1;
     }
     long long HP = W.enabled ? hpwl_sum_weighted(y, W, 1) : hpwl_sum_equal(y, 1);
 

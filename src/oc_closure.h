@@ -20,8 +20,8 @@ class OCClosure {
 public:
     struct Config {
         long long dV = 1;          // 代价缩放
-        bool verbose = true;
-        bool progress = false;
+        bool verbose = true;        // 关键步骤日志
+        bool progress = false;      // Dinkelbach 迭代日志
     };
 
     explicit OCClosure(const Config& cfg): cfg_(cfg) {}
@@ -76,4 +76,8 @@ private:
     // 取 mask 上的 “sink（无后继）集合”，必为 upward-closed，且非空（只要 mask 非空）
     void sinks_upward_closed(const std::vector<char>& mask,
                              std::vector<char>& S_sink) const;
+
+    // 调试：统计 S 是否 upward-closed（仅 verbose 时用）
+    bool is_upward_closed_on_mask(const std::vector<char>& mask,
+                                  const std::vector<char>& S) const;
 };

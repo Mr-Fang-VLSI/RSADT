@@ -23,6 +23,7 @@ int main(int argc,char** argv){
                 "  --verify=1/0      compute HPWL check (default=1)\n"
                 "  --check-oc=1/0    check monotone OC (default=1)\n"
                 "  --progress=1/0    print Dinkelbach progress (default=0)\n"
+                "  --verbose=1/0     print detailed recursion/flow logs (default=1)\n"
                 "  --wH path         horizontal weights file: m x (h-1)\n"
                 "  --wV path         vertical   weights file: (m-1) x h\n"
                 "  --dump-y path     write y matrix to text file\n";
@@ -32,7 +33,7 @@ int main(int argc,char** argv){
     int h = std::atoi(argv[2]);
     long long dV = (argc>=4 ? std::atoll(argv[3]) : 1);
 
-    bool verify=true, check_oc=true, progress=false;
+    bool verify=true, check_oc=true, progress=false, verbose=true;
     string wH_path, wV_path, dump_path;
 
     for(int i=1;i<argc;++i){
@@ -41,6 +42,7 @@ int main(int argc,char** argv){
             if(k=="--verify") verify=(v=="1");
             else if(k=="--check-oc") check_oc=(v=="1");
             else if(k=="--progress") progress=(v=="1");
+            else if(k=="--verbose") verbose=(v=="1");
         };
         if(pos!=string::npos) eat(s.substr(0,pos), s.substr(pos+1));
         else if(s=="--wH" && i+1<argc) wH_path=argv[++i];
@@ -60,7 +62,7 @@ int main(int argc,char** argv){
         W.enabled = false;
     }
 
-    OCClosure::Config cfg; cfg.dV=dV; cfg.verbose=true; cfg.progress=progress;
+    OCClosure::Config cfg; cfg.dV=dV; cfg.verbose=verbose; cfg.progress=progress;
     OCClosure solver(cfg);
 
     auto t0 = std::chrono::high_resolution_clock::now();

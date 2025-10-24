@@ -1,15 +1,15 @@
 CXX := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
+CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
 
 SRC_DIR := src
 BUILD_DIR := build
-TARGET := oc_shortest
+TARGET := oc_closure
 
-SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
+SRCS := $(SRC_DIR)/oc_closure.cpp $(SRC_DIR)/main.cpp
 OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 BIN := $(BUILD_DIR)/$(TARGET)
 
-.PHONY: all clean run
+.PHONY: all clean
 
 all: $(BIN)
 
@@ -23,9 +23,6 @@ $(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
 $(BIN): $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 	@echo "✅ Build complete: $(BIN)"
-
-run: all
-	$(BIN)
 
 clean:
 	rm -rf $(BUILD_DIR)

@@ -1,348 +1,261 @@
 #include "oc_closure.h"
 #include <algorithm>
-#include <queue>
-#include <limits>
-#include <cassert>
 #include <iostream>
+#include <fstream>
+#include <cmath>
+#include <cstdlib>
+#include <limits>
 
-using std::vector; using std::string; using std::int64_t; using std::uint64_t;
+using std::vector;
+using std::string;
+using ll = long long;
 
-// ---------- 验证/统计 ----------
-bool OCClosure::check_OC_lin(const vector<vector<int>>& y){
-    int m=(int)y.size(), h=(int)y[0].size();
-    for(int i=0;i<m;++i) for(int j=0;j+1<h;++j) if(y[i][j] > y[i][j+1]) return false;
-    for(int j=0;j<h;++j) for(int i=0;i+1<m;++i) if(y[i][j] > y[i+1][j]) return false;
-    return true;
-}
-long long OCClosure::hpwl_sum_equal(const vector<vector<int>>& y, long long dV){
+static inline ll llabsll(ll x){ return x>=0?x:-x; }
+
+// ---------- 验证工具 ----------
+long long OCClosure::hpwl_sum_equal(const vector<std::vector<int>>& y){
     int m=(int)y.size(), h=(int)y[0].size();
     long long S=0;
-    for(int i=0;i<m;++i) for(int j=0;j+1<h;++j) S += llabs((long long)y[i][j+1]-y[i][j]) * dV;
-    for(int i=0;i+1<m;++i) for(int j=0;j<h;++j) S += llabs((long long)y[i+1][j]-y[i][j]) * dV;
+    for(int i=0;i<m;++i)
+        for(int j=0;j+1<h;++j) S += llabsll((long long)y[i][j+1]-y[i][j]);
+    for(int i=0;i+1<m;++i)
+        for(int j=0;j<h;++j)   S += llabsll((long long)y[i+1][j]-y[i][j]);
     return S;
 }
-long long OCClosure::hpwl_sum_weighted(const vector<vector<int>>& y,
-                                       const OCWeights& W, long long dV){
-    if(!W.enabled) return hpwl_sum_equal(y, dV);
+bool OCClosure::check_OC_lin(const vector<std::vector<int>>& y){
     int m=(int)y.size(), h=(int)y[0].size();
-    long long S=0;
-    for(int i=0;i<m;++i) for(int j=0;j+1<h;++j)
-        S += llabs((long long)y[i][j+1]-y[i][j]) * W.wH[i][j];
-    for(int i=0;i+1<m;++i) for(int j=0;j<h;++j)
-        S += llabs((long long)y[i+1][j]-y[i][j]) * W.wV[i][j];
-    return S * dV;
+    for(int i=0;i<m;++i) for(int j=0;j+1<h;++j) if(y[i][j]>y[i][j+1]) return false;
+    for(int j=0;j<h;++j) for(int i=0;i+1<m;++i) if(y[i][j]>y[i+1][j]) return false;
+    return true;
 }
-
-// ---------- φ 构造 ----------
-static inline long long H_at(const OCWeights& W,int m,int h,int I,int J){
-    if(!W.enabled) return (0<=I && I<m && 0<=J && J<h-1)? 1LL:0LL;
-    return (0<=I && I<m && 0<=J && J<h-1)? W.wH[I][J] : 0LL;
-}
-static inline long long V_at(const OCWeights& W,int m,int h,int I,int J){
-    if(!W.enabled) return (0<=I && I<m-1 && 0<=J && J<h)? 1LL:0LL;
-    return (0<=I && I<m-1 && 0<=J && J<h)? W.wV[I][J] : 0LL;
-}
-void OCClosure::build_phi(int m,int h, const OCWeights& W){
-    phi_.assign(m, vector<long long>(h, 0));
-    for(int i=0;i<m;++i) for(int j=0;j<h;++j){
-        long long up   = V_at(W,m,h,i-1,j);
-        long long left = H_at(W,m,h,i, j-1);
-        long long down = V_at(W,m,h,i,   j);
-        long long right= H_at(W,m,h,i,   j);
-        long long v = (up + left) - (down + right);
-        phi_[i][j] = v * cfg_.dV;
-    }
-    // 原始 DAG（向右/向下）—— 用于“向上闭合”约束（选 u 必须选其后继）
-    m_=m; h_=h; N_=m*h;
-    succ_.assign(N_, {});
-    auto inb=[&](int x,int lo,int hi){ return (lo<=x && x<hi); };
-    for(int i=0;i<m;++i) for(int j=0;j<h;++j){
-        int u=id(i,j);
-        if(inb(i+1,0,m)) succ_[u].push_back(id(i+1,j));
-        if(inb(j+1,0,h)) succ_[u].push_back(id(i,j+1));
+void OCClosure::dump_y(const vector<std::vector<int>>& y, const string& path){
+    if(path.empty()) return;
+    std::ofstream fout(path);
+    int m=(int)y.size(), h=(int)y[0].size();
+    for(int i=0;i<m;++i){
+        for(int j=0;j<h;++j){
+            fout<<y[i][j]<<(j+1<h?' ':'\n');
+        }
     }
 }
 
-// ---------- 小工具 ----------
-void OCClosure::complement_mask(const vector<char>& mask, const vector<char>& S, vector<char>& maskLeft){
-    int n=(int)mask.size(); maskLeft.assign(n,0);
-    for(int i=0;i<n;++i) maskLeft[i] = (mask[i] && !S[i]) ? 1 : 0;
-}
-long long OCClosure::sum_w_on_mask(const vector<char>& mask) const {
-    long long s=0;
+// ---------- φ 构造（等权）: φ = (up+left) - (down+right) ----------
+void OCClosure::build_phi(int m,int h){
+    m_=m; h_=h; N_=m_*h_;
+    phi_.assign(m_, vector<ll>(h_, 0));
+    auto H_at=[&](int I,int J)->ll{
+        return (0<=I && I<m_ && 0<=J && J<h_-1)? 1LL:0LL;
+    };
+    auto V_at=[&](int I,int J)->ll{
+        return (0<=I && I<m_-1 && 0<=J && J<h_)? 1LL:0LL;
+    };
     for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
-        int u=id(i,j); if(mask[u]) s += phi_[i][j];
-    }
-    return s;
-}
-int OCClosure::count_on_mask(const vector<char>& mask) const{
-    int c=0; for(char b:mask) if(b) ++c; return c;
-}
-void OCClosure::sinks_upward_closed(const vector<char>& mask, vector<char>& S_sink) const{
-    S_sink.assign(N_,0);
-    bool any=false;
-    for(int u=0; u<N_; ++u){
-        if(!mask[u]) continue;
-        bool hasSucc=false;
-        for(int v: succ_[u]) if(mask[v]){ hasSucc=true; break; }
-        if(!hasSucc){ S_sink[u]=1; any=true; }
-    }
-    // 极端情况（不该发生）：若 mask 非空却没找到 sink，退化取最右下合法点
-    if(!any){
-        for(int i=m_-1;i>=0;--i) for(int j=h_-1;j>=0;--j){
-            int u=id(i,j); if(mask[u]){ S_sink[u]=1; return; }
-        }
+        ll up   = V_at(i-1,j);
+        ll left = H_at(i, j-1);
+        ll down = V_at(i, j);
+        ll right= H_at(i, j);
+        phi_[i][j] = (up + left) - (down + right);
     }
 }
 
-// ---------- Dinic for min-cut ----------
-struct Dinic {
-    struct E { int v; long long cap; int rev; };
-    int n=0, s=0, t=0;
-    std::vector<std::vector<E>> g;
-    std::vector<int> lvl, it;
 
-    explicit Dinic(int n_): n(n_), g(n_), lvl(n_), it(n_) {}
-    void addEdge(int u,int v,long long c){
-        // 保护：负容量当0
-        if(c<0) c=0;
-        E a{v,c,(int)g[v].size()};
-        E b{u,0,(int)g[u].size()};
-        g[u].push_back(a); g[v].push_back(b);
-    }
-    bool bfs(){
-        std::fill(lvl.begin(), lvl.end(), -1);
-        std::queue<int> q; lvl[s]=0; q.push(s);
-        while(!q.empty()){
-            int u=q.front(); q.pop();
-            for(const auto& e:g[u]) if(e.cap>0 && lvl[e.v]<0){
-                lvl[e.v]=lvl[u]+1; q.push(e.v);
-            }
-        }
-        return lvl[t]>=0;
-    }
-    long long dfs(int u,long long f){
-        if(u==t || f==0) return f;
-        for(int &i=it[u]; i<(int)g[u].size(); ++i){
-            auto &e=g[u][i];
-            if(e.cap>0 && lvl[e.v]==lvl[u]+1){
-                long long got=dfs(e.v, std::min(f, e.cap));
-                if(got>0){
-                    e.cap -= got;
-                    g[e.v][e.rev].cap += got;
-                    return got;
-                }
-            }
-        }
-        return 0;
-    }
-    long long maxflow(int S,int T){
-        s=S; t=T; long long flow=0;
-        const long long INF=(std::numeric_limits<long long>::max)()/4;
-        while(bfs()){
-            std::fill(it.begin(), it.end(), 0);
-            while(true){
-                long long got=dfs(s, INF);
-                if(got==0) break;
-                flow += got;
-            }
-        }
-        return flow;
-    }
-    void reachable_from_source(std::vector<char>& reach){
-        int n=(int)g.size();
-        reach.assign(n,0);
-        std::queue<int> q; q.push(s); reach[s]=1;
-        while(!q.empty()){
-            int u=q.front(); q.pop();
-            for(const auto& e:g[u]) if(e.cap>0 && !reach[e.v]){
-                reach[e.v]=1; q.push(e.v);
-            }
-        }
-    }
-};
+// ---------- 最大权 upward-closed 闭包 ----------
+long long OCClosure::max_weight_upward_closure(
+        const std::vector<long long>& q,
+        const std::vector<char>& mask,
+        std::vector<char>& S)
+{
+    // DAG: 每个节点 u 有“右、下”两个后继 v
+    const int s = N_, t = N_ + 1;
+    Dinic D(N_ + 2);
 
-// ---------- 最大权闭包：upward-closed ----------
-long long OCClosure::max_weight_upward_closure(const vector<char>& mask,
-                                               const vector<long long>& q,
-                                               vector<char>& maskS) const{
-    const int S = N_, T = N_+1;
-    Dinic D(N_+2);
-
-    long long sumPos = 0;
-    for(int u=0; u<N_; ++u){
-        if(!mask[u]) continue;
-        long long qi = q[u];
-        if(qi>0){ D.addEdge(S,u,qi); sumPos += qi; }
-        else if(qi<0){ D.addEdge(u,T,-qi); }
+    // ---- 1. 统计当前掩码节点数 M 与 |φ|max ----
+    int M = 0;
+    long long phi_max = 0;
+    for (int u = 0; u < N_; ++u) {
+        if (!mask[u]) continue;
+        ++M;
+        int i = u / h_, j = u % h_;
+        long long v = std::llabs(phi_[i][j]);
+        if (v > phi_max) phi_max = v;
     }
-    long long INF = (sumPos>0? sumPos : 1) + 1; // 至少为2
-    for(int u=0; u<N_; ++u){
-        if(!mask[u]) continue;
-        for(int v: succ_[u]){
-            if(mask[v]) D.addEdge(u, v, INF); // upward-closed: 选 u 必须选其后继 v
+    if (phi_max == 0) phi_max = 1;  // 防止全零
+    long long INF = 3LL * M * M * phi_max + 1;  // 理论下界推导式
+
+    // ---- 2. 建立 S→u、u→T 边 ----
+    for (int u = 0; u < N_; ++u) {
+        if (!mask[u]) continue;
+        long long w = q[u];
+        if (w > 0) D.addEdge(s, u, w);
+        else if (w < 0) D.addEdge(u, t, -w);
+    }
+
+    // ---- 3. 加闭包约束边：u→succ(u) ----
+    auto add_if = [&](int u, int v) {
+        if (u < 0 || v < 0 || u >= N_ || v >= N_) return;
+        if (mask[u] && mask[v]) D.addEdge(u, v, INF);
+    };
+    for (int i = 0; i < m_; ++i)
+        for (int j = 0; j < h_; ++j) {
+            int u = idx(i, j);
+            if (!mask[u]) continue;
+            if (j + 1 < h_) add_if(u, idx(i, j + 1));  // 右
+            if (i + 1 < m_) add_if(u, idx(i + 1, j));  // 下
         }
-    }
-    (void)D.maxflow(S,T);
 
-    vector<char> reach;
-    D.reachable_from_source(reach);
-    maskS.assign(N_,0);
-    long long sumQ=0;
-    for(int u=0; u<N_; ++u){
-        if(mask[u] && reach[u]){ maskS[u]=1; sumQ += q[u]; }
-    }
+    // ---- 4. 最小割求最大流 ----
+    (void)D.maxflow(s, t);
+
+    // ---- 5. 从源可达集合提取闭合集 ----
+    auto reach = D.mincut_src_reachable(s);
+    S.assign(N_, 0);
+    long long sumQ = 0;
+    for (int u = 0; u < N_; ++u)
+        if (mask[u] && reach[u]) {
+            S[u] = 1;
+            sumQ += q[u];
+        }
+
     return sumQ;
 }
 
-// ---------- Dinkelbach：最大密度 upward-closed（带“最小基数”字典序择优） ----------
-void OCClosure::find_max_density_upward_closed(const vector<char>& mask,
-                                               vector<char>& maskS,
-                                               long long& A_sum, int& B_count) const{
-    // w_i = phi(i,j)
-    long long minw = (std::numeric_limits<long long>::max)();
-    for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
-        int u=id(i,j); if(!mask[u]) continue;
-        minw = std::min(minw, phi_[i][j]);
+
+// ---------- mask 上的 sink 集合（upward-closed 且非空真子集） ----------
+void OCClosure::sinks_upward_closed(const vector<char>& mask, vector<char>& S){
+    S.assign(N_,0);
+    int cnt=0;
+    for(int i=0;i<m_;++i){
+        for(int j=0;j<h_;++j){
+            int u=idx(i,j);
+            if(!mask[u]) continue;
+            bool hasSucc = false;
+            if(j+1<h_ && mask[idx(i,j+1)]) hasSucc = true;
+            if(i+1<m_ && mask[idx(i+1,j)]) hasSucc = true;
+            if(!hasSucc){ S[u]=1; ++cnt; }
+        }
     }
-    long long A = minw - 1; // λ=A/B with B=1
-    long long B = 1;
+    if(cnt==0){
+        // 兜底：任选一个 mask 中的点
+        for(int u=0;u<N_;++u) if(mask[u]){ S[u]=1; break; }
+    }
+}
 
-    vector<long long> q(N_,0);
-    vector<char> S(N_,0), S_prev(N_,0);
+// ---------- Dinkelbach 最大密度 upward-closed ----------
+void OCClosure::find_max_density_upward_closed(const vector<ll>& qA,
+                                               const vector<char>& mask,
+                                               vector<char>& Sout,
+                                               bool progress){
+    const int MAX_IT = 256;
 
-    int guard=0;
-    while(true){
-        // q_i = w_i * B - A
-        for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
-            int u=id(i,j); if(!mask[u]){ q[u]=0; continue; }
-            long long wi = phi_[i][j];
-            __int128 tmp = (__int128)wi * (__int128)B - (__int128)A;
-            if(tmp > (__int128)std::numeric_limits<long long>::max()) tmp = std::numeric_limits<long long>::max();
-            if(tmp < (__int128)std::numeric_limits<long long>::min()) tmp = std::numeric_limits<long long>::min();
-            q[u] = (long long)tmp;
-        }
-        long long sumQ = max_weight_upward_closure(mask, q, S);
+    // 用 sinks 作为非空 seed
+    vector<char> S; sinks_upward_closed(mask, S);
 
-        if(cfg_.progress){
-            std::cout << "[Dinkelbach] iter="<<guard
-                      << " B="<<B<<" A="<<A
-                      << " sumQ="<<sumQ << std::endl;
+    ll A=0; int B=0;
+    for(int u=0;u<N_;++u) if(mask[u] && S[u]){ A += qA[u]; ++B; }
+    double lambda = (B>0? (double)A/B : 0.0);
+
+    vector<ll> qShift(N_,0);
+
+    for(int it=0; it<MAX_IT; ++it){
+        // qShift = qA - round(lambda)  （整数容量）
+        ll lam_i = (ll)std::llround(lambda);
+        for(int u=0;u<N_;++u) qShift[u] = mask[u]? (qA[u] - lam_i) : 0;
+
+        max_weight_upward_closure(qShift, mask, S);
+
+        // 新的 A,B
+        ll Anew=0; int Bnew=0;
+        for(int u=0;u<N_;++u) if(mask[u] && S[u]){ Anew += qA[u]; ++Bnew; }
+
+        if(progress){
+            std::cout<<"[Dinkelbach] it="<<it<<" A="<<Anew<<" B="<<Bnew
+                     <<" lambda="<<lambda<<"\n";
         }
 
-        if(sumQ==0){
-            break; // 已到 λ*
-        }
-        // 更新 λ = A(S)/|S|
-        long long Anew=0; int Bnew=0;
-        for(int u=0;u<N_;++u) if(mask[u] && S[u]){
-            ++Bnew; int i=u/h_, j=u%h_; Anew += phi_[i][j];
-        }
+        // 空集修复（保证非空）
         if(Bnew==0){
-            // 极罕见时的兜底：取一个 sink 的 upward-closure（即它自己）
             sinks_upward_closed(mask, S);
             Anew=0; Bnew=0;
-            for(int u=0;u<N_;++u) if(S[u]){ ++Bnew; int i=u/h_, j=u%h_; Anew+=phi_[i][j]; }
-            break;
+            for(int u=0;u<N_;++u) if(mask[u] && S[u]){ Anew+=qA[u]; ++Bnew; }
         }
-        if(S == S_prev) break; // 数值反复
-        S_prev = S;
-        A = Anew; B = Bnew;
-        if(++guard > 256) break; // 保险
+
+        double lam_new = (Bnew>0? (double)Anew/Bnew : 0.0);
+
+        // 收敛 / 停滞
+        if(Bnew==B && Anew==A) break;
+        if(std::fabs(lam_new - lambda) < 1e-9) break;
+
+        A=Anew; B=Bnew; lambda = lam_new;
     }
 
-    // —— 字典序择优：在 λ*=A/B 下，取“最小基数”的最优闭合集 ——
-    // 令 qi* = w_i*B - A；设 U = sum |qi*|，取 K = U + 1；
-    // 最大化 sum (qi* * K - 1) 等价于：先最大化 sum qi*，再在 tie 下最大化 (-|S|)（即最小基数）
-    vector<long long> qstar(N_,0);
-    long long U=0;
+    // 词典序偏好（大B优先）：qlex = qA*(2B) - A
+    if(B>0){
+        vector<ll> qlex(N_,0);
+        for(int u=0;u<N_;++u){
+            if(mask[u]) qlex[u] = qA[u]*(ll)(2*B) - A;
+        }
+        max_weight_upward_closure(qlex, mask, S);
+    }
+    Sout = S;
+}
+
+// ---------- 递归分解 ----------
+void OCClosure::solve_recursive(const vector<char>& mask, vector<int>& order){
+    int M = count_on_mask(mask);
+    if(M==0) return;
+    if(M==1){
+        for(int u=0;u<N_;++u) if(mask[u]){ order.push_back(u); return; }
+    }
+
+    // qA = φ
+    vector<ll> qA(N_,0);
     for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
-        int u=id(i,j); if(!mask[u]){ qstar[u]=0; continue; }
-        long long wi=phi_[i][j];
-        __int128 t=(__int128)wi*(__int128)B - (__int128)A;
-        if(t > (__int128)std::numeric_limits<long long>::max()) t=std::numeric_limits<long long>::max();
-        if(t < (__int128)std::numeric_limits<long long>::min()) t=std::numeric_limits<long long>::min();
-        qstar[u]=(long long)t;
-        U += (qstar[u]>=0? qstar[u] : -qstar[u]);
+        int u=idx(i,j);
+        if(mask[u]) qA[u]=phi_[i][j];
     }
-    long long K = U + 1; if(K<2) K=2; // 至少2
 
-    vector<long long> qlex(N_,0);
-    for(int u=0;u<N_;++u){
-        if(!mask[u]){ qlex[u]=0; continue; }
-        __int128 t = (__int128)qstar[u] * (__int128)K - (__int128)1;
-        if(t > (__int128)std::numeric_limits<long long>::max()) t=std::numeric_limits<long long>::max();
-        if(t < (__int128)std::numeric_limits<long long>::min()) t=std::numeric_limits<long long>::min();
-        qlex[u]=(long long)t;
-    }
-    long long sumQlex = max_weight_upward_closure(mask, qlex, S);
+    vector<char> S; find_max_density_upward_closed(qA, mask, S, cfg_.progress);
 
-    // —— 安全兜底：若 S==mask（极少数），取 sink 集合作为最后块，保证严格缩小 ——
-    bool same=true;
-    for(int u=0;u<N_;++u) if( (bool)S[u] != (bool)mask[u] ){ same=false; break; }
-    if(same){
+    // 统一兜底：禁止空集/整集
+    int cntS=0; for(int u=0;u<N_;++u) if(mask[u] && S[u]) ++cntS;
+    if(cntS==0 || cntS==M){
         sinks_upward_closed(mask, S);
+        cntS=0; for(int u=0;u<N_;++u) if(mask[u] && S[u]) ++cntS;
     }
 
-    // 输出
-    maskS = S;
-    A_sum = 0; B_count = 0;
-    for(int u=0; u<N_; ++u) if(mask[u] && S[u]){
-        ++B_count; int i=u/h_, j=u%h_; A_sum += phi_[i][j];
-    }
-    (void)sumQlex;
+    // L = mask - S
+    vector<char> Lmask(N_,0);
+    for(int u=0;u<N_;++u) if(mask[u] && !S[u]) Lmask[u]=1;
+
+    solve_recursive(Lmask, order);
+    solve_recursive(S, order);
 }
 
-// ---------- 递归：先排剩余，再排最大密度块（最后段） ----------
-std::vector<int> OCClosure::solve_recursive(const vector<char>& mask) const{
-    int cnt = count_on_mask(mask);
-    if(cnt==0) return {};
-    if(cnt==1){
-        for(int u=0; u<N_; ++u) if(mask[u]) return {u};
-        return {};
-    }
-    vector<char> S, Lmask;
-    long long As=0; int Bs=0;
-    find_max_density_upward_closed(mask, S, As, Bs);
+// ---------- 对外求解 ----------
+ClosureResult OCClosure::solve(int m,int h){
+    build_phi(m,h);
 
-    // 保险：若出现空 S（不该发生），取一个 sink
-    if(Bs<=0){
-        sinks_upward_closed(mask, S);
-        Bs = count_on_mask(S);
-    }
-    // 保险：若 S==mask（理论上已避免），仍强拆为 sink 集合
-    bool same=true; for(int u=0;u<N_;++u) if((bool)S[u]!=(bool)mask[u]){ same=false; break; }
-    if(same){
-        sinks_upward_closed(mask, S);
+    vector<char> full(N_,1);
+    vector<int> order; order.reserve(N_);
+    solve_recursive(full, order);
+
+    if((int)order.size() != N_){
+        std::cerr << "[BUG] order.size()="<<order.size()<<" but N_="<<N_<<"\n";
+        throw std::runtime_error("closure order incomplete");
     }
 
-    complement_mask(mask, S, Lmask);
-
-    auto left = solve_recursive(Lmask); // 先排剩余
-    auto tail = solve_recursive(S);     // 再排该块（放在最后）
-
-    left.insert(left.end(), tail.begin(), tail.end());
-    return left;
-}
-
-// ---------- 顶层求解 ----------
-OCClosureResult OCClosure::solve(int m, int h, const OCWeights& W){
-    build_phi(m, h, W);
-    vector<char> full(N_, 1);
-
-    if(cfg_.verbose){
-        std::cout << "[Closure] m="<<m<<" h="<<h<<" N="<<N_
-                  << " (closure exact, weighted="<<(W.enabled?1:0)<<")\n";
-    }
-
-    auto order = solve_recursive(full); // 从早到晚的 id 序列
-    // 转 rank 矩阵
-    vector<vector<int>> y(m, vector<int>(h, 0));
+    vector<std::vector<int>> y(m_, vector<int>(h_,0));
     for(int t=0; t<N_; ++t){
-        int u = order[t];
-        int i=u/h_, j=u%h_; y[i][j] = t+1;
+        int u=order[t];
+        int i = u / h_, j = u % h_;
+        y[i][j] = t+1;
     }
-    long long HP = W.enabled ? hpwl_sum_weighted(y, W, 1) : hpwl_sum_equal(y, 1);
 
-    return OCClosureResult{m,h,N_, cfg_.dV, std::move(y), HP};
+    long long HP = 0;
+    bool ok = true;
+    if(cfg_.verify)   HP = hpwl_sum_equal(y);
+    if(cfg_.check_oc) ok = check_OC_lin(y);
+    if(!cfg_.dump_y_path.empty()) dump_y(y, cfg_.dump_y_path);
+
+    return ClosureResult{m_, h_, N_, 1, std::move(y), HP, ok};
 }

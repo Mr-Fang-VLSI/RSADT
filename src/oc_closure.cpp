@@ -1,261 +1,331 @@
-#include "oc_closure.h"
 #include <algorithm>
-#include <iostream>
-#include <fstream>
-#include <cmath>
+#include <cassert>
+#include <cstdint>
 #include <cstdlib>
-#include <limits>
+#include <cstring>
+#include <iostream>
+#include <queue>
+#include <string>
+#include <tuple>
+#include <vector>
+using namespace std;
 
-using std::vector;
-using std::string;
-using ll = long long;
+/*
+  Route A: 单次 s-t 最小割 == 最大权闭包
+  - 图结构：Edmonds–Karp（纯迭代），避免任何递归。
+  - 支持: --verbose, --check-oc, --verify, --progress（progress仅占位）
+  - 输入: oc_closure m h weighted
+      m, h 定义一个 m x h 的网格（总节点 N=m*h）。
+      我这里演示了一种典型“正向（右/下）闭包”的约束：选 (x,y) 则必须同时选 (x+1,y) 和 (x,y+1)（若存在）。
+      你可以根据你工程内的实际闭包边生成方式，替换 build_closure_edges(...) 即可。
+      weighted=0: 所有节点权重=+1
+      weighted=1: 示例里用一个既有正也有负的简单确定性权重场（方便验证）；你可以替换为你的 phi/w 计算。
+  - 验证:
+      --check-oc=1: 返回解是否满足闭包边约束
+      --verify=1: 若 N<=22，暴力枚举验证最优性（安全阈值可改）；N>22 会自动跳过并提示
+  - 调试:
+      --verbose=1: 输出网络统计、INF、可达集等中间信息；--progress=1: 预留（这里不额外输出）
+*/
 
-static inline ll llabsll(ll x){ return x>=0?x:-x; }
-
-// ---------- 验证工具 ----------
-long long OCClosure::hpwl_sum_equal(const vector<std::vector<int>>& y){
-    int m=(int)y.size(), h=(int)y[0].size();
-    long long S=0;
-    for(int i=0;i<m;++i)
-        for(int j=0;j+1<h;++j) S += llabsll((long long)y[i][j+1]-y[i][j]);
-    for(int i=0;i+1<m;++i)
-        for(int j=0;j<h;++j)   S += llabsll((long long)y[i+1][j]-y[i][j]);
-    return S;
+// ========== 简单命令行解析 ==========
+static int getFlagInt(int argc, char** argv, const string& key, int default_val) {
+    string k = "--" + key + "=";
+    for (int i=1;i<argc;i++) {
+        string s = argv[i];
+        if (s.rfind(k, 0) == 0) {
+            return atoi(s.substr(k.size()).c_str());
+        }
+    }
+    return default_val;
 }
-bool OCClosure::check_OC_lin(const vector<std::vector<int>>& y){
-    int m=(int)y.size(), h=(int)y[0].size();
-    for(int i=0;i<m;++i) for(int j=0;j+1<h;++j) if(y[i][j]>y[i][j+1]) return false;
-    for(int j=0;j<h;++j) for(int i=0;i+1<m;++i) if(y[i][j]>y[i+1][j]) return false;
+
+// ========== 最大流（Edmonds-Karp，完全非递归） ==========
+struct Edge {
+    int to;
+    int rev;            // 反向边在邻接表中的下标
+    long long cap;      // 残量容量
+    Edge(int _to,int _rev,long long _cap):to(_to),rev(_rev),cap(_cap){}
+};
+
+struct MaxFlow {
+    int n;
+    vector<vector<Edge>> g;
+    MaxFlow(int n=0){init(n);}
+    void init(int n_) { n=n_; g.assign(n, {}); }
+
+    void addEdge(int u, int v, long long c) {
+        Edge a(v, (int)g[v].size(), c);
+        Edge b(u, (int)g[u].size(), 0);
+        g[u].push_back(a);
+        g[v].push_back(b);
+    }
+
+    // Edmonds-Karp: BFS 找增广路
+    long long maxflow(int s, int t) {
+        long long flow = 0;
+        vector<int> pv(n), pe(n); // 记录父节点与通过的边号
+        while (true) {
+            fill(pv.begin(), pv.end(), -1);
+            queue<int> q;
+            q.push(s);
+            pv[s] = s;
+            while (!q.empty() && pv[t]==-1) {
+                int u = q.front(); q.pop();
+                for (int i=0;i<(int)g[u].size();i++) {
+                    Edge &e = g[u][i];
+                    if (pv[e.to]==-1 && e.cap>0) {
+                        pv[e.to] = u; pe[e.to] = i;
+                        q.push(e.to);
+                        if (e.to==t) break;
+                    }
+                }
+            }
+            if (pv[t]==-1) break; // 无增广
+            long long aug = LLONG_MAX;
+            for (int v=t; v!=s; v=pv[v]) {
+                Edge &e = g[pv[v]][pe[v]];
+                aug = min(aug, e.cap);
+            }
+            for (int v=t; v!=s; v=pv[v]) {
+                Edge &e = g[pv[v]][pe[v]];
+                Edge &r = g[e.to][e.rev];
+                e.cap -= aug; r.cap += aug;
+            }
+            flow += aug;
+        }
+        return flow;
+    }
+
+    // 残量网络从 s 可达性
+    vector<char> reachable_from(int s) const {
+        vector<char> vis(n, 0);
+        queue<int> q; q.push(s); vis[s]=1;
+        while(!q.empty()){
+            int u=q.front(); q.pop();
+            for (auto &e: g[u]) {
+                if (!vis[e.to] && e.cap>0) {
+                    vis[e.to]=1; q.push(e.to);
+                }
+            }
+        }
+        return vis;
+    }
+};
+
+// ========== 将 MWC 转为一次最小割 ==========
+struct MWCResult {
+    vector<int> S;         // 选中的节点集合
+    long long obj = 0;     // 目标函数值 sum(w_i) over S
+    long long flow = 0;    // 最小割容量（=最大流）
+};
+
+MWCResult max_weight_closure(
+    int N,
+    const vector<pair<int,int>>& must_edges, // i=>j 约束：选 i 必须选 j
+    const vector<long long>& w,
+    bool verbose
+){
+    long long sumPos=0, sumNeg=0;
+    for (int i=0;i<N;i++){
+        if (w[i]>0) sumPos += w[i];
+        else        sumNeg += -w[i];
+    }
+    long long sumAbs = sumPos + sumNeg;
+    long long INF = sumAbs + 1; // 强制闭包的足够大容量
+
+    if (verbose) {
+        cout << "[closure] |mask|=" << N
+             << " sumPos=" << sumPos
+             << " sumNeg=" << sumNeg
+             << " sumAbs=" << sumAbs
+             << " INF="    << INF << "\n";
+    }
+
+    int s = N, t = N+1;
+    MaxFlow mf(N+2);
+    // 节点权重边
+    for (int i=0;i<N;i++){
+        if (w[i] > 0) mf.addEdge(s, i, w[i]);
+        else if (w[i] < 0) mf.addEdge(i, t, -w[i]);
+    }
+    // 闭包约束边 i=>j
+    for (auto &e: must_edges){
+        int i=e.first, j=e.second;
+        if (i<0||i>=N||j<0||j>=N) continue;
+        mf.addEdge(i, j, INF);
+    }
+
+    long long flow = mf.maxflow(s, t);
+    vector<char> reach = mf.reachable_from(s);
+
+    MWCResult res;
+    res.flow = flow;
+    for (int i=0;i<N;i++){
+        if (reach[i]) {
+            res.S.push_back(i);
+            res.obj += w[i];
+        }
+    }
+
+    if (verbose) {
+        cout << "=> |S|=" << res.S.size()
+             << " sumW(S)=" << res.obj
+             << "  (flow=" << res.flow << ")\n";
+    }
+    return res;
+}
+
+// ========== 构建网格上的“正向（右/下）闭包”约束（示例） ==========
+// 选 (x,y) 则必须选 (x+1,y) 与 (x,y+1)（若存在）。这是很常见的一类二维正向/上闭包。
+static inline int idx(int x, int y, int m, int h){ return y*m + x; }
+
+vector<pair<int,int>> build_closure_edges_grid_right_down(int m, int h) {
+    vector<pair<int,int>> E;
+    for (int y=0;y<h;y++){
+        for (int x=0;x<m;x++){
+            int u = idx(x,y,m,h);
+            if (x+1<m) E.emplace_back(u, idx(x+1,y,m,h)); // 右
+            if (y+1<h) E.emplace_back(u, idx(x,y+1,m,h)); // 下
+        }
+    }
+    return E;
+}
+
+// ========== 构建权重（示例） ==========
+// 根据 weighted 标志演示两种：
+//  - weighted=0: 所有节点 +1
+//  - weighted=1: 一个确定性的混合正负权（不随机，便于复现实验/验证）
+//   你可以把这里替换成你原来的 phi/w 计算逻辑。
+vector<long long> build_weights_example(int m, int h, int weighted) {
+    int N = m*h;
+    vector<long long> w(N, 1);
+    if (weighted==0) {
+        // 纯 +1
+        fill(w.begin(), w.end(), 1);
+    } else {
+        // 既有正也有负：例如 w(x,y)=3-(x%4) + ((y%3==0)?1:0) 再把一部分设负
+        for (int y=0;y<h;y++){
+            for (int x=0;x<m;x++){
+                long long val = 3 - (x % 4) + ((y % 3)==0 ? 1 : 0); // 3,2,1,0 循环 + 少量偏置
+                if ((x+y)%5==0) val -= 4;  // 每 5 个打一个负冲击
+                w[idx(x,y,m,h)] = val;
+            }
+        }
+    }
+    return w;
+}
+
+// ========== 校验解是否满足闭包 ==========
+bool check_closure_feasible(int N, const vector<pair<int,int>>& must_edges, const vector<char>& inS, bool verbose) {
+    for (auto &e: must_edges){
+        int i=e.first, j=e.second;
+        if (inS[i] && !inS[j]) {
+            if (verbose) {
+                cerr << "[check-oc] violated: choose " << i << " requires choose " << j << "\n";
+            }
+            return false;
+        }
+    }
     return true;
 }
-void OCClosure::dump_y(const vector<std::vector<int>>& y, const string& path){
-    if(path.empty()) return;
-    std::ofstream fout(path);
-    int m=(int)y.size(), h=(int)y[0].size();
-    for(int i=0;i<m;++i){
-        for(int j=0;j<h;++j){
-            fout<<y[i][j]<<(j+1<h?' ':'\n');
-        }
-    }
-}
 
-// ---------- φ 构造（等权）: φ = (up+left) - (down+right) ----------
-void OCClosure::build_phi(int m,int h){
-    m_=m; h_=h; N_=m_*h_;
-    phi_.assign(m_, vector<ll>(h_, 0));
-    auto H_at=[&](int I,int J)->ll{
-        return (0<=I && I<m_ && 0<=J && J<h_-1)? 1LL:0LL;
+// ========== 小规模暴力验证（可选） ==========
+struct BruteRes { long long best = LLONG_MIN; vector<int> S; };
+
+BruteRes brute_force_mwc(int N, const vector<pair<int,int>>& must_edges, const vector<long long>& w, bool verbose) {
+    BruteRes br;
+    vector<int> req_out(N, 0);
+    vector<vector<int>> succ(N);
+    for (auto &e: must_edges) succ[e.first].push_back(e.second);
+
+    auto closed_ok = [&](uint64_t mask)->bool{
+        for (int i=0;i<N;i++){
+            if (!(mask>>i & 1ULL)) continue;
+            for (int j: succ[i]) {
+                if (!(mask>>j & 1ULL)) return false;
+            }
+        }
+        return true;
     };
-    auto V_at=[&](int I,int J)->ll{
-        return (0<=I && I<m_-1 && 0<=J && J<h_)? 1LL:0LL;
-    };
-    for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
-        ll up   = V_at(i-1,j);
-        ll left = H_at(i, j-1);
-        ll down = V_at(i, j);
-        ll right= H_at(i, j);
-        phi_[i][j] = (up + left) - (down + right);
+
+    uint64_t total = (N>=63)? 0ULL : (1ULL<<N);
+    for (uint64_t s=0; s<total; ++s){
+        if (!closed_ok(s)) continue;
+        long long val=0;
+        for (int i=0;i<N;i++) if (s>>i & 1ULL) val+=w[i];
+        if (val>br.best){ br.best=val; br.S.clear(); for(int i=0;i<N;i++) if (s>>i & 1ULL) br.S.push_back(i); }
     }
+    if (verbose) {
+        if (total==0) cerr << "[verify] N too large for brute force\n";
+        else cerr << "[verify] brute enumerated " << total << " subsets\n";
+    }
+    return br;
 }
 
+int main(int argc, char** argv){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-// ---------- 最大权 upward-closed 闭包 ----------
-long long OCClosure::max_weight_upward_closure(
-        const std::vector<long long>& q,
-        const std::vector<char>& mask,
-        std::vector<char>& S)
-{
-    // DAG: 每个节点 u 有“右、下”两个后继 v
-    const int s = N_, t = N_ + 1;
-    Dinic D(N_ + 2);
-
-    // ---- 1. 统计当前掩码节点数 M 与 |φ|max ----
-    int M = 0;
-    long long phi_max = 0;
-    for (int u = 0; u < N_; ++u) {
-        if (!mask[u]) continue;
-        ++M;
-        int i = u / h_, j = u % h_;
-        long long v = std::llabs(phi_[i][j]);
-        if (v > phi_max) phi_max = v;
+    if (argc < 4) {
+        cerr << "Usage: " << argv[0] << " m h weighted"
+             << " [--verify=0|1] [--check-oc=0|1] [--verbose=0|1] [--progress=0|1]\n";
+        return 1;
     }
-    if (phi_max == 0) phi_max = 1;  // 防止全零
-    long long INF = 3LL * M * M * phi_max + 1;  // 理论下界推导式
+    int m = atoi(argv[1]);
+    int h = atoi(argv[2]);
+    int weighted = atoi(argv[3]);
+    int verify   = getFlagInt(argc, argv, "verify",   0);
+    int check_oc = getFlagInt(argc, argv, "check-oc", 0);
+    int verbose  = getFlagInt(argc, argv, "verbose",  0);
+    int progress = getFlagInt(argc, argv, "progress", 0); // 这里不额外使用，仅占位保持接口
 
-    // ---- 2. 建立 S→u、u→T 边 ----
-    for (int u = 0; u < N_; ++u) {
-        if (!mask[u]) continue;
-        long long w = q[u];
-        if (w > 0) D.addEdge(s, u, w);
-        else if (w < 0) D.addEdge(u, t, -w);
-    }
+    int N = m*h;
+    cout << "[Closure] m=" << m << " h=" << h << " N=" << N
+         << " (closure exact, weighted=" << weighted << ")\n";
 
-    // ---- 3. 加闭包约束边：u→succ(u) ----
-    auto add_if = [&](int u, int v) {
-        if (u < 0 || v < 0 || u >= N_ || v >= N_) return;
-        if (mask[u] && mask[v]) D.addEdge(u, v, INF);
-    };
-    for (int i = 0; i < m_; ++i)
-        for (int j = 0; j < h_; ++j) {
-            int u = idx(i, j);
-            if (!mask[u]) continue;
-            if (j + 1 < h_) add_if(u, idx(i, j + 1));  // 右
-            if (i + 1 < m_) add_if(u, idx(i + 1, j));  // 下
-        }
+    // 1) 构建闭包边（你可以替换成本项目真实的闭包边）
+    vector<pair<int,int>> must_edges = build_closure_edges_grid_right_down(m,h);
 
-    // ---- 4. 最小割求最大流 ----
-    (void)D.maxflow(s, t);
+    // 2) 构建权重（你可以替换成你的 phi/w）
+    vector<long long> w = build_weights_example(m,h,weighted);
 
-    // ---- 5. 从源可达集合提取闭合集 ----
-    auto reach = D.mincut_src_reachable(s);
-    S.assign(N_, 0);
-    long long sumQ = 0;
-    for (int u = 0; u < N_; ++u)
-        if (mask[u] && reach[u]) {
-            S[u] = 1;
-            sumQ += q[u];
-        }
+    // 3) 跑一次最大权闭包（单次 s-t 最大流）
+    auto res = max_weight_closure(N, must_edges, w, verbose);
 
-    return sumQ;
-}
-
-
-// ---------- mask 上的 sink 集合（upward-closed 且非空真子集） ----------
-void OCClosure::sinks_upward_closed(const vector<char>& mask, vector<char>& S){
-    S.assign(N_,0);
-    int cnt=0;
-    for(int i=0;i<m_;++i){
-        for(int j=0;j<h_;++j){
-            int u=idx(i,j);
-            if(!mask[u]) continue;
-            bool hasSucc = false;
-            if(j+1<h_ && mask[idx(i,j+1)]) hasSucc = true;
-            if(i+1<m_ && mask[idx(i+1,j)]) hasSucc = true;
-            if(!hasSucc){ S[u]=1; ++cnt; }
+    // 输出解要素
+    cout << "[Result] |S|=" << res.S.size() << " Obj=" << res.obj << "\n";
+    if (verbose) {
+        cout << "[Result] S indices: ";
+        for (size_t i=0;i<res.S.size();i++){
+            cout << res.S[i] << (i+1==res.S.size()?'\n':' ');
         }
     }
-    if(cnt==0){
-        // 兜底：任选一个 mask 中的点
-        for(int u=0;u<N_;++u) if(mask[u]){ S[u]=1; break; }
+
+    // 4) 可选：检查闭包可行
+    if (check_oc) {
+        vector<char> inS(N, 0);
+        for (int i: res.S) inS[i]=1;
+        bool ok = check_closure_feasible(N, must_edges, inS, verbose);
+        cout << "[check-oc] " << (ok? "OK" : "FAILED") << "\n";
+        if (!ok) return 2;
     }
-}
 
-// ---------- Dinkelbach 最大密度 upward-closed ----------
-void OCClosure::find_max_density_upward_closed(const vector<ll>& qA,
-                                               const vector<char>& mask,
-                                               vector<char>& Sout,
-                                               bool progress){
-    const int MAX_IT = 256;
-
-    // 用 sinks 作为非空 seed
-    vector<char> S; sinks_upward_closed(mask, S);
-
-    ll A=0; int B=0;
-    for(int u=0;u<N_;++u) if(mask[u] && S[u]){ A += qA[u]; ++B; }
-    double lambda = (B>0? (double)A/B : 0.0);
-
-    vector<ll> qShift(N_,0);
-
-    for(int it=0; it<MAX_IT; ++it){
-        // qShift = qA - round(lambda)  （整数容量）
-        ll lam_i = (ll)std::llround(lambda);
-        for(int u=0;u<N_;++u) qShift[u] = mask[u]? (qA[u] - lam_i) : 0;
-
-        max_weight_upward_closure(qShift, mask, S);
-
-        // 新的 A,B
-        ll Anew=0; int Bnew=0;
-        for(int u=0;u<N_;++u) if(mask[u] && S[u]){ Anew += qA[u]; ++Bnew; }
-
-        if(progress){
-            std::cout<<"[Dinkelbach] it="<<it<<" A="<<Anew<<" B="<<Bnew
-                     <<" lambda="<<lambda<<"\n";
+    // 5) 可选：小规模暴力验证
+    if (verify) {
+        if (N <= 22) {
+            auto br = brute_force_mwc(N, must_edges, w, verbose);
+            cout << "[verify] brute best=" << br.best << "  flow_obj=" << res.obj << "\n";
+            if (br.best != res.obj) {
+                cerr << "[verify] MISMATCH! brute says " << br.best
+                     << " but flow gives " << res.obj << "\n";
+                return 3;
+            } else {
+                cout << "[verify] MATCH\n";
+            }
+        } else {
+            cout << "[verify] N=" << N << " too large; skip brute force (set a larger threshold if needed)\n";
         }
-
-        // 空集修复（保证非空）
-        if(Bnew==0){
-            sinks_upward_closed(mask, S);
-            Anew=0; Bnew=0;
-            for(int u=0;u<N_;++u) if(mask[u] && S[u]){ Anew+=qA[u]; ++Bnew; }
-        }
-
-        double lam_new = (Bnew>0? (double)Anew/Bnew : 0.0);
-
-        // 收敛 / 停滞
-        if(Bnew==B && Anew==A) break;
-        if(std::fabs(lam_new - lambda) < 1e-9) break;
-
-        A=Anew; B=Bnew; lambda = lam_new;
     }
 
-    // 词典序偏好（大B优先）：qlex = qA*(2B) - A
-    if(B>0){
-        vector<ll> qlex(N_,0);
-        for(int u=0;u<N_;++u){
-            if(mask[u]) qlex[u] = qA[u]*(ll)(2*B) - A;
-        }
-        max_weight_upward_closure(qlex, mask, S);
-    }
-    Sout = S;
-}
-
-// ---------- 递归分解 ----------
-void OCClosure::solve_recursive(const vector<char>& mask, vector<int>& order){
-    int M = count_on_mask(mask);
-    if(M==0) return;
-    if(M==1){
-        for(int u=0;u<N_;++u) if(mask[u]){ order.push_back(u); return; }
-    }
-
-    // qA = φ
-    vector<ll> qA(N_,0);
-    for(int i=0;i<m_;++i) for(int j=0;j<h_;++j){
-        int u=idx(i,j);
-        if(mask[u]) qA[u]=phi_[i][j];
-    }
-
-    vector<char> S; find_max_density_upward_closed(qA, mask, S, cfg_.progress);
-
-    // 统一兜底：禁止空集/整集
-    int cntS=0; for(int u=0;u<N_;++u) if(mask[u] && S[u]) ++cntS;
-    if(cntS==0 || cntS==M){
-        sinks_upward_closed(mask, S);
-        cntS=0; for(int u=0;u<N_;++u) if(mask[u] && S[u]) ++cntS;
-    }
-
-    // L = mask - S
-    vector<char> Lmask(N_,0);
-    for(int u=0;u<N_;++u) if(mask[u] && !S[u]) Lmask[u]=1;
-
-    solve_recursive(Lmask, order);
-    solve_recursive(S, order);
-}
-
-// ---------- 对外求解 ----------
-ClosureResult OCClosure::solve(int m,int h){
-    build_phi(m,h);
-
-    vector<char> full(N_,1);
-    vector<int> order; order.reserve(N_);
-    solve_recursive(full, order);
-
-    if((int)order.size() != N_){
-        std::cerr << "[BUG] order.size()="<<order.size()<<" but N_="<<N_<<"\n";
-        throw std::runtime_error("closure order incomplete");
-    }
-
-    vector<std::vector<int>> y(m_, vector<int>(h_,0));
-    for(int t=0; t<N_; ++t){
-        int u=order[t];
-        int i = u / h_, j = u % h_;
-        y[i][j] = t+1;
-    }
-
-    long long HP = 0;
-    bool ok = true;
-    if(cfg_.verify)   HP = hpwl_sum_equal(y);
-    if(cfg_.check_oc) ok = check_OC_lin(y);
-    if(!cfg_.dump_y_path.empty()) dump_y(y, cfg_.dump_y_path);
-
-    return ClosureResult{m_, h_, N_, 1, std::move(y), HP, ok};
+    return 0;
 }

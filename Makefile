@@ -1,28 +1,26 @@
 CXX := g++
 CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion
 
-SRC_DIR := src
 BUILD_DIR := build
-TARGET := oc_closure
+SRC_DIR := src
 
-SRCS := $(SRC_DIR)/oc_closure.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
+OBJS := $(BUILD_DIR)/reduced_dp.o $(BUILD_DIR)/main.o
 
-.PHONY: all clean
+all: build_dir $(BUILD_DIR)/reduced_dp
 
-all: $(BIN)
-
-$(BUILD_DIR):
+build_dir:
 	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
 
-$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BUILD_DIR)/reduced_dp.o: $(SRC_DIR)/reduced_dp.cpp $(SRC_DIR)/reduced_dp.h
+	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/reduced_dp.cpp -o $@
 
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-	@echo "✅ Build complete: $(BIN)"
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp $(SRC_DIR)/reduced_dp.h
+	$(CXX) $(CXXFLAGS) -c $(SRC_DIR)/main.cpp -o $@
+
+$(BUILD_DIR)/reduced_dp: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(BUILD_DIR)/reduced_dp
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean build_dir

@@ -1,0 +1,25 @@
+
+=== OC-Shortest m=7 h=7 steps=49 thr=24 pow2=1 weighted=1 ===
+[OC-Shortest/pow2] m=7 h=7 SEG=3 bits=21 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=100 -> 112
+[DP-bwdX] L=48 states=1 -> 2
+[DP-bwdX] L=32 states=112 -> 125
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=22 -> 23
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=10 -> 15
+[DP-bwdX] L=16 states=4 -> 6
+[DP-fwdX] L=16 states=1 -> 2
+[DP-fwdX] L=32 states=20 -> 23
+[DP-bwdX] L=48 states=1 -> 2
+[DP-bwdX] L=32 states=8 -> 12
+[DP-fwdX] L=32 states=4 -> 5
+[DP-bwdX] L=32 states=2 -> 4
+[DP-bwdX] L=48 states=1 -> 2
+[DP-bwdX] L=48 states=1 -> 2
+[DP-bwdX] L=48 states=1 -> 2
+Solve-only time: 22.735 ms
+[Verify] HPWL=318 (solver_report=318)

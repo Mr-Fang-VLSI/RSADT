@@ -1,31 +1,25 @@
-CXX := g++
+# Makefile (新增 oc_td 目标，不覆盖你现有的可执行文件)
+CXX      := g++
 CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
+INC      := -Isrc
+LDFLAGS  := -fopenmp
 
-SRC_DIR := src
 BUILD_DIR := build
-TARGET := oc_shortest
+SRC_DIR   := src
 
-SRCS := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main.cpp
-OBJS := $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
-BIN := $(BUILD_DIR)/$(TARGET)
-
-.PHONY: all clean run
+OBJS := $(BUILD_DIR)/src/lightOCShortest.o $(BUILD_DIR)/src/main_td.o
+BIN  := $(BUILD_DIR)/oc_td
 
 all: $(BIN)
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-	mkdir -p $(BUILD_DIR)/$(SRC_DIR)
-
-$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(BUILD_DIR)/src
+	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
 
 $(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@
-	@echo "✅ Build complete: $(BIN)"
-
-run: all
-	$(BIN)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean

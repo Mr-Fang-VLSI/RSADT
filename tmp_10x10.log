@@ -1,0 +1,50 @@
+
+=== OC-Shortest m=10 h=10 steps=100 thr=24 pow2=1 weighted=1 ===
+[OC-Shortest/pow2] m=10 h=10 SEG=4 bits=40 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=193 -> 237
+[DP-fwdX] L=32 states=2293 -> 2517
+[DP-fwdX] L=48 states=5392 -> 5424
+[DP-bwdX] L=96 states=5 -> 7
+[DP-bwdX] L=80 states=433 -> 515
+[DP-bwdX] L=64 states=3246 -> 3481
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=193 -> 237
+[DP-bwdX] L=48 states=2 -> 3
+[DP-bwdX] L=32 states=103 -> 111
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=14 -> 15
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=19 -> 32
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=32 states=66 -> 95
+[DP-bwdX] L=48 states=2 -> 3
+[DP-bwdX] L=32 states=14 -> 18
+[DP-fwdX] L=32 states=2 -> 3
+[DP-fwdX] L=32 states=1 -> 2
+[DP-bwdX] L=48 states=2 -> 3
+[DP-bwdX] L=48 states=2 -> 3
+[DP-bwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=64 states=63 -> 72
+[DP-bwdX] L=96 states=5 -> 7
+[DP-bwdX] L=80 states=433 -> 515
+[DP-bwdX] L=64 states=233 -> 301
+[DP-fwdX] L=64 states=4 -> 6
+[DP-fwdX] L=64 states=4 -> 6
+[DP-bwdX] L=64 states=2 -> 4
+[DP-fwdX] L=80 states=11 -> 13
+[DP-bwdX] L=96 states=5 -> 7
+[DP-fwdX] L=80 states=11 -> 13
+[DP-bwdX] L=80 states=3 -> 7
+[DP-bwdX] L=80 states=3 -> 7
+[DP-bwdX] L=96 states=5 -> 7
+[DP-bwdX] L=96 states=1 -> 2
+[DP-bwdX] L=96 states=1 -> 2
+[DP-fwdX] L=96 states=1 -> 1
+[DP-fwdX] L=96 states=1 -> 1
+Solve-only time: 118.47 ms
+[Verify] HPWL=914 (solver_report=914)

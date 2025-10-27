@@ -1,0 +1,13 @@
+
+=== OC-Shortest m=5 h=5 steps=25 thr=24 pow2=1 weighted=1 ===
+[OC-Shortest/pow2] m=5 h=5 SEG=3 bits=15 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=16 -> 18
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=6 -> 6
+[DP-bwdX] L=16 states=5 -> 9
+[DP-fwdX] L=16 states=1 -> 2
+Solve-only time: 13.5813 ms
+[Verify] HPWL=116 (solver_report=116)

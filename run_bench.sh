@@ -22,9 +22,9 @@ for size in 4 5 6 7 8 9 10 11 12 13 14 15 16; do
   m=$size
   h=$size
   if [ $size -le 12 ]; then
-    thr=4
+    thr=24
   else
-    thr=8
+    thr=24
   fi
 
   echo "? Running ${m}x${h} (threads=$thr)..."

@@ -1,25 +1,34 @@
-# Makefile (新增 oc_td 目标，不覆盖你现有的可执行文件)
+# ===== Compiler & Flags =====
 CXX      := g++
-CXXFLAGS := -O3 -march=native -flto -DNDEBUG -std=c++17 -Wall -Wextra -Wshadow -Wconversion -fopenmp
-INC      := -Isrc
-LDFLAGS  := -fopenmp
+CXXFLAGS := -O3 -std=c++17 -Wall -Wextra -DNDEBUG
+OMPFLAG  := -fopenmp
 
-BUILD_DIR := build
 SRC_DIR   := src
+BUILD_DIR := build
 
-OBJS := $(BUILD_DIR)/src/lightOCShortest.o $(BUILD_DIR)/src/main_td.o
-BIN  := $(BUILD_DIR)/oc_td
+# ---- single column executable ----
+SRC_SINGLECOL := $(SRC_DIR)/lightOCShortest.cpp $(SRC_DIR)/main_singlecol.cpp
+HDR_SINGLECOL := $(SRC_DIR)/lightOCShortest.h $(SRC_DIR)/momentum_weighter.h
 
-all: $(BIN)
+OBJ_SINGLECOL := $(SRC_SINGLECOL:.cpp=.o)
+TARGET_SINGLECOL := $(BUILD_DIR)/oc_singlecol
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(BUILD_DIR)/src
-	$(CXX) $(CXXFLAGS) $(INC) -c $< -o $@
+# ===== Default =====
+all: $(TARGET_SINGLECOL)
 
-$(BIN): $(OBJS)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(TARGET_SINGLECOL): $(OBJ_SINGLECOL) | $(BUILD_DIR)
+	@echo "[Link SingleCol] -> $@"
+	$(CXX) $(CXXFLAGS) $(OMPFLAG) -o $@ $(OBJ_SINGLECOL)
+
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp $(HDR_SINGLECOL)
+	@echo "[Compile] $<"
+	$(CXX) $(CXXFLAGS) $(OMPFLAG) -c $< -o $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	@echo "[Clean]"
+	rm -rf $(BUILD_DIR) $(SRC_DIR)/*.o
 
-.PHONY: all clean
+rebuild: clean all

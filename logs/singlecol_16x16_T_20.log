@@ -1,0 +1,51 @@
++ build/oc_singlecol 8 8 --rounds=5 --dV=1 --T=20 --pow2=1 --progress=1 --wH wH_unit.txt --wV wV_unit.txt
+[SingleCol-TD] m=8 h=8 N=64  rounds=5  dV=1  T=20  alpha=0.5 eta=0.5 top=0.1  pow2=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 1] solve_ms=27.9324  HPWL_w=472000  HPWL_eq=472  report=472000
+  [Updt] WNS=0  TNS=0  maxL=20  picked=0
+  [TD] reach target: all edges <= T.
+[SingleCol-TD] wrote placement to: placement8_Col_1_T_20.txt
+
+real	0m0.031s
+user	0m0.637s
+sys	0m0.011s

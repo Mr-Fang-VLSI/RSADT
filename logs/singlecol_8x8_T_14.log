@@ -1,0 +1,223 @@
++ build/oc_singlecol 8 8 --rounds=200 --dV=1 --T=14 --pow2=1 --progress=1 --wH wH_unit.txt --wV wV_unit.txt
+[SingleCol-TD] m=8 h=8 N=64  rounds=200  dV=1  T=14  alpha=0.5 eta=0.5 top=0.1  pow2=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 1] solve_ms=29.5795  HPWL_w=472000  HPWL_eq=472  report=472000
+  [Updt] WNS=-6  TNS=32  maxL=20  picked=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 2] solve_ms=17.1419  HPWL_w=473242  HPWL_eq=472  report=473242
+  [Updt] WNS=-6  TNS=36  maxL=20  picked=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 3] solve_ms=16.9902  HPWL_w=478676  HPWL_eq=474  report=478676
+  [Updt] WNS=-6  TNS=19  maxL=20  picked=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 4] solve_ms=16.841  HPWL_w=483278  HPWL_eq=474  report=483278
+  [Updt] WNS=-6  TNS=18  maxL=20  picked=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 5] solve_ms=16.6626  HPWL_w=489664  HPWL_eq=476  report=489664
+  [Updt] WNS=0  TNS=0  maxL=14  picked=0
+  [TD] reach target: all edges <= T.
+[SingleCol-TD] wrote placement to: placement8_Col_1_T_14.txt
+
+real	0m0.100s
+user	0m2.212s
+sys	0m0.090s

@@ -1,0 +1,1 @@
+M,H,T,rounds_total,total_runtime_sec,last_round,last_maxL,last_HPWL_eq,last_HPWL_w,last_WNS_T,meet_T,first_meet_T_round,init_Tprime,tighten_steps,final_Tprime,min_maxL,round_of_min,max_maxL,round_of_max,avg_solve_ms,last_solve_ms,last_picked,alpha,eta,gamma,beta,sigma,shrink,cap,scale,dV,pow2,freeze,log_path,placement_path,tprime_path

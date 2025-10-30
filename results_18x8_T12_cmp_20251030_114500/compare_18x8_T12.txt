@@ -1,0 +1,4 @@
+policy,maxL_max,round_of_maxL_max,maxL_min,round_of_maxL_min,HPWL_eq_final,HPWL_w_final,runtime_sec
+lagrange,93,12,14,62,1231,11549500,78
+irl1,25,2,20,1,1203,1224000,75
+soft,38,35,12,41,1192,1365741,39

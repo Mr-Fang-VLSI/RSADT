@@ -1,0 +1,4 @@
+policy,maxL_max,round_of_maxL_max,maxL_min,round_of_maxL_min,HPWL_eq_final,HPWL_w_final
+lagrange,NA,NA,NA,NA,NA,NA
+irl1,NA,NA,NA,NA,NA,NA
+soft,NA,NA,NA,NA,NA,NA

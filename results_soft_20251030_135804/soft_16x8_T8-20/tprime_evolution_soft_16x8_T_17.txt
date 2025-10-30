@@ -1,0 +1,9 @@
+# T_prime evolution (target T=17)
+type,round,T_prime,T_target,maxL,WNS_Tprime,WNS_T,picked,HPWL_eq,HPWL_w,solve_ms,old_T_prime,new_T_prime,sigma_maxL,shrink_val
+round,1,17,17,20,-3,-3,6,1040,1040000,437.284,,,,
+round,2,17,17,18,-1,-1,6,1040,1040828,439.894,,,,
+round,3,17,17,18,-1,-1,6,1040,1042088,421.454,,,,
+round,4,17,17,18,-1,-1,6,1040,1043816,436.132,,,,
+round,5,17,17,18,-1,-1,6,1040,1045904,416.823,,,,
+round,6,17,17,18,-1,-1,3,1042,1047708,434.653,,,,
+round,7,17,17,15,2,2,0,1044,1048328,437.693,,,,

@@ -1,0 +1,8 @@
+[Policy] m=32 h=10 rounds=200 T_target=15 policy=lagrange+freeze cap=64 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9
+[OC-Shortest/pow2] m=32 h=10 SEG=4 bits=128 words=2 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=212 -> 267
+[DP-fwdX] L=32 states=5013 -> 5887
+[DP-fwdX] L=48 states=48398 -> 54654
+[DP-fwdX] L=64 states=274616 -> 301838
+[DP-fwdX] L=80 states=1060000 -> 1140832

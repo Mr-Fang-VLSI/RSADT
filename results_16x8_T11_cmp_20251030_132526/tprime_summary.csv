@@ -1,0 +1,4 @@
+policy,rounds,tighten_steps,final_T_prime,final_T_target,maxL_min,maxL_max,first_round_meet_T
+irl1,150,0,16,11,20,20,
+lagrange,85,2,11,11,11,82,
+soft,57,2,11,11,8,38,

@@ -1,0 +1,26 @@
+[MultiCol] m=24 h=24 K=4 T=15 rounds=150 policy=soft snake=1 work_dir=.
+[MultiCol] exec: build/oc_policy_singlecol 24 6 150 --T=15 --policy=soft --freeze=1 --cap=8 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.5 --eta=0.5 --gamma=0.4 --beta=3 --homotopy=1 --sigma=0.85 --shrink=0.92
+[Policy] m_full=24 h_full=6  m_dp=6 h_dp=6  rounds=150 T_target=15 policy=soft+freeze cap=8 scale=1000 freeze=1 homotopy=1 sigma=0.85 shrink=0.92 fast_ctr=1
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+[Init-Homotopy] round1 maxL=10  set T_prime0=15 (T_target=15)
+  [Round 1] T_prime=15  T_target=15  HPWL_w=200000  HPWL_eq=200  maxL=10  WNS(T')=5  WNS*(T)=5  picked=0  solve_ms=9.9179
+  [TD] reach target on DP grid: all edges <= T_target.
+[Policy] wrote placement to: placement24_Col_1_T_15.txt
+[MultiCol] moved base placement to: ./base_placement_24x6_T_15.txt
+[MultiCol] parsed base Y entries: 144 (expect 144)
+[MultiCol] wrote multi-col placement: placement24_Col_4_T_15.txt
+[MultiCol] done. placement=placement24_Col_4_T_15.txt  total_ms=14.1913 ms

@@ -1,0 +1,94 @@
+[MultiCol] m=16 h=16 K=4 T=4 rounds=150 policy=soft
+[MultiCol] exec: build/oc_policy_singlecol 16 4 150 --T=4 --policy=soft --freeze=1 --cap=64 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.9 --eta=1 --gamma=0.3 --beta=3 --homotopy=1 --sigma=0.8 --shrink=0.9
+[Policy] m=16 h=4 rounds=150 T_target=4 policy=soft+freeze cap=64 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9
+[OC-Shortest/pow2] m=16 h=4 SEG=3 bits=48 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=64 -> 71
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=64 -> 71
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[Init-Homotopy] round1 maxL=7  set T_prime0=6 (T_target=4)
+  [Round 1] T_prime=6  T_target=4  HPWL_w=288000  HPWL_eq=288  maxL=7  WNS(T')=-1  WNS*(T)=-3  picked=1  solve_ms=20.6368
+[OC-Shortest/pow2] m=16 h=4 SEG=3 bits=48 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=64 -> 71
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=64 -> 71
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+  [Round 2] T_prime=6  T_target=4  HPWL_w=288048  HPWL_eq=288  maxL=4  WNS(T')=2  WNS*(T)=0  picked=0  solve_ms=15.4147
+  [TD] reach target: all edges <= T_target.
+[Policy] wrote placement to: placement16_Col_1_T_4.txt
+[MultiCol] moved base placement to: ./base_placement_16x4_T_4.txt
+[MultiCol] parsed base Y entries: 64 (expect 64)
+[MultiCol] wrote multi-col placement: placement16_Col_4_T_4.txt
+[MultiCol] final placement: placement16_Col_4_T_4.txt

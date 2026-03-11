@@ -1,0 +1,4 @@
+M,H,K,h_prime,T,rounds_total,runtime_sec,last_round,last_maxL,last_HPWL_eq,last_HPWL_w,last_WNS_T,meet_T,first_meet_T_round,final_Tprime,avg_solve_ms,log_path,placement_path
+40,40,4,10,10,150,15,109,10,990,1363228,0,YES,109,NA,133.669,results_multicol_40x40_20251123_125145/K4_40x40_T10-25/logs/multicol_40x40_K4_T_10.log,results_multicol_40x40_20251123_125145/K4_40x40_T10-25/placement40_Col_4_T_10.txt
+40,40,4,10,11,150,14,109,10,990,1363228,0,YES,109,NA,126.13,results_multicol_40x40_20251123_125145/K4_40x40_T10-25/logs/multicol_40x40_K4_T_11.log,results_multicol_40x40_20251123_125145/K4_40x40_T10-25/placement40_Col_4_T_11.txt
+40,40,4,10,12,150,13,109,10,990,1363228,0,YES,109,NA,123.468,results_multicol_40x40_20251123_125145/K4_40x40_T10-25/logs/multicol_40x40_K4_T_12.log,results_multicol_40x40_20251123_125145/K4_40x40_T10-25/placement40_Col_4_T_12.txt

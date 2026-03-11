@@ -1,0 +1,52 @@
+[MultiCol] m=44 h=40 K=5 T=20 rounds=150 policy=soft snake=1 work_dir=.
+[MultiCol] exec: build/oc_policy_singlecol 44 8 150 --T=20 --policy=soft --freeze=1 --cap=64 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.9 --eta=1 --gamma=0.3 --beta=3 --homotopy=1 --sigma=0.8 --shrink=0.9
+[Policy] m_full=44 h_full=8  m_dp=8 h_dp=8  rounds=150 T_target=20 policy=soft+freeze cap=64 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9 fast_ctr=1
+[OC-Shortest/pow2] m=8 h=8 SEG=4 bits=32 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=141 -> 164
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=48 states=141 -> 164
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-bwdX] L=16 states=1 -> 2
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-fwdX] L=16 states=1 -> 3
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-bwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-fwdX] L=32 states=1 -> 1
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-bwdX] L=48 states=1 -> 3
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-fwdX] L=48 states=1 -> 2
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[DP-bwdX] L=64 states=1 -> 1
+[Init-Homotopy] round1 maxL=20  set T_prime0=20 (T_target=20)
+  [Round 1] T_prime=20  T_target=20  HPWL_w=472000  HPWL_eq=472  maxL=20  WNS(T')=0  WNS*(T)=0  picked=0  solve_ms=21.2833
+  [TD] reach target on DP grid: all edges <= T_target.
+[Policy] wrote placement to: placement44_Col_1_T_20.txt
+[MultiCol] moved base placement to: ./base_placement_44x8_T_20.txt
+[MultiCol] parsed base Y entries: 352 (expect 352)
+[MultiCol] wrote multi-col placement: placement44_Col_5_T_20.txt
+[MultiCol] done. placement=placement44_Col_5_T_20.txt  total_ms=27.2779 ms

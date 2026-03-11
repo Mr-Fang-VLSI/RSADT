@@ -1,0 +1,20 @@
+[MultiCol] m=8 h=8 K=4 T=3 rounds=150 policy=soft snake=1
+[MultiCol] exec: build/oc_policy_singlecol 8 2 150 --T=3 --policy=soft --freeze=1 --cap=64 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.9 --eta=1 --gamma=0.3 --beta=3 --homotopy=1 --sigma=0.8 --shrink=0.9
+[Policy] m=8 h=2 rounds=150 T_target=3 policy=soft+freeze cap=64 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9
+[OC-Shortest/pow2] m=8 h=2 SEG=2 bits=16 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[Init-Homotopy] round1 maxL=2  set T_prime0=3 (T_target=3)
+  [Round 1] T_prime=3  T_target=3  HPWL_w=36000  HPWL_eq=36  maxL=2  WNS(T')=1  WNS*(T)=1  picked=0  solve_ms=10.509
+  [TD] reach target: all edges <= T_target.
+[Policy] wrote placement to: placement8_Col_1_T_3.txt
+[MultiCol] moved base placement to: ./base_placement_8x2_T_3.txt
+[MultiCol] parsed base Y entries: 16 (expect 16)
+[MultiCol] wrote multi-col placement: placement8_Col_4_T_3.txt
+[MultiCol] final placement: placement8_Col_4_T_3.txt

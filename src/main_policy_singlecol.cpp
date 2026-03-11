@@ -1,5 +1,6 @@
 #include "lightOCShortest.h"
 #include "weighter_policy.h"
+#include "rowswap_ctr_expander.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -52,15 +53,18 @@ int main(int argc, char** argv){
               "[--alpha=0.9 --eta=1.0 --top=0.10] "
               "[--rho=0.3] [--lam=2.0 --delta=2.0] [--gamma=0.3 --beta=3.0] "
               "[--cap=64 --scale=1000] [--dV=1] [--pow2=1] [--progress=1] "
-              "[--homotopy=1 --sigma=0.8 --shrink=0.9]\n";
+              "[--homotopy=1 --sigma=0.8 --shrink=0.9] "
+              "[--fast_ctr=1]\n";
         return 0;
     }
-    int m=atoi(argv[1]), h=atoi(argv[2]), rounds=atoi(argv[3]);
+    // 物理 strip 尺寸（来自命令行）
+    int m_full=atoi(argv[1]), h_full=atoi(argv[2]), rounds=atoi(argv[3]);
     long long T=12; string policy="soft";
     bool freeze=true; double alpha=0.9,eta=1.0,top=0.10,cap=64,scale=1000;
     double rho=0.3, lam=2.0, delta=2.0, gamma=0.3, beta=3.0;
     int dV=1; bool pow2=true, progress=true;
     bool homotopy=true; double sigma=0.8, shrink=0.9;
+    bool fast_ctr=true; // m>h 时自动 shrink 到 h×h 再 Row-swap 扩展
 
     string v;
     for(int i=4;i<argc;++i){
@@ -84,35 +88,48 @@ int main(int argc, char** argv){
         else if(parse_flag(s,"--homotopy",v)) homotopy=(v!="0");
         else if(parse_flag(s,"--sigma",v)) sigma=stod(v);
         else if(parse_flag(s,"--shrink",v)) shrink=stod(v);
+        else if(parse_flag(s,"--fast_ctr",v)) fast_ctr=(v!="0");
     }
 
-    // Build policy
+    // DP 用的尺寸（CTR 模式下缩成 h_full×h_full）
+    int m_dp = m_full;
+    int h_dp = h_full;
+    bool use_ctr = fast_ctr && (m_full > h_full);
+    if(use_ctr){
+        m_dp = h_full;
+        h_dp = h_full;
+    }
+
+    // Build policy（基于 DP 尺寸）
     WeighterParams P; P.export_scale=scale; P.cap_max=cap;
     P.alpha=alpha; P.eta=eta; P.top_ratio=top; P.rho=rho; P.lam=lam; P.delta=delta; P.gamma=gamma; P.beta=beta;
 
     IWeighterPolicy* core=nullptr;
-    if(policy=="momentum") core=MakeMomentumPolicy(m,h,P);
-    else if(policy=="lagrange") core=MakeLagrangePolicy(m,h,P);
-    else if(policy=="irl1") core=MakeIRL1Policy(m,h,P);
-    else if(policy=="soft") core=MakeSoftPolicy(m,h,P);
+    if(policy=="momentum") core=MakeMomentumPolicy(m_dp,h_dp,P);
+    else if(policy=="lagrange") core=MakeLagrangePolicy(m_dp,h_dp,P);
+    else if(policy=="irl1") core=MakeIRL1Policy(m_dp,h_dp,P);
+    else if(policy=="soft") core=MakeSoftPolicy(m_dp,h_dp,P);
     else { cerr<<"Unknown policy: "<<policy<<"\n"; return 2; }
     if(freeze) core = MakeFreezeDecorator(core);
 
-    // Initial weights = 1*scale
-    Mat<long long> wH(m, std::vector<long long>(h-1, (long long)std::llround(scale)));
-    Mat<long long> wV(m-1, std::vector<long long>(h,   (long long)std::llround(scale)));
+    // Initial weights = 1*scale  (DP 盘)
+    Mat<long long> wH(m_dp, std::vector<long long>(h_dp-1, (long long)std::llround(scale)));
+    Mat<long long> wV(m_dp-1, std::vector<long long>(h_dp,   (long long)std::llround(scale)));
     core->set_initial(wH,wV,(long long)std::llround(scale));
 
-    cout<<"[Policy] m="<<m<<" h="<<h<<" rounds="<<rounds<<" T_target="<<T
+    cout<<"[Policy] m_full="<<m_full<<" h_full="<<h_full
+        <<"  m_dp="<<m_dp<<" h_dp="<<h_dp
+        <<"  rounds="<<rounds<<" T_target="<<T
         <<" policy="<<core->name()<<" cap="<<cap<<" scale="<<scale
         <<" freeze="<<(freeze?1:0)<<" homotopy="<<(homotopy?1:0)
-        <<" sigma="<<sigma<<" shrink="<<shrink<<"\n";
+        <<" sigma="<<sigma<<" shrink="<<shrink
+        <<" fast_ctr="<<(fast_ctr?1:0)<<"\n";
 
     long long Tprime = -1; // 从 round1 的 maxL 冷启动
     Mat<int> y_best; long long best_hp=(long long)9e18;
 
     for(int it=1; it<=rounds; ++it){
-        // 1) export weights and solve
+        // 1) 导出权重并在 DP 盘上求解
         Mat<long long> WH,WV; core->export_ll(WH,WV);
         lightOCShortest::Config cfg;
         cfg.dV=(dV==0?1:dV); cfg.verbose=progress; cfg.progress=progress; cfg.max_steps=-1;
@@ -121,15 +138,15 @@ int main(int argc, char** argv){
 
         lightOCShortest solver(cfg);
         auto t0=std::chrono::high_resolution_clock::now();
-        auto R = solver.solve(m,h);
+        auto R = solver.solve(m_dp,h_dp);
         auto t1=std::chrono::high_resolution_clock::now();
         double ms=std::chrono::duration<double,std::milli>(t1-t0).count();
 
         long long hpW = lightOCShortest::hpwl_sum_weighted(R.y_order, cfg.W, 1);
         long long hpE = lightOCShortest::hpwl_sum_equal   (R.y_order, 1);
 
-        // 2) 初始化 T′：从 ROUND-1 的 maxL * sigma 冷启动
-        auto st_T = compute_maxL_WNS(R.y_order, m, h, T);
+        // 2) 在 DP 盘上计算 T 口径 maxL/WNS，用于 T′ 初始化/终止判断
+        auto st_T = compute_maxL_WNS(R.y_order, m_dp, h_dp, T);
         if (homotopy && Tprime < 0){
             long long T0 = (long long)std::llround(std::ceil(sigma * (double)st_T.maxL));
             Tprime = std::max(T, T0);
@@ -141,8 +158,8 @@ int main(int argc, char** argv){
         // 3) 用当前 T′ 更新权重
         auto rep_Tprime = core->update_from_layout(R.y_order, Tprime, /*pick_by_ratio=*/true);
 
-        // 4) 记录两套口径（T′ 和 T）
-        auto st_Tprime = compute_maxL_WNS(R.y_order, m, h, Tprime);
+        // 4) 打印 T′ 和 T 两套口径
+        auto st_Tprime = compute_maxL_WNS(R.y_order, m_dp, h_dp, Tprime);
         cout<<"  [Round "<<it<<"] T_prime="<<Tprime<<"  T_target="<<T
             <<"  HPWL_w="<<hpW<<"  HPWL_eq="<<hpE
             <<"  maxL="<<st_T.maxL
@@ -153,32 +170,41 @@ int main(int argc, char** argv){
 
         if (hpW < best_hp){ best_hp=hpW; y_best=R.y_order; }
 
-        // 5) 达到 target T 则冻结
+        // 5) 若对 T 已可行（maxL<=T），直接收敛
         if (st_T.WNS >= 0){
             core->freeze_if_feasible(true);
             y_best = R.y_order; best_hp = hpW;
-            cout<<"  [TD] reach target: all edges <= T_target.\n";
+            cout<<"  [TD] reach target on DP grid: all edges <= T_target.\n";
             break;
         }
 
-        // 6) 仅当当前解已满足 T′（maxL <= T′）时，才收紧 T′，并清空惯性
+        // 6) 仅当当前解已满足 T′ 时（maxL<=T′），才允许收紧 T′，并重置惯性
         if (homotopy && st_Tprime.WNS >= 0){
-            long long maxL_curr  = st_T.maxL; // L 与 T 无关，这里用 T 口径计算亦可
+            long long maxL_curr  = st_T.maxL;
             long long cand_sigma  = (long long)std::llround(std::ceil(sigma  * (double)maxL_curr));
             long long cand_shrink = (long long)std::llround(std::ceil(shrink * (double)Tprime));
-            long long T_next = std::max(T, std::min(cand_sigma, cand_shrink)); // 单调收紧且不越界
+            long long T_next = std::max(T, std::min(cand_sigma, cand_shrink));
 
             if (T_next < Tprime){
                 cout<<"    [Tighten] T_prime: "<<Tprime<<" -> "<<T_next
                     <<" (sigma*maxL="<<cand_sigma<<", shrink="<<cand_shrink<<")"
                     <<"  | cold-start: reset inertia\n";
                 Tprime = T_next;
-                core->reset_inertia();  // 冷启动：保留权重，清空惯性
+                core->reset_inertia();  // 冷启动：保留当前权重，清空动量
             }
         }
     }
 
-    if(!y_best.empty()) write_singlecol_placement(y_best, m, h, T);
+    // 7) CTR 扩展：若启用 fast_ctr，则从 DP 盘（h×h）扩展到物理 strip（m_full×h_full）
+    if(!y_best.empty()){
+        Mat<int> y_out;
+        if(use_ctr){
+            y_out = RowSwapCTRExpander::expand(y_best, m_full, h_full);
+        }else{
+            y_out = y_best;
+        }
+        write_singlecol_placement(y_out, m_full, h_full, T);
+    }
     delete core;
     return 0;
 }

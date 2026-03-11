@@ -1,82 +1,86 @@
-# ============================================================
-#               Global build configuration
-# ============================================================
+###############################################
+#   RSADT + CTR FAST  —  BUILD SYSTEM (FINAL) #
+###############################################
+
 CXX       := g++
-CXXFLAGS  := -O3 -std=c++17 -Wall -Wextra -DNDEBUG
-OMPFLAGS  := -fopenmp
+CXXFLAGS  := -O3 -std=c++17 -Wall -Wextra -fopenmp -DNDEBUG
+LDFLAGS   := -fopenmp
+INCFLAGS  := -Isrc
+
 SRC_DIR   := src
 BUILD_DIR := build
 
-# ============================================================
-#                   Source group definitions
-# ============================================================
+###############################################
+#               核心库（无 main）              #
+###############################################
 
-# ---- 1. Single-column TD baseline ----
-SINGLE_SRCS := \
-  $(SRC_DIR)/lightOCShortest.cpp \
-  $(SRC_DIR)/placement_parser.cpp \
-  $(SRC_DIR)/main_singlecol.cpp
+LIB_SRCS := \
+    lightOCShortest.cpp \
+    weighter_policy.cpp \
+    multicol_splitter.cpp \
+    placement_parser.cpp \
+    rowswap_ctr_expander.cpp \
+    metrics_observer.cpp \
+    strip_placer.cpp
 
-SINGLE_OBJS := $(SINGLE_SRCS:.cpp=.o)
+LIB_OBJS := $(addprefix $(BUILD_DIR)/,$(LIB_SRCS:.cpp=.o))
 
-# ---- 2. Policy framework (multi-weighting strategies) ----
-POLICY_SRCS := \
-  $(SRC_DIR)/lightOCShortest.cpp \
-  $(SRC_DIR)/weighter_policy.cpp \
-  $(SRC_DIR)/main_policy_singlecol.cpp
+###############################################
+#         3 个可执行文件的 main               #
+###############################################
 
-POLICY_OBJS := $(POLICY_SRCS:.cpp=.o)
+# 1) 旧版单列（momentum）入口
+MAIN_SINGLE_SRCS := main_singlecol.cpp
+MAIN_SINGLE_OBJS := $(addprefix $(BUILD_DIR)/,$(MAIN_SINGLE_SRCS:.cpp=.o))
+BIN_SINGLE       := $(BUILD_DIR)/oc_singlecol
 
-# ---- 3. Metrics observer (visualization & logging) ----
-OBS_SRCS := \
-  $(SRC_DIR)/lightOCShortest.cpp \
-  $(SRC_DIR)/metrics_observer.cpp \
-  $(SRC_DIR)/main_observe.cpp
+# 2) 新 CTR-fast 单列入口
+MAIN_POLICY_SRCS := main_policy_singlecol.cpp
+MAIN_POLICY_OBJS := $(addprefix $(BUILD_DIR)/,$(MAIN_POLICY_SRCS:.cpp=.o))
+BIN_POLICY       := $(BUILD_DIR)/oc_policy_singlecol
 
-OBS_OBJS := $(OBS_SRCS:.cpp=.o)
+# 3) 多列封装入口
+MAIN_MULTICOL_SRCS := main_multicol.cpp
+MAIN_MULTICOL_OBJS := $(addprefix $(BUILD_DIR)/,$(MAIN_MULTICOL_SRCS:.cpp=.o))
+BIN_MULTICOL       := $(BUILD_DIR)/oc_multicol
 
-# ============================================================
-#                     Build rules
-# ============================================================
-.PHONY: all clean rebuild rerun8x8
+###############################################
+#                  build rules                 #
+###############################################
 
-all: $(BUILD_DIR)/oc_singlecol \
-     $(BUILD_DIR)/oc_policy_singlecol \
-     $(BUILD_DIR)/oc_observe
+all: $(BIN_SINGLE) $(BIN_POLICY) $(BIN_MULTICOL)
 
 $(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+	@mkdir -p $@
 
-# ---- oc_singlecol ----
-$(BUILD_DIR)/oc_singlecol: $(SINGLE_OBJS) | $(BUILD_DIR)
-	@echo "[Link] -> $@"
-	$(CXX) $(CXXFLAGS) $(OMPFLAGS) -o $@ $(SINGLE_OBJS)
+# build *.o
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) -c $< -o $@
 
-# ---- oc_policy_singlecol ----
-$(BUILD_DIR)/oc_policy_singlecol: $(POLICY_OBJS) | $(BUILD_DIR)
-	@echo "[Link] -> $@"
-	$(CXX) $(CXXFLAGS) $(OMPFLAGS) -o $@ $(POLICY_OBJS)
+###############################################
+#                 link executables             #
+###############################################
 
-# ---- oc_observe ----
-$(BUILD_DIR)/oc_observe: $(OBS_OBJS) | $(BUILD_DIR)
-	@echo "[Link] -> $@"
-	$(CXX) $(CXXFLAGS) $(OMPFLAGS) -o $@ $(OBS_OBJS)
+$(BIN_SINGLE): $(LIB_OBJS) $(MAIN_SINGLE_OBJS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
-# ---- Compile rule for all .cpp ----
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "[Compile] $<"
-	$(CXX) $(CXXFLAGS) $(OMPFLAGS) -c $< -o $@
+$(BIN_POLICY): $(LIB_OBJS) $(MAIN_POLICY_OBJS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
 
-# ============================================================
-#                     Utility targets
-# ============================================================
+$(BIN_MULTICOL): $(LIB_OBJS) $(MAIN_MULTICOL_OBJS)
+	$(CXX) $^ -o $@ $(LDFLAGS)
+
+###############################################
+#                    util                      #
+###############################################
+
 clean:
-	@echo "[Clean]"
-	rm -rf $(BUILD_DIR) $(SRC_DIR)/*.o
+	rm -rf $(BUILD_DIR)
 
-rebuild: clean all
+print:
+	@echo "LIB_SRCS  = $(LIB_SRCS)"
+	@echo "LIB_OBJS  = $(LIB_OBJS)"
 
-# ---- Batch rerun for 8x8, T=8..20 ----
-rerun8x8: $(BUILD_DIR)/oc_singlecol
-	@chmod +x ./run_rerun_8x8.sh || true
-	./run_rerun_8x8.sh
+###############################################
+#                END OF FILE                   #
+###############################################

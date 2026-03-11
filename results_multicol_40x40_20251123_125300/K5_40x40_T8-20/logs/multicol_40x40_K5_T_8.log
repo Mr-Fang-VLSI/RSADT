@@ -1,0 +1,3 @@
+[MultiCol] m=40 h=40 K=5 T=8 rounds=150 policy=soft snake=1 work_dir=.
+[MultiCol] ERROR: invalid m/h/K. m=40 h=40 K=5
+[MultiCol] FAILED to generate placement.

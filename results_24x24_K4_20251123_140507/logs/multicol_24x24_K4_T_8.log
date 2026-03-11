@@ -1,0 +1,347 @@
+[MultiCol] m=24 h=24 K=4 T=8 rounds=150 policy=soft snake=1 work_dir=.
+[MultiCol] exec: build/oc_policy_singlecol 24 6 150 --T=8 --policy=soft --freeze=1 --cap=8 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.5 --eta=0.5 --gamma=0.4 --beta=3 --homotopy=1 --sigma=0.85 --shrink=0.92
+[Policy] m_full=24 h_full=6  m_dp=6 h_dp=6  rounds=150 T_target=8 policy=soft+freeze cap=8 scale=1000 freeze=1 homotopy=1 sigma=0.85 shrink=0.92 fast_ctr=1
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+[Init-Homotopy] round1 maxL=10  set T_prime0=9 (T_target=8)
+  [Round 1] T_prime=9  T_target=8  HPWL_w=200000  HPWL_eq=200  maxL=10  WNS(T')=-1  WNS*(T)=-2  picked=4  solve_ms=10.6901
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 2] T_prime=9  T_target=8  HPWL_w=200232  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.69944
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 3] T_prime=9  T_target=8  HPWL_w=201542  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.65453
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 4] T_prime=9  T_target=8  HPWL_w=202356  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.92877
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 5] T_prime=9  T_target=8  HPWL_w=204098  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.76328
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 6] T_prime=9  T_target=8  HPWL_w=205116  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.73532
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 7] T_prime=9  T_target=8  HPWL_w=207022  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.74407
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 8] T_prime=9  T_target=8  HPWL_w=208148  HPWL_eq=200  maxL=11  WNS(T')=-2  WNS*(T)=-3  picked=4  solve_ms=4.74592
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 9] T_prime=9  T_target=8  HPWL_w=210016  HPWL_eq=202  maxL=9  WNS(T')=0  WNS*(T)=-1  picked=0  solve_ms=4.66432
+    [Tighten] T_prime: 9 -> 8 (sigma*maxL=8, shrink=9)  | cold-start: reset inertia
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 10] T_prime=8  T_target=8  HPWL_w=210016  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.6549
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 11] T_prime=8  T_target=8  HPWL_w=210844  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.64591
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 12] T_prime=8  T_target=8  HPWL_w=212132  HPWL_eq=208  maxL=16  WNS(T')=-8  WNS*(T)=-8  picked=6  solve_ms=4.67293
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 13] T_prime=8  T_target=8  HPWL_w=214019  HPWL_eq=208  maxL=16  WNS(T')=-8  WNS*(T)=-8  picked=6  solve_ms=4.66133
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 14] T_prime=8  T_target=8  HPWL_w=217934  HPWL_eq=200  maxL=11  WNS(T')=-3  WNS*(T)=-3  picked=6  solve_ms=8.28644
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 15] T_prime=8  T_target=8  HPWL_w=219717  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.78759
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 16] T_prime=8  T_target=8  HPWL_w=221931  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.79666
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 17] T_prime=8  T_target=8  HPWL_w=222372  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.70763
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 18] T_prime=8  T_target=8  HPWL_w=225036  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.75371
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 19] T_prime=8  T_target=8  HPWL_w=225929  HPWL_eq=202  maxL=9  WNS(T')=-1  WNS*(T)=-1  picked=6  solve_ms=4.64644
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 2
+  [Round 20] T_prime=8  T_target=8  HPWL_w=228362  HPWL_eq=208  maxL=16  WNS(T')=-8  WNS*(T)=-8  picked=6  solve_ms=4.62306
+[OC-Shortest/pow2] m=6 h=6 SEG=3 bits=18 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=55 -> 55
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=1 -> 1
+  [Round 21] T_prime=8  T_target=8  HPWL_w=230789  HPWL_eq=210  maxL=6  WNS(T')=2  WNS*(T)=2  picked=0  solve_ms=4.64897
+  [TD] reach target on DP grid: all edges <= T_target.
+[Policy] wrote placement to: placement24_Col_1_T_8.txt
+[MultiCol] moved base placement to: ./base_placement_24x6_T_8.txt
+[MultiCol] parsed base Y entries: 144 (expect 144)
+[MultiCol] wrote multi-col placement: placement24_Col_4_T_8.txt
+[MultiCol] done. placement=placement24_Col_4_T_8.txt  total_ms=112.927 ms

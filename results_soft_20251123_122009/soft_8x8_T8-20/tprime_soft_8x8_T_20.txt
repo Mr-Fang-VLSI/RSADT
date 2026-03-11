@@ -1,0 +1,2 @@
+# round,T_prime,maxL,WNS(T'),WNS(T),picked,HPWL_eq,HPWL_w,solve_ms
+1,20,20,0,0,0,472,472000,24.1215

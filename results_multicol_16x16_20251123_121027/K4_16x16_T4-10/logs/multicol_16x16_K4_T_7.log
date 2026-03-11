@@ -1,0 +1,22 @@
+[MultiCol] m=16 h=16 K=4 T=7 rounds=150 policy=momentum snake=1 work_dir=.
+[MultiCol] WARN: unknown policy=momentum, fallback run anyway.
+[MultiCol] exec: build/oc_policy_singlecol 16 4 150 --T=7 --policy=momentum --freeze=1 --cap=8 --scale=1000 --dV=1 --pow2=1 --progress=1
+[Policy] m_full=16 h_full=4 rounds=150 T_target=7 policy=momentum+freeze cap=8 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9  [fast_ctr: DP on 4x4]
+[OC-Shortest/pow2] m=4 h=4 SEG=3 bits=12 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[DP-bwdX] L=16 states=1 -> 1
+[Init-Homotopy] round1 maxL(dp)=6  set T_prime0=7 (T_target=7)
+[RowSwapCTR] expand small 4x4 -> full 16x4  top_rows=2  bot_rows=2  ctr_rows=12  n_full=64
+  [Round 1] T_prime=7  T_target=7  HPWL_w=60000000  HPWL_eq=60  maxL=7  WNS(T')=0  WNS*(T)=0  picked=0  solve_ms=5.49944
+  [TD] reach target: all edges <= T_target.
+[Policy] wrote placement to: placement16_Col_1_T_7.txt
+[MultiCol] moved base placement to: ./base_placement_16x4_T_7.txt
+[MultiCol] parsed base Y entries: 64 (expect 64)
+[MultiCol] wrote multi-col placement: placement16_Col_4_T_7.txt
+[MultiCol] done. placement=placement16_Col_4_T_7.txt  total_ms=10.2022 ms

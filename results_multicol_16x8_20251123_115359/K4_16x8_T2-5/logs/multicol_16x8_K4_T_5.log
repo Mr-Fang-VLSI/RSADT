@@ -1,0 +1,15 @@
+[MultiCol] m=16 h=8 K=4 T=5 rounds=150 policy=soft snake=1 work_dir=.
+[MultiCol] exec: build/oc_policy_singlecol 16 2 150 --T=5 --policy=soft --freeze=1 --cap=64 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.9 --eta=1 --gamma=0.3 --beta=3 --homotopy=1 --sigma=0.8 --shrink=0.9
+[Policy] m_full=16 h_full=2 rounds=150 T_target=5 policy=soft+freeze cap=64 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9  [fast_ctr: DP on 2x2]
+[OC-Shortest/pow2] m=2 h=2 SEG=2 bits=4 words=1 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[Init-Homotopy] round1 maxL(dp)=2  set T_prime0=5 (T_target=5)
+[RowSwapCTR] expand small 2x2 -> full 16x2  top_rows=1  bot_rows=1  ctr_rows=14  n_full=32
+  [Round 1] T_prime=5  T_target=5  HPWL_w=6000  HPWL_eq=6  maxL=2  WNS(T')=3  WNS*(T)=3  picked=0  solve_ms=8.94329
+  [TD] reach target: all edges <= T_target.
+[Policy] wrote placement to: placement16_Col_1_T_5.txt
+[MultiCol] moved base placement to: ./base_placement_16x2_T_5.txt
+[MultiCol] parsed base Y entries: 32 (expect 32)
+[MultiCol] wrote multi-col placement: placement16_Col_4_T_5.txt
+[MultiCol] done. placement=placement16_Col_4_T_5.txt  total_ms=12.5185 ms

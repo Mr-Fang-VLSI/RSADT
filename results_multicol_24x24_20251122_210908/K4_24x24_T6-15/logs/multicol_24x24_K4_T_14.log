@@ -1,0 +1,81 @@
+[MultiCol] m=24 h=24 K=4 T=14 rounds=150 policy=soft snake=1
+[MultiCol] exec: build/oc_policy_singlecol 24 6 150 --T=14 --policy=soft --freeze=1 --cap=64 --scale=1000 --dV=1 --pow2=1 --progress=1 --alpha=0.9 --eta=1 --gamma=0.3 --beta=3 --homotopy=1 --sigma=0.8 --shrink=0.9
+[Policy] m=24 h=6 rounds=150 T_target=14 policy=soft+freeze cap=64 scale=1000 freeze=1 homotopy=1 sigma=0.8 shrink=0.9
+[OC-Shortest/pow2] m=24 h=6 SEG=3 bits=72 words=2 threads=24
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=136 -> 163
+[DP-fwdX] L=32 states=1498 -> 1669
+[DP-fwdX] L=48 states=5868 -> 6217
+[DP-fwdX] L=64 states=11067 -> 11258
+[DP-bwdX] L=144 states=1 -> 1
+[DP-bwdX] L=128 states=136 -> 163
+[DP-bwdX] L=112 states=1498 -> 1669
+[DP-bwdX] L=96 states=5868 -> 6217
+[DP-bwdX] L=80 states=11067 -> 11258
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=136 -> 163
+[DP-fwdX] L=32 states=1498 -> 1669
+[DP-bwdX] L=64 states=20 -> 26
+[DP-bwdX] L=48 states=382 -> 415
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=16 states=136 -> 163
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-fwdX] L=0 states=1 -> 1
+[DP-bwdX] L=16 states=2 -> 3
+[DP-bwdX] L=16 states=2 -> 3
+[DP-fwdX] L=16 states=1 -> 2
+[DP-bwdX] L=32 states=5 -> 7
+[DP-bwdX] L=32 states=5 -> 7
+[DP-fwdX] L=32 states=2 -> 3
+[DP-fwdX] L=48 states=58 -> 71
+[DP-bwdX] L=64 states=20 -> 26
+[DP-bwdX] L=48 states=11 -> 14
+[DP-fwdX] L=48 states=7 -> 10
+[DP-bwdX] L=48 states=2 -> 3
+[DP-bwdX] L=64 states=20 -> 26
+[DP-fwdX] L=64 states=2 -> 4
+[DP-fwdX] L=64 states=2 -> 4
+[DP-fwdX] L=80 states=20 -> 26
+[DP-fwdX] L=96 states=382 -> 415
+[DP-bwdX] L=144 states=1 -> 1
+[DP-bwdX] L=128 states=136 -> 163
+[DP-bwdX] L=112 states=1498 -> 1669
+[DP-fwdX] L=80 states=20 -> 26
+[DP-bwdX] L=96 states=58 -> 71
+[DP-fwdX] L=80 states=20 -> 26
+[DP-bwdX] L=80 states=2 -> 4
+[DP-bwdX] L=80 states=2 -> 4
+[DP-bwdX] L=80 states=2 -> 4
+[DP-fwdX] L=96 states=11 -> 14
+[DP-bwdX] L=96 states=7 -> 10
+[DP-bwdX] L=96 states=1 -> 1
+[DP-fwdX] L=96 states=1 -> 1
+[DP-fwdX] L=112 states=5 -> 7
+[DP-bwdX] L=144 states=1 -> 1
+[DP-bwdX] L=128 states=136 -> 163
+[DP-fwdX] L=112 states=5 -> 7
+[DP-bwdX] L=112 states=1 -> 2
+[DP-bwdX] L=112 states=1 -> 2
+[DP-fwdX] L=112 states=1 -> 2
+[DP-fwdX] L=112 states=1 -> 2
+[DP-fwdX] L=128 states=2 -> 3
+[DP-bwdX] L=144 states=1 -> 1
+[DP-fwdX] L=128 states=2 -> 3
+[DP-bwdX] L=128 states=1 -> 2
+[DP-fwdX] L=128 states=1 -> 2
+[DP-bwdX] L=144 states=1 -> 1
+[DP-bwdX] L=144 states=1 -> 1
+[DP-bwdX] L=144 states=1 -> 1
+[DP-bwdX] L=144 states=1 -> 1
+[Init-Homotopy] round1 maxL=11  set T_prime0=14 (T_target=14)
+  [Round 1] T_prime=14  T_target=14  HPWL_w=938000  HPWL_eq=938  maxL=11  WNS(T')=3  WNS*(T)=3  picked=0  solve_ms=322.251
+  [TD] reach target: all edges <= T_target.
+[Policy] wrote placement to: placement24_Col_1_T_14.txt
+[MultiCol] moved base placement to: ./base_placement_24x6_T_14.txt
+[MultiCol] parsed base Y entries: 144 (expect 144)
+[MultiCol] wrote multi-col placement: placement24_Col_4_T_14.txt
+[MultiCol] final placement: placement24_Col_4_T_14.txt

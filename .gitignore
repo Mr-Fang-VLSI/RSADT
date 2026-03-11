@@ -1,0 +1,7 @@
+build/
+*.log
+*.tar.gz
+results*
+tmp_*
+viz_placements/
+viz_congestion_singlecol/

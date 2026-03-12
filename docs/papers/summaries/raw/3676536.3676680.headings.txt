@@ -1,0 +1,4 @@
+3:Abstract
+6:Introduction
+94:Results on the Basic Hypergraph Partitioning
+112:References

@@ -1,0 +1,748 @@
+
+
+=== PAGE 1 ===
+
+Timing-Driven Placement for FPGAs with Heterogeneous
+Architectures and Clock Constraints
+Zhifeng Lin 1, Y anyue Xie2, Gang Qian 3, Jianli Chen 1,3, Sifei Wang 3, Jun Y u3 and Y ao-Wen Chang4
+1Center for Discrete Mathematics and Theoretical Computer Science, Fuzhou University, Fuzhou 350108, China
+2Department of Electrical and Computer Engineering, Northeastern University, Boston, MA 02115, USA
+3State Key Lab of ASIC & System, Fudan University, Shanghai 200433, China
+4Graduate Institute of Electronics Engineering, National Taiwan University, Taipei 10617, Taiwan
+Email: chenjianli@fudan.edu.cn
+Abstract—Modern FPGAs often contain heterogeneous archi-
+tectures and clocking resources which must be considered to
+achieve desired solutions. As the design complexity keeps growing,
+placement has become critical for FPGA timing closure. In this
+paper, we present an analytical placement algorithm for hetero-
+geneous FPGAs to optimize its worst slack and clock constraints
+simultaneously. First, a heterogeneity-aware and memory-friendly
+delay model is developed to accurately and rapidly assess each
+connection delay. Then, a two-stage clock region reﬁnement method
+is presented to effectively resolve the clock and resource violations.
+Finally, we develop a novel timing-based co-optimization method
+to generate optimized placement without any clocking violations.
+Compared with the state-of-the-art placer based on the advanced
+commercial tool Xilinx Vivado 2019.1 with the Xilinx 7 Series
+FPGA architecture, our algorithm achieves the best worst slack
+and routed wirelength while satisfying all clock constraints.
+I. I NTRODUCTION
+Field-programmable gate arrays (FPGAs) are programmable
+platforms designed for user customization [6]. Compared
+with application-speciﬁc integrated circuits (ASICs), FPGAs
+achieve non-recurring costs, in-ﬁeld programmability, and short
+turnaround time, and thus attract higher attention from cir-
+cuit designers in recent years [2]. As the FPGA technologies
+keep improving, modern FPGAs often contain heterogeneous
+architectures and clock resources, which facilitate high-quality
+solutions for speciﬁc implementations, such as machine learning
+and data centers [11].
+Placement plays an important role in the FPGA design ﬂow
+because its performance highly affects the ﬁnal wirelength
+optimization, timing closure, and power consumption [7]. The
+FPGA placement works can be generally categorized into the
+following three types: simulated annealing (SA), partition-based
+algorithms, and analytical formulations [8], [12]. Recent studies
+show that the analytical approaches achieve the best trade-off
+between quality and runtime, and are widely used in academia
+and industry [9].
+With the continuous wire size shrinking in modern FPGAs,
+wiring-induced delays are becoming the main issue of the whole
+circuit delay. Traditional placers that address wirelength alone
+are no longer sufﬁcient for timing closure, especially for the
+large-scale FPGAs. In this case, timing-driven placement is
+introduced to solve complex timing constraints while preserving
+desired performance. However, since the FPGA interconnect
+delays are highly non-linear and non-monotone with respect
+to geometric distance due to the signiﬁcant delay with its
+programmable switches and segmented routing structures, the
+great difﬁculty in getting accurate delay information makes
+timing-driven placement much more challenging than ever [1].
+Heterogeneous architecture is another major issue for FPGA
+placement. Different blocks such as CLBs, RAMs, and DSPs,
+This work was partially supported by the National Key Research and
+Development Project under Grant 218YFB2202704, Natural Science Foundation
+of China under Grant 61977017, and by AnaGlobe, Maxeda, Synopsys, TSMC,
+and MOST of Taiwan under Grant Numbers 107-2221-E-002-161-MY3 and
+108-2221-E-002-097-MY3.
+must be placed on dedicated positions in an FPGA, which incurs
+non-convex objective and may lead to sub-optimal placements
+[10]. In addition, clock resources in modern FPGAs are of
+particular importance to achieve better performance. However,
+the resources also impose various layout constraints that affect
+the mapping of other logics, further complicating the already
+time-consuming placement process [5].
+Existing works consider the crucial timing issue and the spe-
+cial architecture constraints separately. In [6], Lin et al. showed
+the importance of adopting a multilevel analytical framework to
+improve timing-driven placement scalability. In [9], Martin et
+al. optimized the timing cost by using a ﬂat analytical model
+without explicit packing. In the work [3], Chen et al. presented
+a routing-architecture-aware cost function to minimize the inter-
+block delays and a complex block density model to deal with the
+heterogeneous components. Experimental results have shown
+that their proposed method achieves promising results on the
+Altera Stratix IV devices. However, all these placers overlook
+the critical clock constraints and may lead to timing failures.
+In order to encourage placers to address large-scale FPGA
+designs with various clocking rules, the 2017 ISPD held a
+clock-aware FPGA placement contest [14]. The recent work [2]
+considered the contest problem, and developed an effective ana-
+lytical placement algorithm. They designed a smooth quadratic
+region cost to reduce the overuse of clocking resources and
+achieved the best performance when compared with the top-3
+winners of 2017 ISPD clock-aware FPGA placement contest.
+Unfortunately, due to the lack of timing optimization, the work
+may incur timing violations in their ﬁnal placements.
+In this paper, we propose a timing-driven FPGA placement
+ﬂow to efﬁciently optimize timing and resolve clocking con-
+ﬂicts simultaneously. Our main contributions are summarized
+as follows:
+• We propose a heterogeneous delay model to calculate each
+connection delay, and construct a memory-friendly look-up
+table to speed up delay access.
+• We develop a two-stage clock region reﬁnement method
+to solve clocking and resource violations while preserving
+good placement results.
+• To achieve high-quality placement, we design a timing-
+based co-optimization scheme satisfying clocking con-
+straints. We also derive a combinatorial legalization al-
+gorithm to remove all overlaps and further improve the
+solution quality.
+• Compared with the commercial tool Xilinx Vivado 2019.1,
+experimental results show that our algorithm resolves all
+the timing violations and further improves the wirelength
+by 7.2% in 4.8% shorter runtime.
+The remainder of this paper is organized as follows. Section
+II gives the preliminaries for heterogeneous FPGA placement.
+Section III presents our analytical placement algorithm and the
+optimization strategy. Experimental results are shown in Section
+IV. Finally, Section V concludes our work.
+1564978-3-9819263-5-4/DA TE21/c⃝2021 EDAA
+2021 Design, Automation & Test in Europe Conference & Exhibition (DATE) | 978-3-9819263-5-4/21/$31.00 ©202110.23919/DATE51398.2021.9474054
+Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:53:33 UTC from IEEE Xplore.  Restrictions apply. 
+
+=== PAGE 2 ===
+
+Fig. 1. An example FPGA architecture. (a) An FPGA contains CLBs,
+RAMs and DSPs and is divided into 4 × 3 clock regions. (b) An
+illustration of a clock region, which is partitioned into upper and lower
+half columns.
+II. P RELIMINARIES
+In this section, we ﬁrst introduce the heterogeneous FPGA
+architecture, and then give the problem formulation of hetero-
+geneous FPGA placement.
+A. Heterogeneous FPGA Architecture
+In this paper, the target FPGA architectures are Xilinx 7
+Series devices, which are optimized for low cost and high
+system performance, and are widely used in commercial ap-
+plications [13]. The proposed techniques, however, are general
+and can easily apply to other heterogeneous FPGA architectures.
+Generally, there are different kinds of sites (CLB, RAM, and
+DSP) on the chip, and each block in a given netlist must be
+placed in sites of its own type.
+The clocking architectures of FPGAs are similar to ASICs, in
+which clocks are routed from their clock sources to all of their
+loads through a pre-deﬁned network, say a mesh-like one. In
+addition, the device is divided into a grid of clock regions, and
+each clock region is further partitioned into upper and lower
+half columns (as shown in Figure 1). A clock is in a clock
+region (half column) if the clock bounding box overlaps that
+clock region (half column). Speciﬁcally, each clock region can
+accommodate at most 12 clocks, and each half column can
+accommodate at most 6 clocks.
+B. Problem F ormulation
+The timing-driven placement problem can be formulated as
+a hypergraph G =( V,E ), where V = {v
+1,v 2,...,v m} and
+E = {e1,e 2,...,e n} denote the blocks and nets in the netlist,
+respectively. Let xi and yi be the x and y coordinates of
+the center of block vi. Given the FPGA architecture and a
+design netlist, our objective is to determine the positions of the
+blocks to optimize the routed wirelength subject to the following
+constraints:
+• Every block is placed to its legal position with its own type
+of sites.
+• The number of clocks inside each clock region is equal or
+less than 12, and the number of clocks inside each half
+column is less than 7.
+• Each path in the netlist receives a non-negative slack, and
+the larger worst slack, the higher placement quality.
+III. O
+UR PLACEMENT ALGORITHM
+Our algorithm for the timing-driven FPGA placement is
+summarized in Figure 2. It consists of three major steps: (1)
+timing modeling, (2) timing-driven global placement, and (3)
+timing-driven legalization and detailed placement.
+
+
+ 
+
+! !
+
+	!!
+
+"
+
+
+!!
+"
+
+"
+Fig. 2. Our analytical placement ﬂow.
+Timing modeling tries to capture the routing information of
+the corresponding net and provides a memory-friendly look-
+up table for rapid delay assessment. Then, by using the delay
+information provided by the timing modeling, global placement
+ﬁnds desired locations for heterogeneous blocks without clock-
+ing violations. Finally, timing-driven legalization and detailed
+placement remove all blocks overlaps and further improve the
+placement quality.
+A. Timing Modeling
+In this subsection, we ﬁrst develop a novel delay model to
+provide accurate information for timing calculation. Then a
+memory-friendly delay look-up table is constructed to speed
+up delay access. Finally, we present an efﬁcient timing analysis
+method to achieve desired performance.
+1) Heterogeneity-Aware Delay Modeling: The delay model
+plays an important role in timing-driven FPGA placement. Ex-
+isting delay models seldom consider the heterogeneity nature of
+an FPGA architecture, and thus may misguide block movement
+leading to poor solutions. To address this issue, we propose an
+accurate heterogeneity-aware timing model deﬁned as follows:
+D(i,j)= I(i,j)+P (i,j)+C (i,j), (1)
+where I(i,j) is the internal delay of the edge connecting
+nodes i and j, P(i,j) is the path delay, and C(i,j) is the
+compensate delay. To be speciﬁc, path delay P(i,j) can be
+further formulated as:
+P(i,j)= B(i,j)+L( i,j), (2)
+L(i,j)= h×WireDelayH +v ×WireDelayV, (3)
+where B(i,j) is the base delay, L(i,j) is the long delay, h, v,
+Wi
+reDleayH , and WireDelayV are the number of long wires
+and long wire delays in the horizontal and vertical directions,
+respectively.
+Figure 3 gives an overview of our delay modeling. The
+internal delay I(i,j) computes the source pin delay from the
+output pin i to its related switch box sb
+i and the sink pin delay
+from the switch box sbj to the input pin j, respectively. In
+practice, internal delays for each type of blocks are easily found,
+as they remain the same for all locations in an FPGA. P(i,j)
+gives the path delay between sb
+i and sbj which is heavily
+Design, Automation and T est in Europe Conference (DATE 2021) 1565
+Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:53:33 UTC from IEEE Xplore.  Restrictions apply. 
+
+=== PAGE 3 ===
+
+Fig. 3. Our proposed delay modeling.
+affected by the distance (x,y) of the two terminals. For long
+distance connections that the sources are far away from the
+sinks, we transform their delays into short distance delays based
+on Equations (2) and (3). Finally, due to the different dimensions
+between heterogeneous blocks, the delay of a connection across
+different blocks could have large deviations. For example, IPs
+usually have larger dimensions compared with CLBs, and also
+requires longer delays. To remedy this problem, we use C(i,j)
+to further compute the compensate delay based on the delay of
+CLBs. By splitting the connection delay into subtle components
+and considering the heterogeneous nature of FPGAs, we can
+accurately model the delay of each connection.
+2) Memory-Friendly Look-Up Table Generation: After de-
+signing an accurate delay model, we need to construct a look-
+up table to rapidly assess each connection delay. Martin et
+al. [9] constructed an x and y based delay table for timing-
+driven placement, which records the delays of all possible x-
+and y-coordinate values in an FPGA. However, this approach is
+memory expensive and may produce inferior solutions. With our
+efﬁcient delay model that long distance delays can be mapped
+into the short ones, in this paper, we construct a sufﬁciently
+small delay table T
+d(x,y) which only contains delays within
+short distance. Considering that blocks may move to speciﬁc
+positions with ﬂoat coordinates during global placement, we
+further transform discrete T
+d(x,y) into the continuous delay
+table Tc(x,y) using bilinear interpolation as follows:
+Tc(x,y)=
+[1−ˆx ˆx][
+Td(xl,yb) Td(xl,yu))
+Td(xr,yb) Td(xr,yu))
+][
+1−ˆy
+ˆy
+]
+,
+(4)
+where ˆx = x−xl, ˆy = y−yb.x l, xr , yb, yu are the boundary
+coordinates of the bilinear interpolation.
+In Equation (4), Tc(x,y) is a continuous function, but it would
+not be differentiable in boundary intersections. Therefore, we
+need to smooth T
+c(x,y) such that the interpolation method
+can be integrated into our analytical framework. The most
+commonly used smoothing function is the sigmoid function
+which maps the input variable into the range 0 to 1. However,
+it may change the values of boundary intersections and thus
+degrade the delay accuracy. To remedy this issue, we propose
+a novel trigonometric function deﬁned as:
+ˆS(x)=
+⎧
+⎨
+⎩
+0,x ≤0,
+1
+2(sin((x− 1
+2)π)+1) , 0 ≤x ≤1,
+1,x ≥1.
+(5)
+and then incorporate it with Tc(x,y) to get a smoothed delay
+table Ts(x,y):
+Ts(x, y)=
+[
+1 − ˆS(ˆx) ˆS(ˆx)
+][
+Td(xl,y b) Td(xl,y u)
+Td(xr ,y b) Td(xr ,y u)
+][
+1 − ˆS(ˆy)
+ˆS(ˆy)
+]
+.
+(6)
+By using the constructed differentiable table Ts(x,y), we can
+greatly speed up the delay access for any connections.
+3) Efﬁciency-Based Timing Analysis: At the end of our
+timing modeling, we implement timing analysis to compute the
+delay of all of the paths in a given circuit. These delay values
+are then used to guide timing optimization during the placement
+process. Similar to [9], we ﬁrst consider the circuit as a timing
+graph, in which each node denotes an input or output pin, and
+edges between these nodes store the corresponding physical
+delays.
+To perform timing analysis, we traverse the timing graph from
+the sources to the sinks setting the arrival time, T
+arrival , for all
+nodes with the following equation:
+Tarrival(i)= m a x
+j∈fanin(i)
+(Tarrival(j)+D (j,i)), (7)
+where node i is the net sink, node j is the source, and D(j,i)
+is the delay value of the connection joining node j to node i.
+Then, we implement a second traversal backward through the
+timing graph to compute the required time, T
+required at every
+node as follows:
+Trequired(i)= m i n
+j∈fanout(i)
+(Trequired(j)−D(i,j)). (8)
+After that, the slack of a connection (i,j) driving node j,i s
+given by:
+Slack(i,j)= Trequired(j)−Tarrival(i)−D(i,j). (9)
+Considering that placement is an iterative optimization pro-
+cess, a proper timing analysis can have signiﬁcant effects on the
+whole design performance and closure efﬁciency. Existing path-
+based placers perform timing analysis to calculate path delays
+at every placement stage. Approaches of this type have more
+accurate timing view and control, but they are computation-
+ally complex because any node movement requires all paths
+going through that node to be re-analyzed [4]. The other net-
+based placers involve implementing a path-based timing analysis
+before placement, and paying higher attention to more critical
+connection. These placers achieve better runtime quality, but
+suffer from the poor global view of complete path delay. Hence,
+this paper implements an efﬁciency-based timing analysis by
+periodically performing a path-based timing analysis after a
+certain number of optimization iterations. This gives a better
+trade-off between delay accuracy and runtime.
+B. Timing-driven Global Placement
+The timing-driven global placement dominates the overall
+placement quality. In this subsection, we ﬁrst present a two-
+stage clocking constraint handling method followed by a het-
+erogeneous placement region solving algorithm. Then, a timing-
+based multi-objective co-optimization method is developed to
+generate an optimized placement while satisfying the clocking
+constraints. Finally, we propose a matching-based IP blocks
+legalization approach to remove all overlaps while preserving
+desired timing results.
+1) Complex Clock Constraints Handling: A modern FPGA
+often contains a clocking architecture to achieve better skew
+and performance. As a result, without considering clocking
+resources during placement could lead to clocking routing
+failures. To deal with this problem, the work [11] proposed a
+clocking constraint legalization with a shrinking and expanding
+1566 Design, Automation and T est in Europe Conference (DATE 2021)
+Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:53:33 UTC from IEEE Xplore.  Restrictions apply. 
+
+=== PAGE 4 ===
+
+Algorithm 1 Clocking Constraint Handling Algorithm
+Require: A global placement result.
+Ensure: The optimized placement without any clocking and
+resource conﬂict.
+1: while there are conﬂicting clock regions do
+2: cr ← the most conﬂicting clock region;
+3: while there are clock violations in cr do
+4: cn ← the most timing-critical clock net in cr;
+5: cho ← getOptShrCho;
+6: shrink cn with cho;
+7: while there are expanding choices for cn do
+8: cho ← getOptExpCho;
+9: expand cn with cho;
+10: end while
+11: end while
+12: end while
+scheme. However, the displacement target in this approach may
+not be efﬁcient enough to guide the shrinking of a clock net
+bounding box, and may potentially hurt the routed wirelength
+of the resulting placement. Hence, we propose an effective clock
+region reﬁnement method combined with a reasonable shrinking
+cost.
+Given a global placement solution with conﬂicting clock
+regions, our algorithm solves those clocking violations while
+preserving good placement quality. First, we construct the clock
+domains for all clock nets, where a clock domain is denoted
+as the whole placement area covered by the corresponding
+clock signal bounding box. Then, as shown in Algorithm 1, an
+effective clocking constraint handling algorithm is developed
+to address the conﬂicting clock region. For every loop, we try
+to reduce the violations of the most conﬂicting clock region. In
+Lines 4 and 5, we focus on the most timing-critical clock net and
+use the getOptShrCho function to determine the best shrinking
+choice with the lowest cost. Here, the cost is calculated as
+the total block displacement over the number of the clocking
+conﬂict solved by this shrinking choice. Figure 4(b) gives an
+example of clocking conﬂict handling.
+Then, we reﬁne the clock domain towards the best direc-
+tion. Chen et al. [2] proposed a density estimation approach
+to generate expanding choice. However, this method can not
+accurately compute the resource usage and may cause resource
+conﬂict in large scale circuits. In our algorithm, we calculate the
+number of available sites in the clock domain for every type of
+block. Then, similar to clocking conﬂict handing, we use the
+getOptExpCho function to generate the best expansion choices
+from four directions (top, bottom, left, right) that makes the
+clock bounding box largest. The expansion will be repeated as
+long as there is no clock conﬂict and resource violation. By
+continuing expanding the placement region of each block, our
+reﬁnement strategy gives more ﬂexibility for block movement,
+and leaves a positive impact on placement quality. Figure 4(c)
+gives an example of clock region reﬁnement.
+After generating each clock domain, the legal placement
+region for every cell is limited by the intersection of the domain
+of the clocks connected to the cell. Then, we relax this region
+constraints into our objective by adopting the quadratic region
+cost deﬁned as follows [2]:
+R(x
+i,yi)= RH(xi)RV (yi), (10)
+where
+RH(xi)=
+⎧
+⎪⎨
+⎪⎩
+(xi −xiL)2, if xi <x iL,
+(xi −xiR)2, if xi >x iR,
+0, otherwise.
+Fig. 5. Illustration of a large displacement caused by unreasonable global
+placement without heterogeneity consideration. (a) A global placement. (b) The
+legalization result.RV (yi)=
+⎧
+⎪⎨
+⎪⎩
+(yi −yiB)2, if yi <y iB,
+(yi −yiT)2, if yi >y iT,
+0, otherwise.
+In the above equations, RH(xi) and RV (yi) give the hor-
+izontal and vertical region costs respectively, and xiL(yiB)
+and xiR(yiT) are the respective left (bottom) and right (top)
+boundary coordinates of the clock domain for logic block vi.
+2) Discrete Placement Region Processing: In modern FPGA
+placement, a speciﬁc block must be placed in a corresponding
+site in an FPGA, which results in a discrete placement region
+and signiﬁcantly affects block spreading. Therefore, global
+placement without considering FPGA heterogeneity may cause
+inferior solutions. Figure 5(a) shows a non-heterogeneity-aware
+global placement in which RAMs and DSPs are far away from
+their desired positions. Then, legalizing these blocks will incur
+large wirelength, as shown in Figure 5(b).
+To address this problem, a complex block density model
+[3] is proposed to minimize the block displacement. However,
+the discrete target density in this approach may limit block
+spreading, resulting in poor placement quality. Therefore, we
+present a smooth density function deﬁned as follows:
+ˆD(x, y)= λ
+C ∑
+b
+(max(ˆDC
+b (x, y)−MC
+b ,0))2
++λR ∑
+b
+(max(ˆDR
+b (x, y)−MR
+b ,0))2
++λD ∑
+b
+(max(ˆDD
+b (x, y)−MD
+b ,0))2,
+(11)
+where λC , λR, and λD are the heterogeneous penalty factors
+for CLBs, RAMs, and DSPs, respectively. ˆDC
+b (x, y) (ˆDR
+b (x, y)
+and ˆDD
+b (x, y)) is the total area of CLBs (RAMs and DSPs) in
+bin b, and MC
+b (MR
+b and MD
+b ) is the maximum allowable area
+of CLBs (RAMs and DSPs) in bin b. By solving Equation (11),
+different types of blocks can be smoothly guided to near-legal
+locations in the placement process.
+3) Clock and Timing Co-Optimization: To minimize the crit-
+ical path delay to achieve timing closure, we need to incorporate
+the timing cost into our placement objective. By accumulating
+all the connection costs, we ﬁrst give the total timing cost for
+a given circuit as follows:
+ˆT(x, y)=
+∑
+net e
+(
+∑
+k∈e\{s}
+Crit(s,k)·Ts(xk−xs,yk−ys)), (12)
+where Ts(xk −xs,yk −ys) is the accurate delay of the net
+connecting from the source s to one of its sinks k. In Equation
+(12), Crit(s,k) is the connection criticality deﬁned as follows:
+Crit(s,k)=
+(
+1−Slack(s,k)
+Dlymax
+)α
+, (13)
+Design, Automation and T est in Europe Conference (DATE 2021) 1567
+Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:53:33 UTC from IEEE Xplore.  Restrictions apply. 
+
+=== PAGE 5 ===
+
+ 
+Fig. 4. Illustration for our complex clocking constraint handling. (a) A clock domain of the original global placement. (b) The clock domain
+after clocking conﬂict handing. (c) The clock domain after clock region reﬁnement. In above ﬁgures, each grid is a clock region, the yellow
+grids give the domain of the clock net, and all blocks connect to the same clock net and the red grid in (a) is the conﬂicting clock region. In
+(b), as the clock domain shrinks, the number of clocks in the conﬂicting region is reduced, but the resulting domain is resource conﬂicting.
+After the clock region reﬁnement in (c), the resource violation is handled without incurring any new clocking conﬂict.
+where Slack(s,k) is the slack calculated by our timing analysis,
+Dlymax is the maximum circuit delay, and αis a parameter that
+controls the relative importance of connections with different
+criticalities. Here, we heavily weight critical connections while
+giving fewer attentions to non-critical ones.
+Then a timing-driven multi-objective co-optimization method
+is developed to improve placement quality while satisfying
+clocking constraints:
+min
+x,y
+λ1 ˆW(x, y)+λ2R(x, y)+λ3 ˆD(x, y)+λ4 ˆT(x, y), (14)
+where λ1, λ2, λ3 and λ4 are the weights, ˆW(x, y) is the s-
+moothed wirelength cost, R(x, y), ˆD(x, y), and ˆT(x, y) are the
+aforementioned clock, density, and timing costs, respectively.
+During the process of iteratively ﬁnding the best positions of all
+placeable blocks, we constantly update the weights λ
+1, λ2, λ3,
+and λ4 based on the Gompertz curve f(λ)=e −σe−υk
+, where
+σcontrols the displacement, υrepresents the growth rate, and
+k is the number of iterations.
+4) Timing-Based IPs Legalization: Due to the higher connec-
+tivity and larger size of IPs (RAMs and DSPs), legalizing IPs
+often incurs much disturbance of placement quality compared to
+CLBs. Hence it is desirable to perform IPs legalization before
+CLBs. Inspired by the work [5], we adopt bipartite matching
+for our RAM/DSP legalization at the end of global placement.
+However, different from their delay-driven method, we further
+consider the net criticality and optimize the timing-based cost
+while satisfying clock constraints.
+The edge cost for a speciﬁc block b and a legal location l is
+deﬁned as follows:
+cost(b,l)= βˆW
+b(l)+(1− β)ˆTb(l), (15)
+where ˆWb(l) is the total wirelength when b is at l, β is
+the control parameter, and ˆTb(l) is the corresponding timing
+cost. Since clock domains have been constructed before the
+legalization, for a given block b, we restrict it to be legalized
+within its clock domain to avoid any new clocking conﬂicts. As
+a result, by solving the minimum weighted bipartite matching
+for each clock region, we can quickly achieve an optimal
+legalized solution while satisfying the clocking constraints.
+C. Timing-driven Legalization and Detail Placement
+After global placement, we have solved the region constraints,
+where the number of clocks inside a clock region is at most
+12. In the timing-driven legalization stage, we aim to remove
+all overlaps with satisﬁed half column constraints and further
+improve timing quality. Similar to IPs legalization in Section
+TABLE I
+BENCHMARK STA TISTIC
+Benchmark #LUTs #FFs #DSPs #RAMs
+cipher core 167534 34526 278 156
+pipelinedcipher 130351 28372 135 101
+jpeg perf 220428 65829 538 432
+THEIA jpeg 86341 19153 162 149
+raptor theia jpeg 160187 38994 232 196
+fft1D 512 1 210187 58994 284 187
+fft1D 512 196849 42253 512 345
+THEIA 221894 64737 526 418
+xilinx 7x 155479 36678 193 134
+diff map 207453 62565 507 425
+dma top 198792 59832 496 383
+pru perf 186534 576641 354 262
+III-B4, during each round of half column legalization, the
+most conﬂicting half column is selected and a clock with the
+smallest displacement and timing cost is moved from a half
+column. We repeat this process until there is no overﬂowing
+half column. Finally, the placement results are further improved
+by iteratively global swapping and local swapping during the
+detailed placement stage.
+IV . E
+XPERIMENTAL RESULTS
+We implemented our timing- and clock-aware placement
+algorithm in the C++ programming language, and conducted
+experiments on the benchmarks of Xilinx for 7 Series devices.
+Table I gives the statistics of these FPGA benchmarks, where
+the numbers of LUTs, FFs, DSPs, and RAMs are denoted by
+“#LUTs”, “#FFs”, “#DSPs”, and “#RAMs”, respectively.
+To study the performance of our algorithm, we ﬁrst compare
+our clock- and timing-driven placement (named “Ours”) with the
+leading clock-aware placer [2] (named “TCAD’20”). Then, the
+advanced commercial tool Xilinx Vivado 2019.1 with the default
+settings (named “Vivado 2019.1”) is used to further evaluate
+the effectiveness of our timing-based optimization method. We
+reported all routed wirelength, and ran all the experiments on
+the same Linux workstation with Intel Xeon 3.5GHz CPUs and
+512GB memory. Table II lists the comparisons of the placement
+quality among “Ours”, “TCAD’20” and “Vivado 2019.1”. In this
+table, “CPU(s)” gives the total placement and routing CPU time
+in second, and the last row shows the average normalized routed
+wirelength, and runtime ratios based on our results.
+From Table II, our algorithm consistently gives the best worst
+slack and the shortest routed wirelength for every benchmark.
+Speciﬁcally, our algorithm achieves 8.9% smaller routed wire-
+1568 Design, Automation and T est in Europe Conference (DATE 2021)
+Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:53:33 UTC from IEEE Xplore.  Restrictions apply. 
+
+=== PAGE 6 ===
+
+TABLE II
+EXPERIMENTAL RESULTS
+Benchmark Worst slack (ns) Routed Wirelength CPU (sec)
+TCAD’20 Vivado 2019.1 Ours TCAD’20 Vivado 2019.1 Ours TCAD’20 Vivado 2019.1 Ours
+cipher core 0.032 0.432 0.838 3409124 3584861 3294524 2732 2861 2643
+pipelinedcipher 0.573 3.401 3.514 1896370 1902824 1824562 2762 2737 2533
+jpeg perf -6.931 0.13 0.178 6944764 6598326 6084137 4837 4760 4662
+THEIA jpeg -2.867 1.159 1.362 2199142 2219218 2046978 1511 1655 1574
+raptor theia jpeg -1.653 0.613 0.713 2746987 2510690 2389735 1964 1782 1763
+fft1D 512 1 -2.316 1.801 1.895 4168143 4202573 3724039 4135 4156 3941
+fft1D 512 -0.764 0.883 1.146 3360549 3389293 3032465 2013 2135 1975
+THEIA -5.579 0.374 0.458 6096747 5608882 5136783 3752 3669 3566
+xilinx 7x -1.968 1.242 1.557 3452352 3236301 3104452 1197 1205 1234
+diff map -4.548 -0.436 0.123 5594835 5532148 5279632 5134 5356 5103
+dma top -3.241 -0.142 0.053 5208741 5276214 5189423 4764 4852 4631
+pru perf -2.983 -0.061 0.084 4314571 4301657 4147841 3541 3621 3309
+Norm. 1.089 1.072 1.000 1.036 1.048 1.000
+
+	
+
+
+
+
+
+Fig. 6. Runtime breakdown of (a) the whole placement algorithm, where
+GP , LG, and DP denote Global Placement, Legalization, and detailed
+Placement, respectively, and (b) global placement alone, where CG,
+CH, and ILG denote conjugate gradient for nonlinear programming,
+clocking handing, and IPs legalization, respectively.
+length, 3.6% shorter runtime and signiﬁcant improvement of
+worst slack over “TCAD’20”. The slack improvement is due to
+the consideration of timing constraints in our analytical global
+placement. For the advanced commercial tool Vivado 2019.1,
+it gives comparable wirelength and runtime results, but fails to
+close timing for three challenging testcases (diff
+map, dma top,
+and pru perf). By leveraging our timing-driven optimization
+method, we resolve all the timing violations and further improve
+the placement quality by 7.2% smaller wirelength with 4.8%
+faster runtime. Overall, the experimental results show that our
+algorithm is effective and efﬁcient for the addressed problem.
+Finally, we report the runtime breakdown of our placement
+algorithm in Figure 6(a). On average, the majority (78.8%) of
+the total runtime is taken by global placement (GP), while
+legalization (LG) and detailed placement (DP) respectively
+consumes 1.4% and 18.1% of the total runtime. We further
+divide the runtime of global placement into three components,
+as shown in Figure 6(b), where the conjugate gradient (CG)
+for nonlinear programming takes 87.5% of the GP runtime,
+followed by 9.1% for IPs legalization (ILG), and only 2.3%
+is taken by the clocking handing (CH).
+V. C
+ONCLUSIONS
+Modern FPGAs often contain heterogeneous architectures
+and clocking resources to achieve desired solutions, which
+bring up signiﬁcant challenges in FPGA placement. Based on
+the developed accurate timing model, we have presented an
+effective timing-driven placement algorithm for heterogeneous
+FPGAs to optimize the worst slack and clocking constraints
+simultaneously. Compared with the state-of-the-art placer and
+the commercial tool Xilinx Vivado 2019.1, experimental results
+have shown that our algorithm achieves best quality for the
+addressed problem.
+R
+EFERENCES
+[1] Y .-W. Chang, K. Zhu, and D. F. Wong. Timing-driven routing for sym-
+metrical array-based FPGAs. ACM Transactions on Design Automation
+of Electronic Systems, 5(3):433–450, 2000.
+[2] J. Chen, Z. Lin, Y .-C. Kuo, C.-C. Huang, Y .-W. Chang, S.-C. Chen,
+C.-H. Chiang, and S.-Y . Kuo. Clock-aware placement for large-scale
+heterogeneous FPGAs. IEEE Transactions on Computer-Aided Design
+of Integrated Circuits and Systems, Early access, 2020.
+[3] S.-Y . Chen and Y .-W. Chang. Routing-architecture-aware analytical
+placement for heterogeneous fpgas. In Proceedings of the IEEE/ACM
+Design Automation Conference, pages 1–6, 2015.
+[4] S. Dhar, M. A. Iyer, S. Adya, L. Singhal, N. Rubanov, and D. Z. Pan.
+An effective timing-driven detailed placement algorithm for FPGAs. In
+Proceedings of ACM on International Symposium on Physical Design,
+pages 51–157, 2017.
+[5] W. Li, Y . Lin, M. Li, S. Dhar, and D. Z. Pan. UTPlaceF 2.0: A high-
+performance clock-aware FPGA placement engine. ACM Transactions on
+Design Automation of Electronic Systems, 23(42):1–23, 2018.
+[6] T.-H. Lin, P . Banerjee, and Y .-W. Chang. An efﬁcient and effective
+analytical placer for FPGAs. In Proceedings of the IEEE/ACM Design
+Automation Conference, pages 1–6, 2013.
+[7] J. Lu, P . Chen, C.-C. Chang, L. Sha, J. Dennis, H. Huang, C.-C. Teng,
+and C.-K. Cheng. eplace: Electrostatics based placement using nesterov’s
+method. In Proceedings of IEEE/ACM Design Automation Conference,
+pages 1–6, 2014.
+[8] A. Marquardt, V . Betz, and J. Rose. Timing-driven placement for
+FPGAs. In Proceedings of the ACM international symposium on Field
+programmable gate arrays, pages 203–213, 2000.
+[9] T. Martin, D. Maarouf, Z. Abuowaimer, A. Alhyari, G. Grewal, and
+S. Areibi. A ﬂat timing-driven placement ﬂow for modern FPGAs. In
+Proceedings of IEEE/ACM Design Automation Conference, pages 1–6,
+2019.
+[10] C.-W. Pui, G. Chen, W.-K. Chow, K.-C. Lam, J. Kuang, P . Tu, H. Zhang,
+E. F. Y oung, and B. Y u. RippleFPGA: a routability-driven placement
+for large-scale heterogeneous FPGAs. In Proceedings of IEEE/ACM
+International Conference on Computer-Aided Design, pages 1–8, 2016.
+[11] C.-W. Pui, G. Chen, Y . Ma, E. F. Y oung, and B. Y u. Clock-aware
+ultrascale FPGA placement with machine learning routability prediction.
+In Proceedings of IEEE/ACM International Conference on Computer-
+Aided Design, pages 929–936, 2017.
+[12] C. C. Wang and G. G. Lemieux. Scalable and deterministic timing-driven
+parallel placement for FPGAs. In Proceedings of ACM international
+symposium on Field programmable gate arrays, pages 153–162, 2011.
+[13] Xilinx, Inc. http://www.xilinx.com.
+[14] S. Y ang, C. Mulpuri, S. Reddy, M. Kalase, S. Dasasathyan, M. E. Dehko-
+rdi, M. Tom, and R. Aggarwal. Clock-aware FPGA placement contest. In
+Proceedings of IEEE/ACM International Conference on Computer-Aided
+Design, pages 159–164, 2017.
+Design, Automation and T est in Europe Conference (DATE 2021) 1569
+Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:53:33 UTC from IEEE Xplore.  Restrictions apply. 

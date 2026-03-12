@@ -1,0 +1,4 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presents a timing-driven DSP placement method for systolic arrays on FPGAs. The central contribution is a dynamic-programming formulation that converts the optimization of multiple weighted net \hpwl terms into the shortest-path optimization of a state DAG. This formulation builds on the OC structure introduced by \rsad, clarifies why that structure is valuable for HPWL optimization, and extends it to the weighted timing-driven setting. Experimental results on seven benchmarks show that the resulting flow improves average \fmax over both Vivado and the previous \rsad-based method while keeping \hpwl very close to \rsad. These results support the view that controlling the longest wirelength is an effective path toward lowering \wns and improving timing quality in systolic-array DSP placement without sacrificing the structural advantages of the OC-based formulation.

@@ -1,0 +1,67 @@
+\documentclass[sigconf,nonacm]{acmart}
+
+\setcopyright{none}
+\settopmatter{printacmref=true,printfolios=true}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+
+\acmConference[ICCAD '26]{International Conference on Computer-Aided Design}{2026}{TBD}
+\acmBooktitle{ICCAD '26: International Conference on Computer-Aided Design}
+\acmDOI{}
+\acmISBN{}
+
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{array}
+
+\newcommand{\rsad}{R-SAD\xspace}
+\newcommand{\sysmix}{SysMix\xspace}
+\newcommand{\fmax}{F\textsubscript{max}\xspace}
+\newcommand{\wns}{WNS\xspace}
+\newcommand{\tns}{TNS\xspace}
+\newcommand{\hpwl}{HPWL\xspace}
+
+\title{Timing-Driven DSP Placement for Systolic Arrays on FPGAs}
+
+\ccsdesc[500]{Hardware~Reconfigurable logic and FPGAs}
+\keywords{FPGA placement, systolic arrays, DSP placement, timing-driven placement, dynamic programming}
+
+\author{Anonymous Author(s)}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \city{Anonymous City}
+  \country{Anonymous Country}
+}
+\email{anonymous@anonymous.edu}
+\raggedbottom
+\AtBeginDocument{\let\balance\relax}
+
+\begin{document}
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\maketitle
+
+% Target page allocation for the 8-page ICCAD draft:
+% Introduction: 1.0--1.2 pages
+% Background + formulation: 0.6--0.8 pages
+% Method: 2.0--2.5 pages
+% Experimental setup + results: 2.0--2.5 pages
+% Related work + conclusion: 0.8--1.0 page
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/problem}
+\input{sections/method}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\input{sections/references}
+
+\end{document}

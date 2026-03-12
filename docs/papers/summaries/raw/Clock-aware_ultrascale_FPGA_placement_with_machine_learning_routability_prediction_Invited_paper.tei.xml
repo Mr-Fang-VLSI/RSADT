@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Clock-Aware UltraScale FPGA Placement with Machine Learning Routability Prediction (Invited Paper)</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Chak-Wa</forename><surname>Pui</surname></persName>
+							<email>cwpui@cse.cuhk.edu.hk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">The Chinese University of Hong Kong</orgName>
+								<address>
+									<settlement>NT Hong Kong</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Gengjie</forename><surname>Chen</surname></persName>
+							<email>gjchen@cse.cuhk.edu.hk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">The Chinese University of Hong Kong</orgName>
+								<address>
+									<settlement>NT Hong Kong</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Yuzhe</forename><surname>Ma</surname></persName>
+							<email>yzma@cse.cuhk.edu.hk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">The Chinese University of Hong Kong</orgName>
+								<address>
+									<settlement>NT Hong Kong</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Evangeline</forename><forename type="middle">F Y</forename><surname>Young</surname></persName>
+							<email>fyyoung@cse.cuhk.edu.hk</email>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">The Chinese University of Hong Kong</orgName>
+								<address>
+									<settlement>NT Hong Kong</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Bei</forename><surname>Yu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Department of Computer Science and Engineering</orgName>
+								<orgName type="institution">The Chinese University of Hong Kong</orgName>
+								<address>
+									<settlement>NT Hong Kong</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Clock-Aware UltraScale FPGA Placement with Machine Learning Routability Prediction (Invited Paper)</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">1F7112CB1249E45EAFBD29E4A9DCB4B5</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:00+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>As the complexity and scale of circuits keep growing, clocking architectures of FPGAs have become more complex to meet the timing requirement. In this paper, to optimize wirelength and meanwhile meet emerging clocking architectural constraints, we propose several detailed placement techniques, i.e., two-step clock constraint legalization and chain move. After integrating these techniques into our FPGA placement framework, experimental results on ISPD 2017 benchmarks show that our proposed approach yields 2.3% shorter routed wirelength and the running time is 2× faster compared to the first place winner in the ISPD 2017 contest. Moreover, we explore the possibilities to use machine learning-based methods to predict routing congestion in UltraScale FPGAs. Experimental results on both ISPD 2016 and ISPD 2017 benchmarks show that our proposed congestion estimation model is a good approximation to the one obtained from Vivado and can lead to good placement results compared to the previous methods.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Field-programmable gate array (FPGA) is an integrated circuit designed to be reconfigurable by a customer after manufacturing. Compared to application specific integrated circuit (ASIC) and central processing unit (CPU) , FPGA is a good trade-off between performance and cost due to its faster time-to-market and simpler design cycle. With its unprecedentedly increasing logic density, FPGA has become more competitive with ASICs especially in application specific implementations, such as deep learning <ref type="bibr" target="#b0">[1]</ref> and data center <ref type="bibr" target="#b1">[2]</ref>.</p><p>Most of the previous researches on FPGAs placement were conducted on the island-style FPGAs, which is a 2D array of configurable logic blocks (CLBs), I/O pads, routing channels, random access memory blocks (RAMs), digital signal processing blocks (DSPs), etc. The placement algorithms can be classified into three major categories: (1) simulated annealing-based approach, (2) partitioning-based approach, and (3) analytical approach. The widely used academic tool VPR <ref type="bibr" target="#b2">[3]</ref> applies simulated annealing as its main tool to optimize objectives such as wirelength, timing, etc. Partitioning-based approaches like <ref type="bibr" target="#b3">[4]</ref> shorten the running time by recursively partitioning a design and placing them hierarchically. However, these two kinds of placement methods cannot get a good balance between quality and running time. As the gap between FPGAs and ASICs is getting smaller in recent years, analytical approaches become more favorable due to its high efficiency and good quality in ASIC placement. In <ref type="bibr" target="#b4">[5]</ref>, SimPL <ref type="bibr" target="#b5">[6]</ref> is applied to FPGA placement, which yields the potential of using analytical methods in FPGA placement. In <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b7">[8]</ref>, NTUplace is used as the basic framework of the proposed analytical FPGA placer. Besides the placers mentioned above, there are also other analytical placers like LLP <ref type="bibr" target="#b8">[9]</ref>, StarPlace <ref type="bibr" target="#b9">[10]</ref> and QPF <ref type="bibr" target="#b10">[11]</ref>.</p><p>These analytical placers mainly focus on how to migrate the traditional ASIC placement methods to FPGA placement and are usually applying on the CLB level rather than the lookup tables (LUTs) and flip-flops (FFs) level. Most of them resolve the timing <ref type="bibr" target="#b11">[12]</ref> or routability <ref type="bibr" target="#b12">[13]</ref>, <ref type="bibr" target="#b13">[14]</ref> issues during the packing step which packs LUTs and FFs into CLBs. However, forbidding the LUTs and FFs to move out of a CLB during placement may yield worse quality than those that do not. Moreover, when the architecture becomes more complex such as Xilinx UltraScale, the approaches like above may not work well. Recently, several placement tools <ref type="bibr" target="#b14">[15]</ref>- <ref type="bibr" target="#b16">[17]</ref> are proposed for Xilinx UltraScale FPGAs. But they can only handle single clock design, which is not practical today. Hence, a flat analytical clock-aware placement for modern heterogeneous FPGAs is needed.</p><p>Routability is always an issue in placement for both FPGAs and ASICs. There are lots of previous works focusing on reducing routing congestion in FPGA placement. To reduce congestion, some placers handle it during packing while others may do congestiondriven global placement. Most of these methods need to estimate the congestion level in order to reduce congestion. In <ref type="bibr" target="#b17">[18]</ref>, the congestion map is built according to the net bounding box (BB). The routing congestion of a site is measured by the number of BBs overlapping with it. In <ref type="bibr" target="#b14">[15]</ref>, both HPWL and BBs are used to measure congestion. Some other works like <ref type="bibr" target="#b15">[16]</ref> use ASIC global router to estimate the routing congestion. Recently, there are several works <ref type="bibr" target="#b18">[19]</ref>- <ref type="bibr" target="#b20">[21]</ref> for ASIC designs that use machine learning to predict design-rule-check (DRC) violations. Since DRC violation is highly related to routing congestion, these works yield the possibilities to use machine learning to predict routing congestion in FPGAs.</p><p>In this paper, we propose several placement techniques for UltraScale FPGAs to meet the challenges of clock constraints, routability, wirelength. We integrate all the techniques into our previous framework RippleFPGA <ref type="bibr" target="#b14">[15]</ref> to evaluate the performance. The major contributions of this paper are summarized as follows:</p><p>• A two-step displacement-driven legalization is introduced to remove all clock constraint violations. It includes two stages which are clock region planning and half column legalization.</p><p>In clock region planning, shrinking and expanding will try to remove all the clock region constraint violations. Under some assumptions, it can guarantee to give a global placement result that satisfies the clock region constraint. A greedy algorithm is then performed to remove all the violations of the half column constraint. In the experimental results, this legalization method is shown to be efficient and effective. • Chain move is proposed to put a cell into a desired site efficiently. It can be modified to optimize different objectives, e.g. displacement, HPWL, timing, etc. In legalization, it is used to reduce the total and maximum displacement. In detailed placement, it is used to further optimize the HPWL by moving the cells to their optimal regions. The remainder of this paper is organized as follows. Section II gives an introduction to our target FPGA architecture and the problem formulation. Section III-V introduces details of our proposed techniques including two-step clock constraint legalization, chain move, and machine learning-based congestion estimation. Section VI gives an overview of our placement framework and how the above techniques are integrated into the framework. Section VII shows the experimental results, followed by conclusion in Section VIII.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. PRELIMINARIES</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Target Architecture</head><p>In this paper, the target FPGA architecture is Xilinx UltraScale VU095 <ref type="bibr" target="#b21">[22]</ref>, whose layout is shown in Fig. <ref type="figure">1</ref>. There are four kinds of sites (SLICE, RAM, DSP and IO) on the chip and they are connected by wires through switch boxes. The given netlist of an FPGA design consists of five types of cells, which are LUTs, FFs, RAMs, DSPs and IOs. Each type of cells can only be put into sites of its own type and a site can accommodate multiple cells. Due to the internal wires inside a SLICE, routing the nets between two connected LUT and FF in the same site may use less routing resources. According to <ref type="bibr" target="#b22">[23]</ref>, when placing LUTs and FFs into SLICEs, extra legalization rules need to be considered besides the cell number constraints. For example, the total number of input signals of LUT(2i) and LUT(2i+ 1) should be less than 7, the set/reset signal of the FFs in the same half of a SLICE should be the same, etc.</p><p>The clocking architecture of Xilinx UltraScale is similar to ASICs. It can route clocks from their clock sources all the way to all of their loads through a mesh-like routing structure, which gives big flexibility to how the clocks are routed. The chip is divided into a 5 × 8 grid of clock regions such that each clock region consists of about 30 × 60 sites and a clock is in a clock region if the bounding box of its loads overlaps with the clock region. Each clock region is further divided into a grid of half columns such that each half column consists of 2 × 30 sites and a clock is in a half column if one of its loads is inside the half column. To utilize such a routing </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Problem Formulation</head><p>Given the FPGA architecture and a design net-list, we need to determine the positions of the cells on the FPGA to minimize the routed wirelength subject to the following constraints:</p><p>• Every cell is assigned to a position on the FPGA that satisfies the placement constraints <ref type="bibr" target="#b22">[23]</ref>; • The number of clocks inside each half column is less than <ref type="bibr" target="#b12">13</ref> and a clock is in a half column if one of its loads is inside that half column; • The number of clocks inside each clock region is less than <ref type="bibr" target="#b24">25</ref> and a clock is in a clock region if the bounding box of its loads overlaps with that clock region.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. TWO-STEP CLOCK CONSTRAINT LEGALIZATION</head><p>As mentioned in Section II, a clock region or half column is clock overflowed if the number of clocks inside exceeds the limit. In this section, overflow refers to clock overflow. In order to remove all of the overflows, a two-step clock constraint legalization is performed, it is consisted of two steps : clock region planning and half column legalization. In clock region planning, violations of the clock region constraint in global placement will be removed and a bounding box (BB) is assigned to each clock to limit the cell movement. After clock region planning, each cell should remain in the intersection of the BBs of the clocks that it is connected to. In stage two, a displacement-driven half column legalization is performed in which the overflow of half column will be reduced gradually. After half column legalization, all the subsequent moves cannot violate the half column constraint.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Clock Region Planning</head><p>Our clock region planning can be divided into two stages: shrinking and expanding. In the following, one unit in the shrinking and expanding stages is at most the height or width of a clock region (60 or 30 sites).</p><p>1) Shrinking Stage: A clock region is overflowed if the number of clock BBs overlapping with it is more than 24. In the shrinking stage, given a global placement result with overflowed clock regions, we need to minimize the disturbance to the placement while removing those violations. Before introducing the details, we first need to prove Theorem 1. If C = ∅, all the clocks in ri will be in all its neighboring regions. But this contradicts with the fact that the overflow of its neighboring regions is smaller.</p><p>As our experiment shows, only cells containing FFs will have more than one clocks since their clock enable (CE) and set/reset (SR) signals may also connect to the clock signals. However, the BBs of these clock signals usually cover the whole placement and thus moving these cells will not increase the overflow of other clock regions. To minimize the displacement, we will only shrink a clock BB by 1 unit at a time and continue to shrink them until there is no overflow as shown in Algorithm 1. In every round, we will try to reduce the overflow of the most overflowed but shrinkable clock region. In line 5, GetBestDir is used to determine the direction to shrink the BB of clock clkj such that the displacement is smallest. To be specific, Shrink is invoked for four times to get the displacement of shrinking the BB of clkj to each direction respectively. An example of how we shrink the BB of a clock in LEFT direction is shown in lines 13-24 and the other three directions can be deduced accordingly. After getting the clock net and direction that incur the smallest displacement, we will do the corresponding shrinking before starting the next round. When the shrinking stage finishes, the global placement result will satisfy the clock region constraint and there will be no further violation as long as the cells of each clock stay inside its BB. An example of the shrinking stage is given in Fig. <ref type="figure">3(b)</ref>.</p><p>2) Expanding Stage: Since a cell's movement is limited by the intersection of the BBs of the clocks connected to the cell, if the intersection area is too small, there will be very limited flexibility in the later placement stages, giving results of poor quality. Therefore, in the expanding stage, the BB of each clock will be expanded as long as there is no violation of the clock region constraint. Similar to the shrinking stage, we will only increase either the width or the height of a BB by 1 unit in each round. Starting with the BB with the highest cell density calculated by Equation ( <ref type="formula" target="#formula_1">1</ref>), we will try all</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Algorithm 1 Shrinking Stage</head><p>Require: A global placement result.</p><p>1: while there are overflowed clock regions do 2:</p><p>rgni ← the most overflowed clock region;</p><p>3:</p><p>(minDisp, bestDir, net) ← (inf, NULL, NULL);</p><p>4:</p><p>for all clkj in rgni do 5:</p><p>(dir, disp) ←GetBestDir;</p><formula xml:id="formula_0">6:</formula><p>if disp = inf and minDisp &gt; disp then 7:</p><p>(minDisp, bestDir, net) ← (disp, dir, clkj); </p><p>If the BB of the clock with the highest cell density cannot be expanded, we will try the clock with the second highest cell density and so on until a BB is selected to be expanded. If no BB is expanded in one round, the whole expanding stage is completed. An example of the expanding stage is given in Fig. <ref type="figure">3(c</ref>).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Half Column Legalization</head><p>During each round of half column legalization, the most overflowed half column is selected and a clock whose removal will induce the smallest cell displacement will be moved away from the overflowed half column. When a clock is moved away from a half column, each load will be moved to its nearest site in another half column. The move is legal if it does not incur more overflow in the half column that the target site belongs to. After a clock is moved away from the most overflowed half column, another round of move will be invoked. This process will continue until there is no overflowed half column.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. CHAIN MOVE</head><p>Given a partially placed design, the complex legalization rules of modern FPGAs make it much harder to move a cell to a desired location. Inspired by <ref type="bibr" target="#b23">[24]</ref>- <ref type="bibr" target="#b25">[26]</ref>, chain move is proposed to help moving cells into their desired positions, e.g. the sites inside their optimal region or the sites that will only incur small disturbance to the global placement result.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. General Chain Move Algorithm</head><p>Given a cell and an objective, a sequence of cell moves is found such that all the cells are placed to one of its candidate sites and the objective value of the resulting placement is better than that of the original placement. This sequence of cell moves is found by a DFSbased algorithm. First a set of candidate sites S is found depending on the objective. We then try if the current cell to be moved cj can be directly put into a site s ∈ S. If so, the search ends. Otherwise, we will try to find a cell c k in a site s ∈ S such that cj can be put into s if c k is moved away. In our implementation, we limit the number of trials of each cell to be 35. If such a cell c k can be found, we let it to be the next cell to be moved and continue our search. The number of moved cell in the chain is limited to 5 in our implementation.. Moreover, we will randomly decide the number of trials in each site, which helps to find the next cell to be moved more quickly since it may take more trials in some sites while others may take less depending on the cells inside. An example of chain move is shown in Fig. <ref type="figure" target="#fig_1">4</ref>. Unlike <ref type="bibr" target="#b23">[24]</ref>- <ref type="bibr" target="#b25">[26]</ref> which all optimize HPWL, our chain move can be easily adapted to optimize different objectives by selecting different sets of cells. Similar to <ref type="bibr" target="#b24">[25]</ref>, <ref type="bibr" target="#b25">[26]</ref>, our chain move in detailed placement will move cells to their optimal regions. Compared to <ref type="bibr" target="#b25">[26]</ref>, ours is much more flexible because the last position need not be the position of the first cell in the chain, and we can guarantee that all the placed cells are still legal after chain move while only cell density is maintained in <ref type="bibr" target="#b24">[25]</ref>. Unlike <ref type="bibr" target="#b23">[24]</ref>, we limit the breadth and depth of the search to maintain a good trade-off between quality and running time. Since the legality checking is more complicated than the overlap checking in <ref type="bibr" target="#b23">[24]</ref>, determining whether a cell can be put into a site is much more time consuming, which makes it necessary to limit the number of trials in a search.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Chain Move-based Legalization</head><p>For BLEs, a chain move-based displacement-driven legalization shown in Algorithm 2 is used to place them in legal positions. Candidate sites at displacement d are first obtained (line 4). We then try to find a legal site for the cell by attempting the candidate sites in ascending order of the HPWL incurred. If such a site is found and d is small, we continue to legalize the next cell. If d is large, chain move will be invoked in the maximum displacement optimization mode (line 8). If no site of displacement d can be found, chain move will be invoked in the displacement optimization mode (line 13).</p><p>As discussed in Section IV-A, different objectives can be optimized by selecting different sets of cells. In the displacement optimization mode, the set S of candidate sites for a cell c j are selected such that s ∈ S iff,  where sj is the site where cj is currently placed and dist(sj, cj) is the distance between sj and cj. In the maximum displacement optimization mode, the set S of candidate sites for a cell cj are selected such that s ∈ S iff, dist(s, cj)</p><formula xml:id="formula_2">dist(s, cj) = d, if cj</formula><formula xml:id="formula_3">+ c i ∈C\c j dist(s ST i , ci) ≤ c i ∈C dist(si, ci)</formula><p>and the distance between s and cj is less than d (dist(s, cj) &lt; d), where C is the set of cells in the chain and s ST i is the target site of ci selected by chain move.</p><p>Compared with the traditional sequential legalization, our algorithm can reduce quality degradation due to some bad decisions made by legalizing cells in the early stage. Two examples are given in Fig. <ref type="figure" target="#fig_2">5</ref> and Fig. <ref type="figure" target="#fig_4">6</ref> where cell ci is legalized before cell cj whenever i &lt; j. In Fig. <ref type="figure" target="#fig_2">5</ref>, due to the bad decision made by placing c2, the displacement of legalizing these cells is 4. However, in chain movebased legalization, chain move will be invoked in the displacement optimization mode when placing c3 and the total displacement of legalizing these cells is reduce to 1. In Fig. <ref type="figure" target="#fig_4">6</ref>, chain move will slight shift c3 and c4 in the maximum displacement optimization mode and reduce the maximum displacement from 3 to 1 while not increasing the total displacement.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Chain Move-based Detailed Placement</head><p>During detailed placement, there are two kinds of moves for BLEs outside their optimal regions. To be specific, for such a BLE, we will first try to place it in its optimal region. If it is not possible, we will try those sites that are closer to its optimal region than its current position. If a BLE cannot be moved by the above two operations, the chain move discussed in Section IV-A will be invoked in the detailed placement mode. The objective is to move the BLE to its  optimal region by a set of cell moves such that all the moved cells are in their optimal regions in the resulting placement. To achieve this, the candidate sites S for a cell cj are the sites inside its optimal region.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. MACHINE LEARNING-BASED CONGESTION ESTIMATION</head><p>To estimate the routing congestion more precisely during placement, a congestion map is needed. In this section, we will study how to leverage machine learning to build a congestion model. To better understand how different machine learning methods perform on the congestion estimation, we will compare and discuss the performance of a few learning models. Moreover, we will discuss the motivations and benefits of using machine learning-based congestion estimation on FPGAs placement.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Congestion Models</head><p>Since more than 95% of the routing resources in FPGA placement are consumed by connections between SLICEs, our congestion model will only consider the congestion levels of sites whose types are SLICE. First, the FPGA is divided into global routing cells (gcells) in a similar way as in <ref type="bibr" target="#b14">[15]</ref> such that a gcell corresponds to a switch box and a SLICE is mapped to only one gcell. For each site, the values of its features are equal to those of the gcell covering it and a machine learning-based model is used to predict the routing congestion of each site. In our estimation models, the predicted congestion value represents the percentage of routing resources used in that site.</p><p>Intuitively, the number of internal pins within a gcell and the number of BBs covering a gcell have significant impact on routability. Therefore, we extract three features from each gcell, which are defined as follows,</p><formula xml:id="formula_4">x1 = m∈N i wm • HPWLm #gcell m , (<label>2</label></formula><formula xml:id="formula_5">)</formula><formula xml:id="formula_6">x2 = m∈N i #pins of net m, (<label>3</label></formula><formula xml:id="formula_7">) x3 = m∈N i pm,i #pins of net m × wm • HPWLm #gcell m , (<label>4</label></formula><formula xml:id="formula_8">)</formula><p>where wm is a weight proportional to the number of pins of net m, Ni is the set of nets connected to the gcell covering site si, pm,i is the number of pins of net m inside the gcell covering site si and #gcell m is the number of gcells covered by net m. The first two features x1 and x2 capture the pin and overlapping BB information respectively while x3 captures their combined effects. In the following, three machine learning models will be introduced: <ref type="bibr" target="#b0">(1)</ref>   The model trained by the unified method is trained and tested by the data from all designs while the models trained by the independent method are only trained and tested by the data from their corresponding designs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>1) Local Linear Model:</head><p>In our local linear model, only the information of the site itself will be used to predict its congestion. The model is represented as,</p><formula xml:id="formula_9">yllm = fllm(x) = 3 i=1 θixi.</formula><p>(5)</p><p>2) Hierarchical Hybrid Model: Our hierarchical hybrid model consists of two stages which consider local and global congestion information respectively. In the first stage, a linear model defined by Equation ( <ref type="formula">5</ref>) is used to estimate the local congestion, denoted as yhm1. In the second stage, a non-linear model is used to capture the congestion information of nearby sites, whose result is denoted as yhm2. To be specific, for each site, we use the the support vector machine (SVM) as our machine learning model with the yhm1 value of the site and its neighboring eight sites as features. Finally, we use yhm2 as the estimation result of each site, which captures both local and neighborhood congestion information.</p><p>3) Global Linear Model: In this section, the non-linear model in the second stage of the hierarchical hybrid model is substituted by a linear model. Since a two-stage linear model is equivalent to a single stage linear model, we use a single linear model to represent it. To be specific, for each site, 27 features are extracted, which are the x1, x2 and x3 values of the site itself and its neighboring eight sites, which can be formulated as</p><formula xml:id="formula_10">yglm = fglm(x) = 27 i=1 θixi. (<label>6</label></formula><formula xml:id="formula_11">)</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Training and Regression Results</head><p>To train the models, we extract the feature vectors from the placement and obtain the congestion estimation values from Vivado. We generate these data from the placement results of our placer for ISPD 2016 and ISPD 2017 benchmarks. Noted that, since there are empty sites in the placement, we only use a site as test data if it satisfies at least one of the two following conditions,</p><p>• the site is not empty in the placement,</p><p>• the congestion value of the site is not equal to zero in the reference congestion map. We then divide the data from each design into training set (70%) and testing set (30%), which are used to build the models and test the reliability of the models respectively.</p><p>There are two different options in model training, one is to train a unified model for all designs while the other is to train independent models for different designs. The benefit of a unified model is that if gets more training data and can be used to predict the congestion of an unknown design. The benefit of using different models for different designs is that it can better capture the characteristics of different designs and the training time is much shorter especially for those high timing complexity models like SVM.  As shown in TABLE I, we have studied the performance of the two training methods. Since the training time complexity of the hierarchical hybrid model is much higher than that of the linear model and its performance is not as good, we only compare the performance of linear models trained by unified method and independent method. As one can see, the performance of the unified method is slightly better than that of the independent method. The underlying reason is that most of the designs are similar to each other in terms of technology, constraints, etc. and thus can be represented by one model. The advantage of the independent training method over the unified training method will be more obvious if the characteristics of each design are very different, because the unified method may not be able to capture the differences between designs with only one model. However, when the differences between the designs' characteristics are small, the unified model actually gets more data for training compared to the independent model, which explains why the average performance of the unified method is better than that of the independent method in our dataset. Another drawback of having multiple independent models is that each model may be over-fitted (due to the lack of data) and thus cannot be used to predict the congestion levels of an unknown design. One solution is ensembling all the individual models. To be specific, the prediction of a given feature vector x is obtained by combining the output of all the existing models, which can be represented by</p><formula xml:id="formula_12">y = N i=1 wifglm,i(x),<label>(7)</label></formula><p>where fglm,i is the model trained with design i and wi is the weight of model i which is set to 1 N in our implementation. We also test the performance of the ensemble method and compare it with the method of training one single model using the data across multiple method and "Ensemble" represents the model defined in Equation <ref type="bibr" target="#b6">(7)</ref>. 2 The difference between "Unified+" and "Unified" in Table I is that the training set of "Unified+" is 12 randomly selected designs while that of "Unified" is all of the designs.</p><p>designs. We randomly select 12 designs for training and use the rest for testing. The result is shown in TABLE <ref type="table" target="#tab_7">II</ref>. According to the results of our experiments, both methods can generalize well to other designs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Comparison</head><p>As mentioned in Section I, previous works on FPGAs placement use different methods to estimate routing congestions. However, these methods all have their shortcomings. Probabilistic models like <ref type="bibr" target="#b14">[15]</ref>, <ref type="bibr" target="#b17">[18]</ref> may have good correlation with the relative congestion level but it is hard to use their absolute values to determine whether a site is congested or not. Given the routing capacity of a design, global routers can perform better since they "actually" do the routing instead of using a probabilistic model only. But due to IP issues, it is difficult to obtain information of the routing architecture or the routing capacity of the FPGAs.</p><p>Similar to other EDA tools in ASICs, design tools of FPGAs like Vivado will also give users an estimation of the routing congestion. If we assume that the estimation from the tool itself can guide the placement well, it is worthwhile to build a congestion model that can approximate well the congestion estimation of the tool. Another benefit of approximating the estimation of the tool is that it can give the users a good sense of how congested a site is. The last but not least benefit of using machine learning is that it saves a lot of effort in parameters tuning which is a big shortcoming of the previous methods. All of the parameters needed to predict the congestion levels are generated automatically by machine learning, however, probabilistic models need to find the correspondence between the real congestion level and the predicted value while the capacity values of the global routers also need to be carefully chosen.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. RIPPLEFPGA</head><p>In this section, we summarize our framework and introduce how the proposed techniques are incorporated into it. As shown in Fig. <ref type="figure" target="#fig_6">8</ref>, the framework is based on RippleFPGA <ref type="bibr" target="#b14">[15]</ref> and we mainly refine the detail placement stage to improve the quality and to meet the new clock constraints.  In the target architecture, there is a highly unbalanced routing supply in the horizontal and vertical directions. Hence, after an initial global placement, the input netlist will be partitioned and the partitions will be reallocated according to the aspect ratio of the chip to reduce congestion in the first stage of our flow.</p><p>After partition reallocation, LUTs and FFs are packed into basic logic elements (BLEs) to reduce the inter-connections between sites in routing. After packing, the netlist is modified such that LUTs and FFs are replaced by BLEs.</p><p>An upper bound and lower bound based global placement is then performed on the modified netlist, where the wirelength is optimized. Our global placement engine consists of two stages where HPWL and routing congestion are optimized respectively. In the second stage, a congestion-driven global placement step will be performed to reduce the routing congestion if there is any. We use the machine learning method in Section V to predict the routing congestion instead of the original probabilistic model.</p><p>After global placement, the clock region planning introduced in Section III-A will be performed to ensure no violation of the clock region constraint.</p><p>In legalization, the global placement result is first legalized regardless of the half column constraint. The half column legalization introduced in Section III-B will then be performed to remove all the violations of the half column constraint. Finally, detailed placement at the BLE and site levels will be performed to further improve wirelength. Chain move is applied in both legalization and detailed placement to optimize displacement and HPWL respectively as mentioned in Section IV.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VII. EXPERIMENTAL RESULTS</head><p>To evaluate our proposed method, the algorithms are implemented in C++. The experiments were performed on a 64-bit Linux workstation with Intel Xeon 3.7GHz CPU and 16GB memory, using the benchmarks provided by the ISPD 2016 Routability-Driven FPGA Placement Contest <ref type="bibr" target="#b22">[23]</ref> and the ISPD 2017 Clock-Aware FPGA Placement Contest <ref type="bibr" target="#b21">[22]</ref>.</p><p>In our experiments, we use the architecture of the commercial device family, Xilinx UltraScale <ref type="bibr" target="#b26">[27]</ref>, for our comparative study. The device's aspect ratio and average spacing between blocks were determined based on the Xilinx UltraScale VU095 architecture, the latest 20nm FPGA chip. For fair comparison, all the placers were executed with a single thread. We set Vivado to be in the same configurations as in the ISPD 2016 and ISPD 2017 contest, which uses two threads in routing and limits the running time to 12 hours.   <ref type="table" target="#tab_10">IV</ref> shows that the running time and HPWL generated by our framework compared with that obtained by neglecting the clock constraints. Since a placement violating the constraints cannot be routed by Vivado, we can only compare the HPWL instead of the routed wirelength. Note that the only difference between these two frameworks is that the steps in Section III are applied in the first framework and all cell moves are not constrained by the clock related constraints. The results show that the HPWLs of these two frameworks are very close, which means that our proposed framework can generate a placement satisfying the clock constraints with very little overhead.</p><p>As discussed in Section V, we will use the unified trained global linear model as our congestion prediction model. According to the prediction from our model, our congestion-driven global placement is never invoked to reduce congestion in ISPD 2017 benchmarks since the designs are not congested. Hence, we use the ISPD 2016 benchmarks to test the quality of our congestion estimation model. TABLE V shows a comparison of routed wirelength generated by our framework before and after replacing the congestion estimation model in <ref type="bibr" target="#b14">[15]</ref> with the proposed one. Our proposed congestion model can generate legal and routable solutions for all the benchmarks in Although the result obtained by the machine learning approach is just marginally better than that by the probabilistic method, the machine learning model can predict the percentage of routing resources used "directly" while it's needed to find the correspondence between the predicted value and the real routing usage for the probabilistic method. We also need to set appropriate edge capacity values for the global routerbased methods to generate good results.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VIII. CONCLUSION</head><p>Several previous works on routability-driven analytical placer <ref type="bibr" target="#b14">[15]</ref>- <ref type="bibr" target="#b16">[17]</ref> have been proposed for the Xilinx UltraScale FPGAs. However, they can only place design with single clock which is not practical nowadays. This work is based on the framework of a flat analytical placer for heterogeneous FPGAs <ref type="bibr" target="#b14">[15]</ref>. In this paper, to meet the new requirements in UltraScale FPGA placement, we have proposed several techniques, i.e., a two-step clock constraint legalization, chain move, and machine learning-based congestion estimation. The experimental results show that our algorithm can achieve better quality and running time compared to the ISPD 2017 contest winners. Moreover, our machine learning-based congestion model can approximate the routing estimation of Vivado well and guide the placement to generate good results in ISPD 2016 benchmarks. Future work will include how to better spread different types of cells in the global placement phrase and to use actual routing congestion as golden results in machine learning, etc.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 2 :</head><label>2</label><figDesc>Fig. 2: An illustration of the routing architecture. architecture shown in Fig. 2, the numbers of clocks inside each half column and clock region are limited to 12 and 24 respectively.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 4 :</head><label>4</label><figDesc>Fig.4: An example of chain move. The sites in rgn0, rgn1, rgn1 and rgn2 are the candidate sites of c0, c1, c2 and c3 respectively.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 5 :</head><label>5</label><figDesc>Fig. 5: Comparison of the total displacement between the result obtained by sequential legalization and chain move-based legalization.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Fig. 6 :</head><label>6</label><figDesc>Fig. 6: Comparison of the maximum displacement between the result obtained by sequential legalization and chain move-based legalization.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head>Fig. 7 :</head><label>7</label><figDesc>Fig. 7: Congestion Maps of CLK-FPGA13 in ISPD2017 contest: (a) routing congestion predicted by Vivado; (b) our estimation. demonstrates how accurately our proposed model can predict the congestion. Compared to the global linear model, the hierarchical hybrid model does not perform as good and its results are very close to the local model. The most likely underlying reason is that the congestion estimation produced by Vivado has a linear relationship with our features. Compared with the local linear model, the global linear model performs better since it captures both local and global congestion information. Hence, we will use the global linear model as our congestion estimation model. Note that the output of the regression model is close to the estimated value of Vivado according to the mean percentage error. Using the global linear model, we can predict congestion quite accurately as illustrated in Fig. 7.As shown in TABLEI, we have studied the performance of the two training methods. Since the training time complexity of the hierarchical hybrid model is much higher than that of the linear model and its performance is not as good, we only compare the performance of linear models trained by unified method and independent method. As one can see, the performance of the unified method is slightly better than that of the independent method. The underlying reason is that most of the designs are similar to each other in terms of technology, constraints, etc. and thus can be represented by one model. The advantage of the independent training method over the unified training method will be more obvious if the characteristics of each design are very different, because the unified method may not be able to capture the differences between designs with only one model. However, when the differences between the designs' characteristics are small, the unified model actually gets more data for training compared to the independent model, which explains why the average performance of the unified method is better than that of the independent method in our dataset. Another drawback of having multiple independent models is that each model may be over-fitted (due to the lack of data) and thus cannot be used to predict the congestion levels of an unknown design. One solution is ensembling all the individual models. To be specific, the prediction of a given feature vector x is obtained by combining the output of all the existing models, which can be represented by</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Fig. 8 :</head><label>8</label><figDesc>Fig.8: The overall flow of our proposed placer.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head></head><label></label><figDesc>Suppose each cell is only connected to one clock. Given a grid g of clock regions R and an overflowed region ri, if there exists at least one neighboring regions whose overflow is smaller, there always exists a direction such that shrinking the bounding box of a clock in ri to that direction by one unit will reduce the overflow of ri by one and not increase the overflow of any other clock regions.</figDesc><table><row><cell>1</cell><cell>2</cell><cell>2</cell><cell>1</cell><cell>0</cell><cell>1</cell><cell>2</cell><cell>2</cell><cell>1</cell><cell>0</cell></row><row><cell>1</cell><cell>2</cell><cell>3</cell><cell>2</cell><cell>1</cell><cell>1</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>1</cell></row><row><cell>2</cell><cell>3</cell><cell>4</cell><cell>2</cell><cell>1</cell><cell>1</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>1</cell></row><row><cell>1</cell><cell>2</cell><cell>3</cell><cell>2</cell><cell>1</cell><cell>1</cell><cell>2</cell><cell>2</cell><cell>2</cell><cell>1</cell></row><row><cell>1</cell><cell>1</cell><cell>1</cell><cell>0</cell><cell>0</cell><cell>1</cell><cell>1</cell><cell>1</cell><cell>0</cell><cell>0</cell></row><row><cell cols="5">(a) The BBs of clocks</cell><cell cols="5">(b) The BBs of clocks</cell></row><row><cell cols="5">in the original global</cell><cell></cell><cell cols="3">after shrinking.</cell><cell></cell></row><row><cell></cell><cell cols="3">placement.</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell cols="10">Fig. 3: Assuming the maximum number of clocks in a clock region</cell></row><row><cell cols="10">is 2, an example of clock region planning.</cell></row><row><cell cols="3">Theorem 1.</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table><note><p>Proof. It is clear that shrinking the bounding box of a clock will not increase the overflow of any other clock regions if each cell is only connected to one clock. Let C be the set of clocks whose bounding boxes overlap with ri but do not overlap with at least one of the neighboring regions of ri. If C = ∅, we can shrink the bounding box of a clock ci ∈ C in a direction by 1 unit and reduce the overflow of ri by 1.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head></head><label></label><figDesc>Algorithm 2 Chain Move-Based LegalizationRequire: A global placement result.1: for all BLE ci do</figDesc><table><row><cell>2:</cell><cell>d ← 0;</cell></row><row><cell>3:</cell><cell>while ci is not placed do</cell></row><row><cell>4:</cell><cell></cell></row><row><cell>5:</cell><cell>Sort S in ascending order of HPWL;</cell></row><row><cell>6:</cell><cell>if ci can be put into s ∈ S then</cell></row><row><cell>7:</cell><cell>if d ≥ 2 then</cell></row><row><cell>8:</cell><cell>Optimize max disp. using chain move;</cell></row><row><cell>9:</cell><cell>else</cell></row><row><cell>10:</cell><cell>place ci in s;</cell></row><row><cell>11:</cell><cell>end if</cell></row><row><cell>12:</cell><cell>else</cell></row><row><cell>13:</cell><cell>Optimize disp., try to place ci by chain move;</cell></row><row><cell>14:</cell><cell>end if</cell></row><row><cell>15:</cell><cell>d ← d + 1;</cell></row><row><cell>16:</cell><cell>end while</cell></row><row><cell cols="2">17: end for</cell></row></table><note><p>is the first cell in the chain, ≤ dist(sj, cj), otherwise, S ← sites whose distance to ci is d;</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>TABLE I :</head><label>I</label><figDesc>Average r 2 score, MPE (%) comparison between different training methods and congestion estimation models.</figDesc><table><row><cell>Model  *</cell><cell cols="4">Unified Avg. r 2 Avg. MPE Avg. r 2 Avg. MPE Independent</cell></row><row><cell>Local Linear Model</cell><cell>0.891</cell><cell>0.161</cell><cell>0.878</cell><cell>0.176</cell></row><row><cell>Hierarchical Hybrid Model</cell><cell>-</cell><cell>-</cell><cell>0.833</cell><cell>0.163</cell></row><row><cell>Global Linear Model</cell><cell>0.943</cell><cell>0.115</cell><cell>0.933</cell><cell>0.128</cell></row><row><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table><note><p>*  </p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_7"><head>TABLE II :</head><label>II</label><figDesc>Average r 2 score, MPE (%) comparison between unified model and ensemble. "Unified+" represents the global linear model trained by our unified</figDesc><table><row><cell>Model 1</cell><cell cols="4">Unified+ 2 Avg. r 2 Avg. MPE Avg. r 2 Avg. MPE Ensemble</cell></row><row><cell>Global Linear Model</cell><cell>0.914</cell><cell>0.172</cell><cell>0.926</cell><cell>0.163</cell></row><row><cell>1</cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>TABLE III :</head><label>III</label><figDesc>Routed wirelength and running time (s) comparison with the ISPD 2017 contest winners.</figDesc><table><row><cell>Design</cell><cell>WL</cell><cell cols="3">RippleFPGA ratio Time ratio</cell><cell>WL</cell><cell cols="2">1st Place ratio Time ratio</cell><cell>WL</cell><cell>2nd Place ratio Time</cell><cell>ratio</cell><cell>WL</cell><cell>3rd Place ratio Time ratio</cell></row><row><cell cols="2">CLK-FPGA01 2011452</cell><cell>1</cell><cell>288</cell><cell>1</cell><cell cols="6">2208170 1.098 530 1.840 2209328 1.098 2686 9.326 2268532 1.128 231 0.802</cell></row><row><cell cols="2">CLK-FPGA02 2167861</cell><cell>1</cell><cell>266</cell><cell>1</cell><cell cols="6">2279171 1.051 521 1.959 2273729 1.049 2788 10.481 2504444 1.155 218 0.820</cell></row><row><cell cols="2">CLK-FPGA03 5265206</cell><cell>1</cell><cell>583</cell><cell>1</cell><cell cols="6">5353071 1.017 1038 1.780 6229292 1.183 3740 6.415 5803110 1.102 447 0.767</cell></row><row><cell cols="2">CLK-FPGA04 3606567</cell><cell>1</cell><cell>380</cell><cell>1</cell><cell cols="6">3697950 1.025 725 1.908 3817377 1.058 2850 7.500 4085670 1.133 309 0.813</cell></row><row><cell cols="2">CLK-FPGA05 4660136</cell><cell>1</cell><cell>569</cell><cell>1</cell><cell cols="6">4692356 1.007 943 1.657 4995177 1.072 3164 5.561 5180916 1.112 444 0.780</cell></row><row><cell cols="2">CLK-FPGA06 5736998</cell><cell>1</cell><cell>591</cell><cell>1</cell><cell cols="6">5588507 0.974 1075 1.819 5605573 0.977 3570 6.041 6216898 1.084 471 0.797</cell></row><row><cell cols="2">CLK-FPGA07 2325787</cell><cell>1</cell><cell>304</cell><cell>1</cell><cell cols="6">2444359 1.051 585 1.924 2504544 1.077 3698 12.164 2676088 1.151 247 0.813</cell></row><row><cell cols="2">CLK-FPGA08 1778292</cell><cell>1</cell><cell>247</cell><cell>1</cell><cell cols="6">1885632 1.060 482 1.951 1989632 1.119 2504 10.138 2057117 1.157 198 0.802</cell></row><row><cell cols="2">CLK-FPGA09 2530105</cell><cell>1</cell><cell>327</cell><cell>1</cell><cell cols="6">2601161 1.028 600 1.835 2583442 1.021 3158 9.657 2813538 1.112 269 0.823</cell></row><row><cell cols="2">CLK-FPGA10 4495500</cell><cell>1</cell><cell>512</cell><cell>1</cell><cell cols="6">4464341 0.993 868 1.695 4770168 1.061 2971 5.803 4839765 1.077 414 0.809</cell></row><row><cell cols="2">CLK-FPGA11 4189622</cell><cell>1</cell><cell>455</cell><cell>1</cell><cell cols="6">4182726 0.998 768 1.688 4207699 1.004 2535 5.571 4777177 1.140 369 0.811</cell></row><row><cell cols="2">CLK-FPGA12 3387586</cell><cell>1</cell><cell>409</cell><cell>1</cell><cell cols="6">3368698 0.994 744 1.819 3376930 0.997 3007 7.352 3739517 1.104 338 0.826</cell></row><row><cell cols="2">CLK-FPGA13 3833106</cell><cell>1</cell><cell>441</cell><cell>1</cell><cell cols="6">3815718 0.995 822 1.864 3920965 1.023 3155 7.154 4320345 1.127 359 0.814</cell></row><row><cell>Average</cell><cell></cell><cell>1.000</cell><cell></cell><cell>1.000</cell><cell></cell><cell>1.023</cell><cell>1.826</cell><cell></cell><cell>1.057</cell><cell>7.936</cell><cell>1.122</cell><cell>0.806</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head></head><label></label><figDesc>TABLE III shows the routed wirelength and running time compared to the winners of the ISPD 2017 contest. Columns "WL" and</figDesc><table /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_10"><head>TABLE IV :</head><label>IV</label><figDesc>Comparison of HPWL and running time (s) before and after applying the two-step clock constraint legalization (CCL).</figDesc><table><row><cell>Design</cell><cell cols="5">w/ CCL HPWL ratio Time ratio HPWL ratio Time ratio w/o CCL</cell></row><row><cell cols="2">CLK-FPGA01 1582915</cell><cell cols="4">1 288 1 1582916.5 1.000 276 0.958</cell></row><row><cell cols="6">CLK-FPGA02 1577050.5 1 266 1 1577174.5 1.000 254 0.955</cell></row><row><cell cols="6">CLK-FPGA03 4059161.5 1 583 1 4060707.5 1.000 558 0.957</cell></row><row><cell cols="2">CLK-FPGA04 2716961</cell><cell cols="4">1 380 1 2717721.5 1.000 367 0.966</cell></row><row><cell cols="6">CLK-FPGA05 3532758.5 1 569 1 3533406.5 1.000 534 0.938</cell></row><row><cell cols="6">CLK-FPGA06 4485497.5 1 591 1 4486400.5 1.000 572 0.968</cell></row><row><cell cols="2">CLK-FPGA07 1708920</cell><cell cols="2">1 304 1</cell><cell cols="2">1708954 1.000 293 0.964</cell></row><row><cell cols="2">CLK-FPGA08 1355308</cell><cell cols="4">1 247 1 1354246.5 0.999 244 0.988</cell></row><row><cell cols="6">CLK-FPGA09 1946224.5 1 327 1 1945947.5 1.000 313 0.957</cell></row><row><cell cols="2">CLK-FPGA10 3505733</cell><cell cols="4">1 512 1 3506731.5 1.000 499 0.975</cell></row><row><cell cols="6">CLK-FPGA11 3270337.5 1 455 1 3270688.5 1.000 440 0.967</cell></row><row><cell cols="2">CLK-FPGA12 2592324</cell><cell cols="4">1 409 1 2593720.5 1.001 395 0.966</cell></row><row><cell cols="2">CLK-FPGA13 2927103</cell><cell cols="4">1 441 1 2926785.5 1.000 420 0.952</cell></row><row><cell>Average</cell><cell></cell><cell>1.000</cell><cell>1.000</cell><cell>1.000</cell><cell>0.962</cell></row><row><cell cols="6">"Time" list the wirelength and the computational time in seconds,</cell></row><row><cell cols="6">respectively. Our proposed placement can generate legal and routable</cell></row><row><cell cols="6">solutions for all the benchmarks. Compared to the 1st place winner</cell></row><row><cell cols="6">of the ISPD 2017 contest, our average routed wirelength is about</cell></row><row><cell cols="6">2.3% better and our running time is 2× faster than theirs. Due to the</cell></row><row><cell cols="6">efficient clock-aware placement framework, we can solve the largest</cell></row><row><cell cols="6">design in the benchmarks which contains about 1 million cells in</cell></row><row><cell>just 10 minutes.</cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell>TABLE</cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_11"><head>TABLE V :</head><label>V</label><figDesc>Routed wirelength comparison between different routing congestion estimation models. Compared to the original model, our model can lead to results of similar average routed wirelength.</figDesc><table><row><cell>Design</cell><cell>[15]</cell><cell></cell><cell cols="2">ML-based congestion model</cell></row><row><cell></cell><cell>WL</cell><cell>ratio</cell><cell>WL</cell><cell>ratio</cell></row><row><cell>FPGA01</cell><cell>350060</cell><cell>1</cell><cell>350802</cell><cell>1.002</cell></row><row><cell>FPGA02</cell><cell>635044</cell><cell>1</cell><cell>634700</cell><cell>0.999</cell></row><row><cell>FPGA03</cell><cell>3251264</cell><cell>1</cell><cell>3251721</cell><cell>1.000</cell></row><row><cell>FPGA04</cell><cell>5492214</cell><cell>1</cell><cell>5411107</cell><cell>0.985</cell></row><row><cell>FPGA05</cell><cell>9909270</cell><cell>1</cell><cell>9911182</cell><cell>1.000</cell></row><row><cell>FPGA06</cell><cell>6144522</cell><cell>1</cell><cell>6143973</cell><cell>1.000</cell></row><row><cell>FPGA07</cell><cell>9593240</cell><cell>1</cell><cell>9520252</cell><cell>0.992</cell></row><row><cell>FPGA08</cell><cell>8087931</cell><cell>1</cell><cell>8036647</cell><cell>0.994</cell></row><row><cell>FPGA09</cell><cell>12062928</cell><cell>1</cell><cell>12123865</cell><cell>1.005</cell></row><row><cell>FPGA10</cell><cell>6972278</cell><cell>1</cell><cell>7020054</cell><cell>1.007</cell></row><row><cell>FPGA11</cell><cell>10918250</cell><cell>1</cell><cell>10462601</cell><cell>0.958</cell></row><row><cell>FPGA12</cell><cell>7239553</cell><cell>1</cell><cell>7605996</cell><cell>1.051</cell></row><row><cell>Average</cell><cell></cell><cell>1</cell><cell></cell><cell>0.999</cell></row><row><cell cols="2">ISPD 2016 benchmarks.</cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>978-1-5386-3093-8/17/$31.00 ©2017 IEEE</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_1"><p>Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:56:05 UTC from IEEE Xplore. Restrictions apply.</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">The role of FPGAs in deep learning</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Ling</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Anderson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Symposium on FPGAs</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="3" to="3" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">FPGAs in the cloud</title>
+		<author>
+			<persName><forename type="first">G</forename><forename type="middle">A</forename><surname>Constantinides</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Symposium on FPGAs</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="167" to="167" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">VTR 7.0: Next generation architecture and CAD system for FPGAs</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Luu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Goeders</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wainberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Somerville</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Nasartschuk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Nasr</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Ahmed</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Reconfigurable Technology and Systems (TRETS)</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page">6</biblScope>
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Timing-driven partitioningbased placement for island style FPGAs</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Maidee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Ababei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Bazargan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="395" to="406" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Analytical placement for heterogeneous FPGAs</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Gort</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Anderson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference Field Programmable Logic and Applications (FPL)</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="143" to="150" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">SimPL: An effective placement algorithm</title>
+		<author>
+			<persName><forename type="first">D.-J</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">L</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Markov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">An efficient and effective analytical placer for in ACM</title>
+		<author>
+			<persName><forename type="first">T.-H</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Banerjee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-W</forename></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="1" to="10" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Efficient and effective packing and analytical placement for large-scale heterogeneous FPGAs</title>
+		<author>
+			<persName><forename type="first">Y.-C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S.-Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-W</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="647" to="654" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">A new FPGA placement algorithm for heterogeneous resources</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on ASIC (ASICON)</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="742" to="746" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">StarPlace: A new analytic method for FPGA placement</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Gréwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Areibi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Integration, the VLSI Journal</title>
+		<imprint>
+			<biblScope unit="volume">44</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="192" to="204" />
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">QPF: efficient quadratic placement for FPGAs</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A S</forename><surname>Khalid</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Field Programmable Logic and Applications (FPL)</title>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="555" to="558" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Improving timing-driven FPGA packing with physical information</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Vorwerk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kennings</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Field Programmable Logic and Applications (FPL)</title>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="117" to="123" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Un/DoPack: re-clustering of large system-on-chip designs with interconnect variation for low-cost FPGAs</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tom</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Leong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Lemieux</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="680" to="687" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Rent&apos;s rule based FPGA packing for routability optimization</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Greene</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Vorwerk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Pevzner</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kundu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM Symposium on FPGAs</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="31" to="34" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">RippleFPGA: A routabilitydriven placement for large-scale heterogeneous FPGAs</title>
+		<author>
+			<persName><forename type="first">C.-W</forename><surname>Pui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-K</forename><surname>Chow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K.-C</forename><surname>Lam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kuang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Tu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">F Y</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="67" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">UTPlaceF: A routability-driven FPGA placer with physical and congestion aware packing</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">66</biblScope>
+			<biblScope unit="page" from="1" to="66" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">GPlace: A congestion-aware placement tool for ultrascale FPGAs</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pattison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Abuowaimer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Areibi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Gréwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vannelli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="volume">68</biblScope>
+			<biblScope unit="page" from="1" to="68" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">A congestion driven placement algorithm for fpga synthesis</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Zhuo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">P</forename><surname>Mohanty</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Field Programmable Logic and Applications (FPL)</title>
+		<imprint>
+			<date type="published" when="2006">2006</date>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Routability optimization for industrial designs at sub-14nm process nodes using machine learning</title>
+		<author>
+			<persName><forename type="first">W.-T</forename><forename type="middle">J</forename><surname>Chan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P.-H</forename><surname>Ho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Saxena</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM International Symposium on Physical Design (ISPD)</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="15" to="21" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Accurate prediction of detailed routing congestion using supervised data learning</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Qi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Q</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Computer Design (ICCD)</title>
+		<imprint>
+			<date type="published" when="2014">2014</date>
+			<biblScope unit="page" from="97" to="103" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Beol stack-aware routability prediction from placement using data mining techniques</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">T J</forename><surname>Chan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Du</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nath</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Samadi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE International Conference on Computer Design (ICCD)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="41" to="48" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Clock-aware FPGA placement contest</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Mulpuri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reddy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kalase</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dasasathyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">E</forename><surname>Dehkordi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tom</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Aggarwal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM International Symposium on Physical Design (ISPD)</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="159" to="164" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Routability-driven FPGA placement contest</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gayasen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Mulpuri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reddy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Aggarwal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM International Symposium on Physical Design (ISPD)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="139" to="143" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">MrDP: Multiple-row detailed placement of heterogeneous-sized cells for advanced nodes</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J.-R</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Viswanathan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">J</forename><surname>Alpert</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">POLAR: A high performance mixed-size wirelengh-driven placer with density constraints</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Shinnerl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Bustany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Nedelchev</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="447" to="459" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">An efficient algorithm for the two-dimensional placement problem in electrical circuit layout</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Goto</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Circuits and Systems I</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="12" to="18" />
+			<date type="published" when="1981">1981</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<monogr>
+		<ptr target="https://www.xilinx.com/products/technology/ultrascale.html" />
+		<title level="m">Xilinx UltraScale Architecture</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

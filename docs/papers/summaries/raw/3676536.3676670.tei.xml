@@ -1,0 +1,1000 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Fusion of Global Placement and Gate Sizing with Differentiable Optimization</title>
+				<funder>
+					<orgName type="full">STIC</orgName>
+				</funder>
+				<funder ref="#_hxYkjWW">
+					<orgName type="full">unknown</orgName>
+				</funder>
+				<funder ref="#_V6rf8Sz">
+					<orgName type="full">Natural Science Foundation of Beijing, China</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Yufan</forename><surname>Du</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">School of EECS</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">School of Integrated Circuits</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Zizheng</forename><surname>Guo</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">School of Integrated Circuits</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="department">Institute of EDA</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Yibo</forename><surname>Lin</surname></persName>
+							<email>yibolin@pku.edu.cn</email>
+							<affiliation key="aff1">
+								<orgName type="department">School of Integrated Circuits</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="department">Institute of EDA</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff3">
+								<orgName type="department">Advanced Innovation Center for Integrated Circuits</orgName>
+								<address>
+									<settlement>Beijing</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Runsheng</forename><surname>Wang</surname></persName>
+							<email>r.wang@pku.edu.cn</email>
+							<affiliation key="aff1">
+								<orgName type="department">School of Integrated Circuits</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="department">Institute of EDA</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff3">
+								<orgName type="department">Advanced Innovation Center for Integrated Circuits</orgName>
+								<address>
+									<settlement>Beijing</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Ru</forename><surname>Huang</surname></persName>
+							<email>ruhuang@pku.edu.cn</email>
+							<affiliation key="aff1">
+								<orgName type="department">School of Integrated Circuits</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="department">Institute of EDA</orgName>
+								<orgName type="institution">Peking University</orgName>
+							</affiliation>
+							<affiliation key="aff3">
+								<orgName type="department">Advanced Innovation Center for Integrated Circuits</orgName>
+								<address>
+									<settlement>Beijing</settlement>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Fusion of Global Placement and Gate Sizing with Differentiable Optimization</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">2CE6B0100E8A39C81819F31CBDE3BC59</idno>
+					<idno type="DOI">10.1145/3676536.3676670</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:00+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Gate sizing is critical in VLSI design because it significantly influences final design quality. Traditional design flows typically treat gate sizing as a separate step due to its discreteness nature. However, this approach not only undermines the optimization efforts of earlier stages like placement, but also restricts the exploration space for gate sizing. To address these challenges, we introduce an innovative design flow fusing gate sizing with the earlier global placement stage. Our method employs differentiable timing and leakage power objectives and leverages GPU-accelerated computation to enhance design quality directly and efficiently. Our experimental results demonstrate significant improvements in timing and power metrics, with an average improvement of 77.1% in total negative slack (TNS) and 43.5% in worst negative slack (WNS), and meanwhile achieving a reduction in leakage power consumption by 1% compared with one of the most popular design tools, OpenROAD. Our method can speedup the design process by up to 7×.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>Gate sizing is critical for timing and power closure in VLSI design flow. It adjusts the drive strength of each gate within a circuit. It profoundly impacts the trade-offs between key factors like performance, power, and area (PPA) that determine the design's overall quality. With the increasing design complexity and the demand for high-performance and energy-efficient designs, gate sizing has become more challenging due to the NP-hard combinatorial optimization problem <ref type="bibr" target="#b0">[1]</ref> for PPA trade-offs required in the large and discrete design space.</p><p>Complicating matters further, current methodologies typically explore gate sizing after the placement or routing is fixed. This approach introduces several notable drawbacks, including: (i) The exploration space is significantly constrained as the earlier stage outcomes are fixed, like gate positions from placement results. (ii) Adjustments to gate sizes will sabotage the optimization efforts during earlier stages since the resized gates may not fit the original   Yellow boxes represent OpenROAD <ref type="bibr" target="#b2">[3]</ref> steps, and green boxes represent our steps. For the completeness of the optimization, we also use OpenROAD sizer after our fusion framework because it includes additional optimization steps like pin swapping and buffer insertion for fair comparison.</p><p>placement or routing layout. (iii) The process is exceedingly timeconsuming, often necessitating multiple iterations to achieve timing closure, thereby delaying the overall design cycles. For example, the cutting-edge commercial tool Innovus <ref type="bibr" target="#b1">[2]</ref> takes several loops of timing violation fix, area reclaim, and placement refinement to optimize timing incrementally after the global placement stage. One of the most popular open-source design tools, OpenROAD <ref type="bibr" target="#b2">[3]</ref>, executes gate sizer and detailed placement separately as well.</p><p>Recent trends of design automation encourage a "shift-left" approach <ref type="bibr" target="#b3">[4]</ref>, suggesting that circuit constraints and performance should be considered in earlier stages of the design flow. This strategy is predicated on the premise that earlier stages can provide more flexibility and larger exploration space for holistic optimization. Gate sizing involves trade-offs between timing, power, and area, primarily dependent on the global placement step early in the design flow. As a result, the fusion of gate sizing and global placement has the potential to unlock a much larger search space and greatly unleash the design optimization opportunity. However, such a fusion is quite challenging. Global placement is formulated as a continuous optimization task, whereas gate sizing is discrete in nature. Modeling and optimizing the complex joint effects of placement and sizing on timing and power is also highly nontrivial.</p><p>This paper proposes a new design flow that fuses gate sizing with global placement, enabling simultaneous optimization of gate positions and gate sizes, as depicted in Figure <ref type="figure" target="#fig_1">1</ref>. We carefully make optimization objective functions differentiable with respect to gate positions and sizes. Therefore, jointly optimizing gate positions and sizes through the gradient descent method is adopted as a natural choice. We summarize our key contributions as follows.</p><p>• To the best of our knowledge, we propose the first framework that fuses the optimizations of gate positions and gate sizes with differentiable objectives.  <ref type="bibr" target="#b2">[3]</ref> for the flow in Figure <ref type="figure" target="#fig_1">1</ref>.</p><p>Meanwhile, the proposed method can accelerate the design process by up to 7×. We believe our work will inspire and stimulate further research into PPA optimization in the VLSI design flow from new perspectives. The rest of this paper is organized as follows. Section 2 gives the preliminaries and problem formulation; Section 3 explains the detailed framework; Section 4 demonstrates the results; Section 5 concludes the paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">PRELIMINARIES</head><p>This section reviews the background of nonlinear global placement, gate sizing, and prior works in both fields.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.1">Nonlinear Global Placement</head><p>Global placement determines the gate positions on the layout area. A widely-adpoted global placement method is nonlinear global placement <ref type="bibr" target="#b4">[5]</ref><ref type="bibr" target="#b5">[6]</ref><ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref><ref type="bibr" target="#b10">[11]</ref>. The goal is to minimize the total wirelength under the constraints of gate density. Placement metrics such as halfperimeter wire length (HPWL) and layout density are expressed as functions of gate positions x, y. By treating gate positions as continuous variables and optimization objectives as continuous functions, nonlinear placement can be formulated as a continuous optimization problem. By transforming the density constraint into a density penalty term, the objective function of nonlinear global placement can be formulated as follows:</p><formula xml:id="formula_0">min x,y ∑︁ net 𝑒 𝑊 𝐿(𝑒; x, y) + 𝜆𝐷 (x, y),<label>(1)</label></formula><p>where x, y denote gate positions and 𝜆 represents the density penalty weight. The function 𝑊 𝐿 indicates the nets' HPWL, and 𝐷 serves as the density penalty function. The optimization can be solved by the gradient descent method with gradually increasing 𝜆 to spread gates in the layout. Recent developments in machine learning have provided a fresh perspective on this challenge. Prior work <ref type="bibr" target="#b10">[11]</ref> draws an analogy between placement challenges and ML paradigms, as summarized in Table <ref type="table" target="#tab_2">1</ref>. In this context, the global placement problem is analogous to training a neural network, where the analytical function of the placement can be expressed, and its gradients with respect to gate positions can be efficiently computed. This analogy, coupled with  Net-based methods <ref type="bibr" target="#b11">[12]</ref><ref type="bibr" target="#b12">[13]</ref><ref type="bibr" target="#b13">[14]</ref><ref type="bibr" target="#b14">[15]</ref><ref type="bibr" target="#b15">[16]</ref><ref type="bibr" target="#b16">[17]</ref> dynamically adjust weights of different nets during placement based on their timing criticality. The net weighting strategy assigns a higher weight to critical nets, thus encouraging the placement algorithm to shrink those critical nets by moving surrounding gates and reducing their delays. Path-based methods formulate the relation between gate positions and timing objectives during placement stage <ref type="bibr" target="#b17">[18]</ref>, among which the differentiable-timing-driven placement approach <ref type="bibr" target="#b18">[19,</ref><ref type="bibr" target="#b19">20]</ref> has achieved significant success. They establish the forward computation paths from gate positions to timing objectives and make these objectives differentiable, thus enabling the backward gradient propagation from objectives to gate positions. Therefore, they achieve direct optimization of timing metrics with respect to gate positions by the gradient descent method.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Gate Sizing</head><p>Gate sizing determines the drive strength of each gate within a circuit to meet different constraints, such as max load capacitance, max signal transition time, and timing constraints. Specifically, to achieve timing closure, a timing-driven gate sizer (hereafter referred to as "sizer" for simplicity) can upsize gates in critical paths to mitigate the timing violations at the cost of increased power consumption. The primary objective of the sizer is to minimize a design's total leakage power while satisfying timing constraints. Utilizing the notations summarized in Table <ref type="table" target="#tab_3">2</ref>, the timing-driven gate sizing problem can be formulated as follows:</p><formula xml:id="formula_1">min s,𝑎 ∑︁ 𝑔∈G Leak 𝑔 (s 𝑔 ) subject to s 𝑔 ∈ S 𝑔 , ∀𝑔 ∈ G, 𝑎 𝑖 + 𝑑 𝑖 𝑗 (s) ≤ 𝑎 𝑗 , ∀(𝑖, 𝑗) ∈ E, 𝑎 𝑘 ≤ 𝑡 -𝑡 setup , ∀𝑘 ∈ N end ,<label>(2)</label></formula><p>where minimization is over the set of discrete gate variable s and arrival time variable 𝑎. There are two constraints in this formulation. Firstly, gate sizes s 𝑔 must be selected from the available sizes S 𝑔 for each gate 𝑔. Secondly, signal arrival time at the endpoint of each timing path should not violate setup time constraints. The existing timing-driven gate sizing methods can be broadly categorized into four types:</p><p>(1) Dynamic programming-based methods, such as <ref type="bibr" target="#b20">[21]</ref><ref type="bibr" target="#b21">[22]</ref><ref type="bibr" target="#b22">[23]</ref>. Those works only achieve optimal solutions for tree-structured circuit topologies and have limitations with reconvergent paths. (2) Sensitive-based methods. Works like <ref type="bibr" target="#b23">[24]</ref><ref type="bibr" target="#b24">[25]</ref><ref type="bibr" target="#b25">[26]</ref> assess the sensitivity of each gate based on prior knowledge. Gate sizes are adjusted from the most sensitive ones until timing closure. This approach is entirely heuristic, with outcomes heavily reliant on the feasibility of the initial sensitivity knowledge. (3) Learning-based methods. Works like the reinforcement learningbased methods <ref type="bibr" target="#b26">[27]</ref>, generative AI-based methods <ref type="bibr" target="#b27">[28]</ref>, graph convolutional methods <ref type="bibr" target="#b28">[29,</ref><ref type="bibr" target="#b29">30]</ref>, and deep learning-based methods <ref type="bibr" target="#b30">[31]</ref> stand out. While these methods employ the prevailing learning tricks, the performance of these datadriven models may be compromised once they are applied to other cell and timing libraries. Also, a huge amount of retraining time is unbearable for current fast-paced commercial design cycles. (4) Heuristic methods improved by Lagrangian relaxation (LR)based formulation <ref type="bibr" target="#b31">[32]</ref><ref type="bibr" target="#b32">[33]</ref><ref type="bibr" target="#b33">[34]</ref><ref type="bibr" target="#b34">[35]</ref><ref type="bibr" target="#b35">[36]</ref><ref type="bibr" target="#b36">[37]</ref><ref type="bibr" target="#b37">[38]</ref><ref type="bibr" target="#b38">[39]</ref><ref type="bibr" target="#b39">[40]</ref>, which have achieved remarkable success in the past decade. By relaxing the timing constraints in the objective function and employing the Karush-Kuhn-Tucker (KKT) optimality conditions, the search space can be greatly pruned. However, they still resort to heuristics and local search to derive a suboptimal solution, which can be slow on large designs due to the sequential nature of gate sizing adjustments. <ref type="bibr" target="#b38">[39]</ref> introduced a learning-driven methodology that reduced the initial heuristic search space to accelerate the algorithm. <ref type="bibr" target="#b34">[35,</ref><ref type="bibr" target="#b36">37,</ref><ref type="bibr" target="#b37">38]</ref> focused on enhancing the efficiency of these processes.</p><p>All the above studies regard gate sizing as an individual step and solve the sizing problem with gate positions fixed, which may limit the exploration space for optimization.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Problem Formulation</head><p>Problem. Given a set of gates and an initial placement layout, the objective is to minimize total leakage power and the absolute values   </p><formula xml:id="formula_2">LUT 1 *(2-s X )+LUT 2 *(s X -1) interpolated, differentiable with s X , islew, oload LUT 1 (islew, oload) in library LUT 2 (islew, oload) in library Gate X differentiable with s X</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">METHODOLOGY</head><p>In this section, we present our novel differentiable framework for simultaneous global placement and gate sizing. Section 3.1 presents an overview of our differentiable optimization framework. Section 3.2, 3.3, and 3.4 give the mathematical details of leakage power, timing, and wirelength/density objectives, respectively. Section 3.5 demonstrates the complete flow with GPU acceleration. Section 3.6 details the parameter configuration and the ideas behind it.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">Framework Overview</head><p>Our key idea in the fusion of global placement and gate sizing is to introduce gate sizes (s) as a new set of continuous variables in the optimization formulation of nonlinear global placement, along with the original gate position variables (x and y). In addition to the added variables, we also add several new optimization objectives including timing, power, and area, along with the original HPWL and density penalty terms. These objectives are now functions of both gate positions and sizes.</p><p>To optimize the sizes and positions simultaneously, we make all objectives differentiable by carefully analyzing their analytical formulation and deriving their gradients to both positions and sizes using back-propagation. With the available gradients, gradient descent can be utilized for optimization, which fits naturally into the nonlinear global placement flow.</p><p>The gate sizes of a digital circuit should come from a standard cell library with a set of discrete choices. To define a continuous size variable, we use interpolations between adjacent sizes (Figure <ref type="figure" target="#fig_3">2</ref>) to define gate area, leakage power, and timing behavior. These interpolations are differentiable and can propagate gradients back to both 2 adjacent sizes. As the output of our fused placer-sizer should still be discrete sizes, we encourage the discretization of size variables by an additional L1 loss term that we call discretization loss. This loss pushes a size variable to its nearest discrete choice. Its weight will be gradually increased along with placement iterations. </p><formula xml:id="formula_3">+ 𝑡 1 WNS(x, y; s) + 𝑡 2 TNS(x, y; s),<label>(3)</label></formula><p>where 𝑡 1 , 𝑡 2 , 𝜆 1 , 𝜆 2 and 𝜆 3 are weights for different objectives. WNS and TNS are represented by their absolute magnitudes in this formulation.</p><p>The dependency between 5 optimization objectives and 2 sets of variables is illustrated in Figure <ref type="figure">3</ref>. The leakage power and discretization loss terms depend solely on and propagate gradients solely to gate sizes. The other 3 terms, wirelength, density, and timing, depend on both gate positions and sizes. In these 6 dependencies, we create 5 gradient channels for backward propagation except the wirelength-gate size channel because the effect of gate size on wirelength is quite minor compared to gate position.</p><p>In the following subsections, we will introduce the details of each objective, the overall GPU-accelerated framework, and parameter configuration.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Differentiable Leakage Power Objective</head><p>We begin with leakage power, which is the simplest objective. The total leakage power of a design is the sum of the leakage power of all gates. As a result, it only depends on the gate size s. We express the leakage power of an interpolated gate (Figure <ref type="figure" target="#fig_3">2</ref>) as follows:</p><formula xml:id="formula_4">Leak 𝑔 (s 𝑔 ) = Leak 𝑔 (⌊s 𝑔 ⌋)( ⌈s 𝑔 ⌉ -s 𝑔 ) + Leak 𝑔 (⌈s 𝑔 ⌉)(s 𝑔 -⌊s 𝑔 ⌋). (4)</formula><p>Taking the partial derivative of Equation ( <ref type="formula">4</ref>) with respect to s 𝑔 , we get</p><formula xml:id="formula_5">𝜕 𝜕s 𝑔 Leak 𝑔 (s 𝑔 ) = Leak 𝑔 ( ⌈s 𝑔 ⌉) -Leak 𝑔 ( ⌊s 𝑔 ⌋). 1<label>(5)</label></formula><p>The total leakage power is the sum of gate leakage powers:</p><formula xml:id="formula_6">Leak(s) = ∑︁ 𝑔 Leak 𝑔 (s 𝑔 ).<label>(6)</label></formula><p>1 When s 𝑔 is a precise integer, this gradient might be zero.     Taking gradients of Equation ( <ref type="formula" target="#formula_6">6</ref>) with respect to s and we get a vector of gradients:</p><formula xml:id="formula_7">∇ s Leak(s) = 𝜕 𝜕s 1 Leak 1 (s 1 ), 𝜕 𝜕s 2 Leak 2 (s 2 ), . . . .<label>(7)</label></formula><p>Each term can be calculated using Equation <ref type="bibr" target="#b4">(5)</ref>. The minimization of leakage power creates a trend to shrink the gate sizes.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Differentiable Timing Objectives</head><p>Contrary to leakage power, timing objectives are quite complex, especially when gate sizes are considered variables instead of constants. The gate positions x, y determine the shape of interconnects between gates, thus determining the resistances and capacitances of the interconnect. This in turn affects the signal delay not only for interconnects, but also for cells because of the change in load. This dependency has been analyzed by Guo et al <ref type="bibr" target="#b18">[19]</ref> to derive a differentiable timing-driven placement objective. In this work, gate sizes are considered variables as well, which makes deriving the gradients even more challenging.</p><p>We start with a brief review of major techniques introduced in <ref type="bibr" target="#b18">[19]</ref> for completeness and then present our timing gradient calculation flow on top of them.</p><p>(1) Differentiable Steiner Tree: An early routing estimation using Steiner tree generation like FLUTE <ref type="bibr" target="#b40">[41]</ref> is necessary for timing analysis and optimization. The original FLUTE is not differentiable. To solve this, <ref type="bibr" target="#b18">[19]</ref> proposes to link temporary Steiner points to related pin coordinates. These Steiner points move along with the move in related pins during a limited iteration window, which opens the backward gradient channel from routing to pin coordinates. ( <ref type="formula" target="#formula_1">2</ref> Our goal is to consider gate sizes s as differentiable variables along with the gate positions to optimize WNS and TNS. As can be seen in the timing calculation flow, a changing gate size affects nearly everything in delay modeling at the core of timing analysis. To derive the precise gradients, we analytically formulate this dependency and visualize it in Figure <ref type="figure" target="#fig_8">4</ref>. The impact of gate size on timing objectives happens through 3 key channels: pin capacitance (part 1), gate delay (part 2), and gate output slew (part 3).</p><p>Gates of the same type but different sizes have different pin capacitance values that affect the upstream load. That load then changes the upstream net delay, cell delay, slew propagation, and finally, WNS and TNS. Similar to Equation (4), we interpolate the pin capacitances as a function of s: <ref type="bibr" target="#b7">(8)</ref> where pin 𝑖 belongs to gate 𝑔 and Cap 𝑖 (s 𝑔 ) is the interpolated pin 𝑖 capacitance. We feed the derived pin capacitance to the differentiable Elmore delay model in <ref type="bibr" target="#b18">[19]</ref>. As shown in Figure <ref type="figure" target="#fig_8">4</ref>(b), this differentiable pin capacitance is chained with the Elmore delay module, passing the gradients from timing objectives all the way back to gate sizes s. Specifically,</p><formula xml:id="formula_8">Cap 𝑖 (s 𝑔 ) = Cap 𝑖 ( ⌊s 𝑔 ⌋) ( ⌈s 𝑔 ⌉ -s 𝑔 ) + Cap 𝑖 ( ⌈s 𝑔 ⌉) (s 𝑔 -⌊s 𝑔 ⌋),</formula><formula xml:id="formula_9">𝜕 𝜕s 𝑔 𝑇 part 1 = ∑︁ pin 𝑖 ∈gate 𝑔 𝜕Cap 𝑖 𝜕s 𝑔 × 𝜕 𝜕Cap 𝑖 𝑇 = ∑︁ pin 𝑖 ∈gate 𝑔 [Cap 𝑖 (⌈s 𝑔 ⌉) -Cap 𝑖 (⌊s 𝑔 ⌋)] 𝜕 𝜕Cap 𝑖 𝑇 ,<label>(9)</label></formula><p>where 𝑇 denotes either WNS or TNS.</p><p>Gate delay and output pin slew are also dependent on gate sizes. However, they are more involved as the delay and slew models are differentiable functions (NLDM LUTs) themselves, even for a single discrete gate size. Delay and slew outputs of an interpolated gate are thus a function of 3 variables: input slew, output load, and the interpolated gate size. Specifically, we always calculate 2 gate delays (respectively, slews) based on 2 adjacent discrete sizes ⌊s 𝑔 ⌋ and ⌈s 𝑔 ⌉, and then interpolate the results based on s 𝑔 :</p><formula xml:id="formula_10">𝑑 𝑖 𝑗 (⌊s 𝑔 ⌋) = LUT ⌊s 𝑔 ⌋ (islew, oload), 𝑑 𝑖 𝑗 (⌈s 𝑔 ⌉) = LUT ⌈s 𝑔 ⌉ (islew, oload), 𝑑 𝑖 𝑗 (s 𝑔 ) = 𝑑 𝑖 𝑗 (⌊s 𝑔 ⌋)(⌈s 𝑔 ⌉ -s 𝑔 ) + 𝑑 𝑖 𝑗 (⌈s 𝑔 ⌉)(s 𝑔 -⌊s 𝑔 ⌋),<label>(10)</label></formula><p>where 𝑖 and 𝑗 determine the connected pins of a timing arc within gate 𝑔, and two LUT functions calculate two delay values for this timing arc with two gate sizes ⌊s 𝑔 ⌋ and ⌈s 𝑔 ⌉ by two indices: input slew value and output load capacitance value.</p><p>For the example shown in Figure <ref type="figure" target="#fig_3">2</ref>, we first compute two sets of delay and slew values for two adjacent discrete sizes of a NOT gate, 1 and 2, through two different LUTs. A subsequent linear interpolation between these sizes yields the final delay and slew values. As depicted in Figure <ref type="figure" target="#fig_8">4</ref>(b), with the interpolated gate delays 𝑑 𝑎𝑏 and 𝑑 𝑐𝑒 , the final timing objectives TNS and WNS can be calculated. Therefore, the delay channel of the timing gradient with respect to gate size s 𝑔 is as follows:</p><formula xml:id="formula_11">𝜕 𝜕s 𝑔 𝑇 part 2 = ∑︁ arc 𝑖 𝑗 ∈gate 𝑔 𝜕𝑑 𝑖 𝑗 𝜕s 𝑔 × 𝜕 𝜕𝑑 𝑖 𝑗 𝑇 = ∑︁ arc 𝑖 𝑗 ∈gate 𝑔 [𝑑 𝑖 𝑗 (⌈s 𝑔 ⌉) -𝑑 𝑖 𝑗 (⌊s 𝑔 ⌋)] 𝜕 𝜕𝑑 𝑖 𝑗 𝑇 .<label>(11)</label></formula><p>The slew calculation works similarly through differentiable linear interpolation: <ref type="bibr" target="#b11">(12)</ref> where pin 𝑖 denotes one of the output pins of gate 𝑔. We chain the slew values throughout the design logic levels, as shown in Figure <ref type="figure" target="#fig_8">4(a)</ref>. We feed the output slew of one gate level to the Elmore model of the next level. Finally, we derive the slew channel of the timing gradient with respect to gate size s 𝑔 as follows:</p><formula xml:id="formula_12">Slew 𝑖 (s 𝑔 ) = Slew 𝑖 (⌊s 𝑔 ⌋)(⌈s 𝑔 ⌉ -s 𝑔 ) + Slew 𝑖 (⌈s 𝑔 ⌉)(s 𝑔 -⌊s 𝑔 ⌋),</formula><formula xml:id="formula_13">𝜕 𝜕s 𝑔 𝑇 part 3 =[Slew 𝑖 (⌈s 𝑔 ⌉) -Slew 𝑖 (⌊s 𝑔 ⌋)] 𝜕 𝜕Slew 𝑖 𝑇 . (<label>13</label></formula><formula xml:id="formula_14">)</formula><p>Because of the partial derivative chain rule, the entire timing gradient is the sum of all 3 channels:</p><formula xml:id="formula_15">𝜕 𝜕s 𝑔 𝑇 = 𝜕 𝜕s 𝑔 𝑇 part 1 + 𝜕 𝜕s 𝑔 𝑇 part 2 + 𝜕 𝜕s 𝑔 𝑇 part 3 . (<label>14</label></formula><formula xml:id="formula_16">)</formula><p>By backward propagating the above gradient from timing objectives to gate size s, the gradient descent method will create a trend to upsize the gates on critical timing paths to improve their timing.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.4">Wirelength and Density Objectives</head><p>Wirelength objective depends on both gate positions x and y and gate sizes s. Gate sizes affect pin offsets since a larger gate is likely to have more separate pins. We observe that pin offsets for different gate sizes are highly heterogeneous and cannot be soundly interpolated as a continuous function of gate size. But fortunately, the impact of pin offsets on the optimization of wirelength or PPA is quite minor compared to gate positions, capacitances, and LUTs. Therefore, we do not include the backward gradients of pin offsets in each placement and sizing iteration. We update the pin offsets to the nearest discrete sizes every few iterations to account for size changes during the optimization.</p><p>Density penalty objective encourages separation of gates. It also depends on both gate position x, y and gate size s. Previous nonlinear placement works <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b7">8,</ref><ref type="bibr" target="#b9">10,</ref><ref type="bibr" target="#b10">11]</ref> exploit an analogy between placement and electrostatic system by modeling gates as electric charges, density penalty as the system potential energy, and density gradient as the electric field that pushes the gate charges apart. In our work, we model the gate size as a variable, which means the gate area is no longer a constant. In electrostatics-based placement, this implies a changing electrical charge quantity.</p><p>Previously, placement engine takes the gradients of density penalty with respect to electric charge positions, which yields the electric force. In our work, we additionally take the gradients with respect to the electrical charge quantity, which yields the electric potential. A simplified version of density penalty is:</p><formula xml:id="formula_17">𝐷 (x, y; s) = ∑︁ gate 𝑔 Area 𝑔 (s 𝑔 ) × Φ(x 𝑔 , y 𝑔 ),<label>(15)</label></formula><p>where Φ(x 𝑔 , y 𝑔 ) is the electrical potential 2 of gate 𝑔 at position x 𝑔 , y 𝑔 . The partial derivative of the density penalty with respect to gate area Area 𝑔 is:</p><formula xml:id="formula_18">𝜕 𝜕Area 𝑔 (s 𝑔 ) 𝐷 (x, y; s) = Φ(x 𝑔 , y 𝑔 ).<label>(16)</label></formula><p>For gate area, we also use linear interpolation, as depicted in Figure <ref type="figure" target="#fig_3">2</ref>. The forward and backward gradient equations are as follows:</p><formula xml:id="formula_19">Area 𝑔 (s 𝑔 ) = Area 𝑔 ( ⌊s 𝑔 ⌋) ( ⌈s 𝑔 ⌉ -s 𝑔 ) +Area 𝑔 ( ⌈s 𝑔 ⌉) (s 𝑔 -⌊s 𝑔 ⌋), (17) 𝜕 𝜕s 𝑔 Area 𝑔 (s 𝑔 ) = Area 𝑔 ( ⌈s 𝑔 ⌉) -Area 𝑔 ( ⌊s 𝑔 ⌋). (<label>18</label></formula><formula xml:id="formula_20">)</formula><p>We can derive the partial derivative of the density penalty with respect to gate size s 𝑔 as follows:</p><formula xml:id="formula_21">𝜕 𝜕s 𝑔 𝐷 (x, y; s) = 𝜕Area 𝑔 (s 𝑔 ) 𝜕s 𝑔 𝜕 𝜕Area 𝑔 (s 𝑔 ) 𝐷 (x, y; s) = [Area 𝑔 ( ⌈s 𝑔 ⌉) -Area 𝑔 ( ⌊s 𝑔 ⌋)] × Φ(x 𝑔 , y 𝑔 ). (<label>19</label></formula><formula xml:id="formula_22">)</formula><p>2 In practice, the absolute value for Φ(x 𝑔 , y 𝑔 ) varies across designs of different scales and only the relative values make sense. As a result, we normalize the electric potential in sizing gradient calculation so that their sum equals 1, which will ease parameter selection.  Gates located in denser regions incur a higher density penalty, which discourages upsizing in these areas. Effectively, this promotes upsizing of gates in sparser regions on the critical paths. This differentiable fusion formulation of placement and sizing can thus explore a much richer search space and discover better joint placement and sizing solutions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.5">GPU-Accelerated Fusion Framework</head><p>Global placement is inherently time-consuming, particularly if we need to optimize gate sizes and positions simultaneously. Traditionally, handling large designs could require hundreds to thousands of iterations, often taking several hours on CPUs. Given the intense computational demands of such operations, GPUs can offer a significant advantage thanks to their capacity for efficient parallel processing. We employ a GPU-accelerated fusion framework to speed up the process significantly.</p><p>As depicted in Figure <ref type="figure" target="#fig_9">5</ref>, our GPU-accelerated framework runs iteratively to update gate positions and sizes. In each iteration, we independently calculate 5 different objectives (wirelength, density, timing, power, discretization loss). We then back-propagate and merge their gradients with respect to gate positions and sizes. We use the final merged gradient to update gate positions and gate sizes. We note that every objective and gradient calculation is implemented using high-performance GPU kernels. This includes a GPUaccelerated differentiable STA engine as well as a GPU-accelerated differentiable electric force/electric potential solver.</p><p>During the iterations, we also do a number of auxiliary tasks, including the update of Steiner trees (every 10 iterations, see <ref type="bibr" target="#b18">[19]</ref>), gradient-free pin offsets, and hyperparameters. The hyperparameter weights for different objectives change dynamically during the optimization process, which helps to balance the trade-offs between different objectives and achieve better convergence.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.6">Parameter Configuration</head><p>In this section, we detail the selection of hyperparameters in this work. Without loss of generality, we assume the units are as follows: timing slacks in nanoseconds (ns), area in square millimeters (mm 2 ), and leakage power in milliwatts (mW). WNS and TNS objective optimization weights 𝑡 1 and 𝑡 2 are initialized at 0.025 and 0.0005, respectively. The 𝑡 1 and 𝑡 2 parameters will increase by 1% every iteration to progressively enhance the importance of the timing objective. While these timing gradients include both gate positions and sizes, we observe that the gradient to sizes is typically much larger than to positions, which may cause increases in gate sizes in the early stage. As a result, we additionally scale down the gate size gradient by a factor of 1800. The weight 𝜆 1 applied to the density penalty gradient to gate position x and y is set as the default value in DREAMPlace <ref type="bibr" target="#b10">[11]</ref>. The weight 𝜆 2 applied to leakage power objective is set at 1, increasing by 1‰ every iteration to encourage power reclaim in later stages. The discretization loss factor 𝜆 3 is set at 0.01, which also increases by 1% every iteration to guide the gate sizes towards the nearest discrete values gradually. The timing-driven global placement and gate sizing kickstart at the 100th placement iteration.</p><p>In our experiments, uncontrolled expansion of gate sizes can trigger a vicious cycle. Specifically, the placer may disperse neighboring gates of one upsized gate, which could worsen timing metrics and compel the sizer to increase gate sizes further to counteract this degradation. To mitigate potential optimization divergence, we have implemented several safeguards: Firstly, we clip the gradient of each gate size within the range [-0.3, 0.3] to prevent gradient explosion. Additionally, gate sizes are constrained to remain within legal values each iteration, adjusted if they fall below 1 or exceed s 𝑔 max . Moreover, we employ a preconditioning strategy to moderate the influence of the gate size gradient. For each gate 𝑔 with its size s 𝑔 , the gradient is scaled down by a factor determined by the following formula:</p><formula xml:id="formula_23">#pins(𝑔) + 𝜆 1 × Area 𝑔 (s 𝑔 ),<label>(20)</label></formula><p>where #pins(𝑔) represents the number of pins of gate 𝑔, Area 𝑔 (s 𝑔 ) denotes the area of gate 𝑔 with size s 𝑔 , and 𝜆 1 is the density penalty weights for placer, a gradually increasing value that promotes gate spreading. Additionally, since the density penalty and leakage power objectives can directly counteract excessive upsizing, the weights of these objectives are increased if gate density is high or the circuit scale is large.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">EXPERIMENTAL RESULTS</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Experimental Setup</head><p>We implement our proposed fusion flow combining global placement and gate size optimization using C++ and CUDA kernels, based on the open-source placer DREAMPlace <ref type="bibr" target="#b10">[11]</ref>. Our environmental setup includes a server equipped with a 40-core Intel Xeon Gold 6230 CPU at 2.10 GHz, 256GB RAM, and an Nvidia A40 GPU with 48GB of memory. We evaluate our performance on large industrial designs sourced from eight open-source CircuitNet-N28 <ref type="bibr" target="#b41">[42]</ref> datasets, all synthesized under a 28nm commercial technology node.</p><p>Our wire unit RC also follows this library. Detailed benchmark statistics are presented in Table <ref type="table" target="#tab_8">3</ref>. These benchmarks vary in scale and complexity, reflecting a range of real-world design scenarios. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Results and Analysis</head><p>We compare our newly developed flow with the open-source Open-ROAD <ref type="bibr" target="#b2">[3]</ref> flow, representing a traditional design flow that separates global placement and gate sizing. In OpenROAD, we conduct global placement with timing_driven option enabled for the fairness of comparison. The OpenROAD timing-driven gate resizer<ref type="foot" target="#foot_0">foot_0</ref> leverages local optimizations to adjust gate sizes based on timing analysis feedback incrementally. As discussed in Section 2, this represents a heuristic approach to gate sizing optimization. Additionally, the OpenROAD timing repairer includes not only a resizer but also other design steps like pin swapping and buffer insertion. Therefore, to ensure the fairness and authenticity of our experiments, we also apply an OpenROAD sizer after our flow, as shown in Figure <ref type="figure" target="#fig_1">1</ref>.</p><p>After the OpenROAD sizer, some gates may not fit into the original placement layout, requiring an additional OpenROAD detailed placement to ensure legal and compatible results. Apart from OpenROAD flow, for a thorough evaluation, we also acquired the binary executable file from authors of <ref type="bibr" target="#b18">[19]</ref> and conduct an ablation study<ref type="foot" target="#foot_1">foot_1</ref> that performs timing-driven placement-only optimization. Gate size will only be optimized by the OpenROAD sizer to further prove that simultaneous optimization of gate positions and gate sizes is more effective than the traditional approach.</p><p>To summarize, OpenROAD's flow incorporates a timing-driven global placement, timing-driven gate sizing, and detailed placement. Our fusion flow consists of a novel fusion of global placement and gate sizing, followed by DREAMPlace's <ref type="bibr" target="#b10">[11]</ref> greedy and abacus legalization, and then followed by OpenROAD timing-driven sizer and detailed placement. The ablation study includes the timingdriven global placement <ref type="bibr" target="#b18">[19]</ref>, OpenROAD timing-driven sizer, and detailed placement.</p><p>The metrics for our evaluation, including TNS, WNS, and leakage power, are reported by OpenSTA <ref type="bibr" target="#b44">[45]</ref>, one of the most widely used power and static timing analysis tools. Notably, our baseline Open-ROAD sizer embeds OpenSTA as RC and timing calculation engine that is the same as our evaluator, whereas our approach employs a custom differentiable timing engine to enable gradient-based optimization. Given the inherent discrepancies between different timing engines for placement-stage timing estimation, the optimization directions might differ slightly. Therefore, the OpenROAD sizer added to our flow also plays a role in mitigating this discrepancy and ensuring both can be compared under OpenSTA reports.  As depicted in Table <ref type="table" target="#tab_9">4</ref>, our approach yields a significant average improvement of 77.1% (1-1/4.37) in TNS and 43.5% (1-1/1.77) in WNS compared to the OpenROAD flow. Meanwhile, our method achieves an average reduction in leakage power consumption by 1% (1-1/1.01), highlighting its capability to balance power and performance effectively. In addition, the ablation study, in which gate size remains static during timing-driven global placement and will only be optimized by OpenROAD, further proves the benefit of our fusion optimization strategy that explores a larger joint search space between placement and sizing. We conduct an additional ablation study to prove the effectiveness of our discretization loss by removing that L1 loss from the objective. The results shown in Figure <ref type="figure" target="#fig_11">6</ref> demonstrate that our overall performance will deteriorate for the largest design, OpenC910-1, once the discretization loss objective is removed.</p><p>For the large designs evaluated, including NVDLA-small and OpenC910-1, our approach offers substantial benefits in optimizing TNS and WNS despite exhibiting a higher leakage power than the conventional OpenROAD flow. This is crucial for high-performance designs, where timing closure is a critical challenge. Our method not only enhances timing and power metrics but also significantly improves the efficiency of the entire placement flow, achieving an average 3× speed-up compared to the baseline OpenROAD flow, as detailed in Table <ref type="table" target="#tab_10">5</ref>. As the scale and complexity of the designs increase, the acceleration ratio can reach up to approximately 7× for NVDLA-small and OpenC910-1 designs. This enhancement  largely benefits from the heterogeneous GPU acceleration and the efficiency of the differentiable optimization framework. A notable bottleneck in our method is the OpenROAD sizer, a sequential process that takes much runtime. This runtime cost can be lowered with the fusion of sizing, buffering, and pin swapping into early design stages in future works.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">CONCLUSION</head><p>In this paper, we introduce a pioneering approach to VLSI design that integrates global placement with gate sizing to optimize PPA metrics more effectively. Leveraging differentiable objective functions and GPU-accelerated computation, our method not only significantly enhances design quality but also provides a substantial acceleration, achieving up to a 7× acceleration in speed compared to the traditional OpenROAD flow. Our experimental results demonstrate remarkable improvements in timing and power metrics, with an average enhancement of 77.1% in TNS and 43.5% in WNS, while achieving a 1% reduction in leakage power consumption. Our future work includes adding more optimization strategies such as pin swapping within this framework. We believe our work opens up new possibilities for differentiable and fusion strategies in EDA and will inspire further research in this field.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Traditional design flow versus the proposed flow.Yellow boxes represent OpenROAD<ref type="bibr" target="#b2">[3]</ref> steps, and green boxes represent our steps. For the completeness of the optimization, we also use OpenROAD sizer after our fusion framework because it includes additional optimization steps like pin swapping and buffer insertion for fair comparison.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Illustration of linear interpolation on different metrics and discretization loss.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head></head><label></label><figDesc>of TNS and WNS by simultaneously determining gate positions x, y and gate sizes s.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head></head><label></label><figDesc>bc pin positions, Steiner points, etc.(a) Gradient flow in slew propagation.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head></head><label></label><figDesc>Gradient flow in delay propagation.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Gradient flows for differentiable timing objectives with respect to both gate sizes and locations. We split the flow into 2 figures due to its complexity.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: GPU-accelerated fusion framework.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Comparison across different flows on the largest design, OpenC910-1. Metrics are normalized based on results from our proposed flow.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 1 :</head><label>1</label><figDesc>The analogy between placement and ML problems<ref type="bibr" target="#b10">[11]</ref>.</figDesc><table><row><cell>Machine Learning</cell><cell>Placement</cell></row><row><cell cols="2">Train a neural network Solve global placement</cell></row><row><cell>Neural network weights</cell><cell>Gate positions</cell></row><row><cell>Training data</cell><cell>Netlist</cell></row><row><cell>Loss function</cell><cell>Wirelength objective</cell></row><row><cell>Regularization</cell><cell>Density constraint</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 2 :</head><label>2</label><figDesc>Summary of notations. 𝑔 ) Leakage power of gate 𝑔 with size s 𝑔 Area 𝑔 (s 𝑔 ) Area of gate 𝑔 with size s 𝑔 Cap 𝑖 (s 𝑔 )</figDesc><table><row><cell cols="2">Notation Description</cell></row><row><cell>G</cell><cell>Set of gates</cell></row><row><cell>S 𝑔</cell><cell>Set of available sizes for gate 𝑔</cell></row><row><cell>E</cell><cell>Set of edges in the timing graph</cell></row><row><cell>N end</cell><cell>Set of end nodes in the timing graph</cell></row><row><cell>s</cell><cell>Set of gate sizes</cell></row><row><cell>s 𝑔</cell><cell>Size for gate 𝑔</cell></row><row><cell>x, y</cell><cell>Set of gate positions</cell></row><row><cell>𝑑 𝑖 𝑗 (s 𝑔 )</cell><cell>Delay from node 𝑖 to node 𝑗</cell></row><row><cell>𝑎 𝑖</cell><cell>Arrival time at node 𝑖</cell></row><row><cell>𝑡</cell><cell>Clock period</cell></row><row><cell>𝑡 setup</cell><cell>Setup time</cell></row><row><cell cols="2">Leak 𝑔 (s Capacitance of the pin 𝑖 with its</cell></row><row><cell></cell><cell>corresponding gate size s 𝑔</cell></row><row><cell>Load 𝑖 (s)</cell><cell>Load capacitance at output pin 𝑖</cell></row><row><cell>Slew 𝑖 (s)</cell><cell>Transition time at input pin 𝑖</cell></row><row><cell cols="2">𝑊 𝐿(𝑒; x, y) Wirelength of net 𝑒 with gate positions x, y</cell></row><row><cell>𝐷 (x, y)</cell><cell>Density penalty with gate positions x, y</cell></row><row><cell cols="2">the capabilities of modern neural network training toolkits, makes</cell></row><row><cell cols="2">applying GPU acceleration a natural choice.</cell></row><row><cell cols="2">Timing optimization is necessary to achieve timing closure. The</cell></row><row><cell cols="2">literature has explored two categories of techniques that can be</cell></row><row><cell cols="2">integrated into nonlinear global placement: net-based methods and</cell></row><row><cell cols="2">path-based methods.</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head></head><label></label><figDesc>) Differentiable Parasitics Extraction: Given the coordinates of net pins and Steiner points, the resistances and capacitances (RCs) are extracted as input to signal delay models. The RCs follow a simple differentiable extraction model that assumes a linear relation between Manhattan distance and RC values, defined as part of the technology process. We note that the capacitances also include the load of sink pins determined by the type and size of the corresponding receiver gates, which are regarded as constants in<ref type="bibr" target="#b18">[19]</ref>.(3) Differentiable Net Delay Modeling: With the parasitics information, signal delay on interconnects is calculated using the Elmore delay model. This model is differentiable through 4 tree-based dynamic programming<ref type="bibr" target="#b18">[19]</ref> that propagates net delay gradients back to the parasitic values. (4) Differentiable Gate Delay Modeling and Propagation: The gate delay is calculated using the non-linear delay model (NLDM), which consists of piecewise linear look-up tables (LUTs) indexed by input voltage slew and output capacitive load. The output load is obtained as part of the differentiable parasitics information. The input slew is recursively defined and propagated throughout the logic level of the entire design. We note that LUTs are part of the technology library and are determined by the type and size of gates.</figDesc><table /><note><p><p><ref type="bibr" target="#b4">(5)</ref> </p>Differentiable WNS and TNS Calculation: With the available signal arrival time at the endpoint for each timing path, WNS and TNS can be calculated. Several techniques, such as max value smoothing, are involved in this process.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>Table 3 :</head><label>3</label><figDesc>CircuitNet<ref type="bibr" target="#b41">[42]</ref> benchmark statistics.</figDesc><table><row><cell cols="5">Benchmark Period (ns) #Macros #Cells #Nets</cell><cell>#Pins</cell></row><row><cell>RISCY-a</cell><cell>2.0</cell><cell>3</cell><cell>54079</cell><cell>54635</cell><cell>211308</cell></row><row><cell>RISCY-FPU-a</cell><cell>2.0</cell><cell>3</cell><cell>81001</cell><cell>81777</cell><cell>303014</cell></row><row><cell>zero-riscy-a</cell><cell>2.0</cell><cell>3</cell><cell>46390</cell><cell>46089</cell><cell>172731</cell></row><row><cell>RISCY-b</cell><cell>2.0</cell><cell>13</cell><cell>34664</cell><cell>36420</cell><cell>129794</cell></row><row><cell>RISCY-FPU-b</cell><cell>2.0</cell><cell>13</cell><cell>63823</cell><cell>60428</cell><cell>210901</cell></row><row><cell>zero-riscy-b</cell><cell>2.0</cell><cell>13</cell><cell>21738</cell><cell>22902</cell><cell>81481</cell></row><row><cell>NVDLA-small</cell><cell>2.0</cell><cell>108</cell><cell cols="3">338280 353608 1236682</cell></row><row><cell>OpenC910-1</cell><cell>3.0</cell><cell>32</cell><cell cols="3">808686 818218 3265940</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head>Table 4 :</head><label>4</label><figDesc>Timing and leakage power comparison between the OpenROAD<ref type="bibr" target="#b2">[3]</ref> flow, an ablation study that includes timing-driven global placement<ref type="bibr" target="#b18">[19]</ref> and gate sizing by OpenROAD, and our flow. The best results are highlighted in bold.</figDesc><table><row><cell>Benchmark</cell><cell cols="9">OpenROAD [3] Flow TNS (ns) WNS (ns) Power (mW) TNS (ns) WNS (ns) Power (mW) TNS (ns) WNS (ns) Power (mW) Separate Flow ([19] and [3]) Ours</cell></row><row><cell>RISCY-a</cell><cell>-515.51</cell><cell>-0.23</cell><cell>1.11</cell><cell>-611.05</cell><cell>-0.18</cell><cell>1.10</cell><cell>-192.31</cell><cell>-0.15</cell><cell>1.11</cell></row><row><cell>RISCY-FPU-a</cell><cell>-822.06</cell><cell>-0.23</cell><cell>1.88</cell><cell>-1730.32</cell><cell>-0.40</cell><cell>1.86</cell><cell>-497.34</cell><cell>-0.21</cell><cell>1.88</cell></row><row><cell>zero-riscy-a</cell><cell>-2.40</cell><cell>-0.05</cell><cell>1.19</cell><cell>-10.88</cell><cell>-0.05</cell><cell>1.17</cell><cell>-2.31</cell><cell>-0.03</cell><cell>1.13</cell></row><row><cell>RISCY-b</cell><cell>-456.28</cell><cell>-0.26</cell><cell>0.833</cell><cell>-310.40</cell><cell>-0.13</cell><cell>0.822</cell><cell>-271.95</cell><cell>-0.13</cell><cell>0.823</cell></row><row><cell>RISCY-FPU-b</cell><cell>-803.78</cell><cell>-0.71</cell><cell>1.56</cell><cell>-1147.10</cell><cell>-0.52</cell><cell>1.54</cell><cell>-881.1</cell><cell>-0.44</cell><cell>1.54</cell></row><row><cell>zero-riscy-b</cell><cell>-46.07</cell><cell>-0.21</cell><cell>0.574</cell><cell>-40.27</cell><cell>-0.12</cell><cell>0.567</cell><cell>-23.92</cell><cell>-0.10</cell><cell>0.567</cell></row><row><cell cols="2">NVDLA-small -2850.55</cell><cell>-0.97</cell><cell>6.28</cell><cell>-780.79</cell><cell>-0.32</cell><cell>6.31</cell><cell>-154.05</cell><cell>-0.32</cell><cell>6.38</cell></row><row><cell>OpenC910-1</cell><cell>-7176.30</cell><cell>-0.71</cell><cell>9.60</cell><cell>-8535.54</cell><cell>-0.77</cell><cell>9.86</cell><cell>-1097.02</cell><cell>-0.64</cell><cell>9.92</cell></row><row><cell>Avg. Ratio</cell><cell>4.37</cell><cell>1.77</cell><cell>1.01</cell><cell>3.54</cell><cell>1.29</cell><cell>1.00</cell><cell>1.00</cell><cell>1.00</cell><cell>1.00</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_10"><head>Table 5</head><label>5</label><figDesc></figDesc><table><row><cell cols="10">: Runtime comparison for different design bench-</cell></row><row><cell cols="10">marks. Column names represent: GP (OpenROAD Global</cell></row><row><cell cols="10">Placement), Sizer (OpenROAD Gate Sizing), DP (OpenROAD</cell></row><row><cell cols="10">Detailed Placement), Fusion (Our Placement and Gate</cell></row><row><cell cols="10">Sizing), Legal. (DREAMPlace Legalization), and Total (Total</cell></row><row><cell cols="8">Runtime). The best results are highlighted in bold.</cell><cell></cell><cell></cell></row><row><cell>Design</cell><cell cols="9">OpenROAD Flow (s) GP Sizer DP Total Fusion Legal. Sizer DP Total Ours (s)</cell></row><row><cell>RISCY-a</cell><cell>237</cell><cell>18</cell><cell>2</cell><cell>257</cell><cell>95</cell><cell>1</cell><cell>14</cell><cell>1</cell><cell>111</cell></row><row><cell>RISCY-FPU-a</cell><cell>340</cell><cell>105</cell><cell>1</cell><cell>446</cell><cell>109</cell><cell>1</cell><cell>173</cell><cell>1</cell><cell>284</cell></row><row><cell>zero-riscy-a</cell><cell>180</cell><cell>7</cell><cell>10</cell><cell>197</cell><cell>89</cell><cell>1</cell><cell>8</cell><cell>1</cell><cell>99</cell></row><row><cell>RISCY-b</cell><cell>149</cell><cell>7</cell><cell>1</cell><cell>157</cell><cell>75</cell><cell>1</cell><cell>11</cell><cell>1</cell><cell>88</cell></row><row><cell>RISCY-FPU-b</cell><cell>244</cell><cell>115</cell><cell>1</cell><cell>360</cell><cell>89</cell><cell>1</cell><cell>125</cell><cell>1</cell><cell>216</cell></row><row><cell>zero-riscy-b</cell><cell>124</cell><cell>17</cell><cell>1</cell><cell>142</cell><cell>65</cell><cell>1</cell><cell>21</cell><cell>1</cell><cell>88</cell></row><row><cell cols="2">NVDLA-small 1511</cell><cell>97</cell><cell>7</cell><cell>1615</cell><cell>212</cell><cell>2</cell><cell>17</cell><cell>3</cell><cell>234</cell></row><row><cell>OpenC910-1</cell><cell>4678</cell><cell>917</cell><cell>8</cell><cell>5603</cell><cell>287</cell><cell>3</cell><cell>577</cell><cell>5</cell><cell>872</cell></row><row><cell>Avg. Ratio</cell><cell></cell><cell></cell><cell></cell><cell>3.03</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell>1.00</cell></row></table><note><p>* The running time for each step is rounded up to the nearest integer.</p></note></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_0"><p>In OpenROAD, it is invocated using repair_timing command.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="4" xml:id="foot_1"><p>The test result is different from<ref type="bibr" target="#b42">[43]</ref> due to multiple differences in our experimental setup. We use OpenSTA for timing report while<ref type="bibr" target="#b42">[43]</ref> uses evaluation timer and wire unit RC settings from ICCAD 2015 contest<ref type="bibr" target="#b43">[44]</ref>. Furthermore, our flow introduces a detailed sizer in flow which is not present in<ref type="bibr" target="#b42">[43]</ref>.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head>ACKNOWLEDGE</head><p>This work is supported in part by <rs type="funder">STIC</rs>, the <rs type="funder">Natural Science Foundation of Beijing, China</rs> (Grant No. <rs type="grantNumber">Z230002</rs>), and 111 project (<rs type="grantNumber">B18001</rs>).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_V6rf8Sz">
+					<idno type="grant-number">Z230002</idno>
+				</org>
+				<org type="funding" xml:id="_hxYkjWW">
+					<idno type="grant-number">B18001</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Strongly np-hard discrete gate-sizing problems</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Ning</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">13</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1045" to="1051" />
+			<date type="published" when="1994">1994</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Cadence Design Systems</title>
+	</analytic>
+	<monogr>
+		<title level="j">Innovus User Guide</title>
+		<imprint>
+			<biblScope unit="issue">13</biblScope>
+			<date type="published" when="2022">2022</date>
+			<publisher>Cadence Design Systems, Inc</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<monogr>
+		<ptr target="https://github.com/The-OpenROAD-Project/OpenROAD" />
+		<title level="m">The-OpenROAD-Project</title>
+		<imprint>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">GitHub repository</note>
+	<note>Openroad</note>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Shift left trends for design convergence in soc: An eda perspective</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Bhardwaj</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">International Journal of Computer Applications</title>
+		<imprint>
+			<biblScope unit="volume">174</biblScope>
+			<biblScope unit="issue">16</biblScope>
+			<biblScope unit="page" from="22" to="27" />
+			<date type="published" when="2021-01">Jan 2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Ntuplace3: An analytical placer for large-scale mixed-size designs with preplaced blocks and density constraints</title>
+		<author>
+			<persName><forename type="first">T.-C</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1228" to="1240" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Ntuplace4h: A novel routability-driven placement algorithm for hierarchical mixed-size circuit designs</title>
+		<author>
+			<persName><forename type="first">M.-K</forename><surname>Hsu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="1914" to="1927" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">eplace: Electrostatics-based placement using fast fourier transform and nesterov&apos;s method</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Trans. Des. Autom. Electron. Syst</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<date type="published" when="2015-03">mar 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Replace: Advancing solution quality and routability validation in global placement</title>
+		<author>
+			<persName><forename type="first">C.-K</forename><surname>Cheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">38</biblScope>
+			<biblScope unit="issue">9</biblScope>
+			<biblScope unit="page" from="1717" to="1730" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Generalized augmented lagrangian and its applications to vlsi global placement</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Zhu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2018 55th ACM/ESDA/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">eplace-ms: Electrostatics-based placement for mixed-size circuits</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">34</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="685" to="698" />
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Dreamplace: Deep learning toolkit-enabled gpu acceleration for modern vlsi placement</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="748" to="761" />
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Net criticality revisited: an effective method to improve timing in physical design</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM International Symposium on Physical Design (ISPD)</title>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="155" to="160" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A novel net weighting algorithm for timing-driven placement</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Kong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="172" to="176" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">A based placer for standard cells</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Halpin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">R</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Sehgal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 10th Great Lakes Symposium on VLSI</title>
+		<meeting>the 10th Great Lakes Symposium on VLSI</meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2000">2000</date>
+			<biblScope unit="page" from="193" to="196" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Sensitivity guided net weighting for placementdriven synthesis</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Kung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="711" to="721" />
+			<date type="published" when="2005">2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">Timing-driven placement by grid-warping</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Xiu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Rutenbar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings. 42nd Design Automation Conference</title>
+		<meeting>42nd Design Automation Conference</meeting>
+		<imprint>
+			<date type="published" when="2005">2005. 2005</date>
+			<biblScope unit="page" from="585" to="590" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Dreamplace 4.0: Timing-driven global placement with momentumbased net weighting</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Liao</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM Proceedings Design, Automation and Test in Eurpoe</title>
+		<meeting><address><addrLine>DATE</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="939" to="944" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">How accurately can we model timing in a placement engine?</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chowdhary</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="801" to="806" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Differentiable-timing-driven global placement</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1315" to="1320" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Calibration-based differentiable timing optimization in non-linear global placement</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM International Symposium on Physical Design (ISPD)</title>
+		<meeting><address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computing Machinery</publisher>
+			<date type="published" when="2024">2024</date>
+			<biblScope unit="page" from="31" to="39" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Gpu-based parallelization for fast circuit optimization</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="943" to="946" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Gate sizing for cell-library-based designs</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ketkar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">28</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="818" to="825" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">A new algorithm for simultaneous gate sizing and threshold voltage assignment</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">29</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="223" to="234" />
+			<date type="published" when="2010">2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Tilos: A posynomial programming approach to transistor sizing</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Fishburn</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Int. Conf. On Computer-Aided Design</title>
+		<meeting>Int. Conf. On Computer-Aided Design</meeting>
+		<imprint>
+			<date type="published" when="2003">2003</date>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="236" to="238" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Sensitivity-guided metaheuristics for accurate discrete gate sizing</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="233" to="239" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">High-performance gate sizing with a signoff timer</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Computer-Aided Design, ser. ICCAD &apos;13</title>
+		<meeting>the International Conference on Computer-Aided Design, ser. ICCAD &apos;13</meeting>
+		<imprint>
+			<publisher>IEEE Press</publisher>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="450" to="457" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Rl-sizer: Vlsi gate sizing for timing optimization using deep reinforcement learning</title>
+		<author>
+			<persName><forename type="first">Y.-C</forename><surname>Lu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+			<biblScope unit="page" from="733" to="738" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">Transsizer: A novel transformer-based fast gate sizer</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Nath</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Dagsizer: A directed graph convolutional network approach to discrete gate sizing of vlsi graphs</title>
+		<author>
+			<persName><forename type="first">C.-K</forename><surname>Cheng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">TODAES</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Agd: A learning-based optimization framework for eda and its application to gate sizing</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Pham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chung</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<monogr>
+		<title level="m" type="main">Learning-driven physically-aware large-scale circuit gate sizing</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ye</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/2403.08193" />
+		<imprint>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Fast and exact simultaneous gate and wire sizing by lagrangian relaxation</title>
+		<author>
+			<persName><forename type="first">C.-P</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1014" to="1025" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Provably fast and near-optimum gate sizing</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Daboul</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="3163" to="3176" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b33">
+	<analytic>
+		<title level="a" type="main">Fast and exact simultaneous gate and wire sizing by lagrangian relaxation</title>
+		<author>
+			<persName><forename type="first">C.-P</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">18</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1014" to="1025" />
+			<date type="published" when="1999">1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b34">
+	<analytic>
+		<title level="a" type="main">Integrating lr gate sizing in an industrial place-androute flow</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chinnery</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sharma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">ACM International Symposium on Physical Design (ISPD)</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="39" to="48" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b35">
+	<analytic>
+		<title level="a" type="main">Fast lagrangian relaxation-based multithreaded gate sizing using simple timing calibrations</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sharma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">39</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1456" to="1469" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b36">
+	<analytic>
+		<title level="a" type="main">Algorithms for gate sizing and device parameter selection for high-performance designs</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">M</forename><surname>Ozdal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Burns</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="1558" to="1571" />
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b37">
+	<analytic>
+		<title level="a" type="main">Task-based parallel programming for gate sizing</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Mangiras</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Chinnery</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Dimitrakopoulos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="1309" to="1322" />
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b38">
+	<analytic>
+		<title level="a" type="main">Heterogeneous graph neural network-based imitation learning for gate sizing acceleration</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Fast lagrangian relaxation based gate sizing using multithreading</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Sharma</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2015 IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="426" to="433" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b40">
+	<analytic>
+		<title level="a" type="main">FLUTE: Fast lookup table based rectilinear steiner minimal tree algorithm for VLSI design</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-C</forename><surname>Wong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems (TCAD)</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="70" to="83" />
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b41">
+	<analytic>
+		<title level="a" type="main">CircuitNet: An open-source dataset for machine learning in vlsi cad applications with improved domain-specific evaluation metric and learning strategies</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Chai</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+			<publisher>TCAD)</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b42">
+	<analytic>
+		<title level="a" type="main">Accelerating routability and timing optimization with opensource ai4eda dataset circuitnet and heterogeneous platforms</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Jiang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2023 IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b43">
+	<analytic>
+		<title level="a" type="main">ICCAD-2015 CAD contest in incremental timing-driven placement and benchmark suite</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="921" to="926" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b44">
+	<monogr>
+		<ptr target="https://github.com/The-OpenROAD-Project/OpenSTA" />
+		<title level="m">Parallax static timing analyzer</title>
+		<imprint>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">GitHub repository</note>
+	<note>The-OpenROAD-Project</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

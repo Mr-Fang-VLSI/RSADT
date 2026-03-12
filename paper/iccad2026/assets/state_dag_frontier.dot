@@ -1,0 +1,30 @@
+digraph state_dag_frontier {
+  rankdir=LR;
+  graph [dpi=180, bgcolor="white"];
+  node [shape=box, style="rounded,filled", fillcolor="#f7f7f7", color="#333333", fontname="Helvetica", fontsize=12];
+  edge [color="#555555", fontname="Helvetica", fontsize=11];
+
+  s0 [label="Level 0\n(0,0,0)"];
+  s1a [label="Level 1\n(1,0,0)"];
+  s1b [label="Level 1\n(0,1,0)\ninvalid"];
+  s2a [label="Level 2\n(2,0,0)"];
+  s2b [label="Level 2\n(1,1,0)"];
+  s2c [label="Level 2\n(1,0,1)\ninvalid"];
+  s3a [label="Level 3\n(2,1,0)"];
+  s3b [label="Level 3\n(1,1,1)"];
+  st [label="Sink\n(h,h,h)", fillcolor="#eef7ee"];
+
+  s1b [fillcolor="#fdecec", color="#aa6666"];
+  s2c [fillcolor="#fdecec", color="#aa6666"];
+
+  s0 -> s1a [label="place next in row 1"];
+  s0 -> s1b [style=dashed, color="#aa6666", label="breaks monotonicity"];
+  s1a -> s2a [label="row 1 again"];
+  s1a -> s2b [label="row 2"];
+  s1a -> s2c [style=dashed, color="#aa6666", label="row 3 invalid"];
+  s2a -> s3a [label="row 2"];
+  s2b -> s3a [label="row 1"];
+  s2b -> s3b [label="row 3"];
+  s3a -> st [label="continue shortest path"];
+  s3b -> st [label="continue shortest path"];
+}

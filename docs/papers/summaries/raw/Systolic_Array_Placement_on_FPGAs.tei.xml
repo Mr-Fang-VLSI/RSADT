@@ -1,0 +1,869 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Systolic Array Placement on FPGAs</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Hailiang</forename><surname>Hu</surname></persName>
+							<email>hailiang@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. of Electrical and Computer Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Donghao</forename><surname>Fang</surname></persName>
+							<email>donghao@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. of Electrical and Computer Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Wuxi</forename><surname>Li</surname></persName>
+							<email>wuxi.li@amd.com</email>
+						</author>
+						<author>
+							<persName><forename type="first">Bo</forename><surname>Yuan</surname></persName>
+							<email>bo.yuan@soe.rutgers.edu</email>
+							<affiliation key="aff2">
+								<orgName type="department">Dept. of Electrical and Computer Engineering</orgName>
+								<orgName type="institution">Rutgers University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jiang</forename><surname>Hu</surname></persName>
+							<email>jianghu@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. of Electrical and Computer Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University</orgName>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">Dept. of Computer Science and Engineering</orgName>
+								<orgName type="institution">Texas A&amp;M University † AMD, Inc</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Systolic Array Placement on FPGAs</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">92F41C5B3387B9C5EA8C7CA333204BD7</idno>
+					<idno type="DOI">10.1109/ICCAD57390.2023.10323742</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:01+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Systolic Arrays</term>
+					<term>Placement</term>
+					<term>FPGA</term>
+					<term>CNN</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Systolic array designs have regained popularity in recent years, particularly for their applications in accelerating CNN (Convolutional Neural Network) computing in hardware, including on FPGAs. However, existing FPGA layout techniques are primarily designed for general-purpose applications and have not fully leveraged the regularity of systolic arrays to enhance solution quality. This paper presents a new algorithmic approach for systolic array placement on FPGAs. Our approach enables 23% -25% wirelength reduction for CNN circuits compared to an industrial tool and state-of-the-art academic methods. Moreover, it usually leads to significantly reduced routing resource utilization, accelerated placement runtime and improved timing performance.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>Systolic array is a VLSI architecture <ref type="bibr" target="#b0">[1]</ref> that enables massively parallel datapath computing with a highly regular topology and local data interconnects. In recent years, systolic arrays have regained popularity due to their applications in hardware acceleration for CNN (Convolutional Neural Network) computing, such as in Google TPU <ref type="bibr" target="#b1">[2]</ref> and FPGA-based CNN computing acceleration <ref type="bibr" target="#b2">[3]</ref>. However, the regular topology of systolic arrays has rarely been leveraged in automatic layout tools. In a study <ref type="bibr" target="#b3">[4]</ref>, it was noted that an FPGA placement tool overlooked regularity in a systolic array-based CNN design and the circuit timing could be significantly enhanced by incorporating regularity-based constraints. The 2D regularity of systolic arrays was exploited in ASIC (Application-Specific Integrated Circuit) cell placement <ref type="bibr" target="#b4">[5]</ref> and facilitated significant wirelength reduction. The regularity was also utilized to largely accelerate simulated annealingbased FPGA placement <ref type="bibr" target="#b5">[6]</ref>.</p><p>In this work, we study systolic array placement on FPGAs. In particular, we consider 2D systolic arrays, which are the most typical topology for CNN computing. Compared to ASICs, systolic array placement on FPGAs is notably more challenging. Since an ASIC silicon die is generally an open space for placement, a systolic array can be placed onto it with little restriction. By contrast, an FPGA consists of pre-fabricated elements, such as CLBs (Configurable Logic Blocks), DSP blocks and RAM blocks, which impose significant hard constraints on the placement of a systolic array. A typical FPGA architecture is illustrated in Figure <ref type="figure" target="#fig_1">1</ref>. The heterogeneity resulting from the CLB/DSP/RAM columns makes it very difficult to directly utilize the regularity of a systolic array, except in a few special cases.</p><p>Typically, a systolic array consists of a 2D array of Processing Elements (PEs), where each PE executes Multiply and Accumulate (MAC) operations. When placing systolic arrays on FPGAs, the previous work <ref type="bibr" target="#b5">[6]</ref> chose to place the PEs onto CLBs, which are less efficient for datapath computing compared to DSP blocks. Indeed, placing systolic array PEs on DSPs is more prevalent <ref type="bibr" target="#b3">[4]</ref>, <ref type="bibr" target="#b6">[7]</ref>. However, DSP columns are normally sparser than CLB columns, making it more challenging to accommodate a regular array of PEs.  Systolic arrays are placed on DSPs in RapidLayout <ref type="bibr" target="#b6">[7]</ref> using offthe-shelf evolutionary algorithm packages without dedicated attention to the 2D regularity. Also, RapidLayout is geared to solve a special problem of placing convolutional units, each of which occupies 18 DSPs, rather than typical systolic array placement <ref type="bibr" target="#b3">[4]</ref>- <ref type="bibr" target="#b5">[6]</ref>, where each PE corresponds to one DSP block. In <ref type="bibr" target="#b3">[4]</ref>, a greedy floorplan constraint is enforced for an existing FPGA layout tool to improve regularity of systolic array placement. State-of-the-art FPGA placement techniques <ref type="bibr" target="#b7">[8]</ref>- <ref type="bibr" target="#b10">[11]</ref> are general-purpose and do not distinguish systolic arrays from other designs. They also simultaneously handle CLBs, DSPs and RAMs. Overall, research on systolic array placement on FPGAs is quite limited and there lacks an efficient approach for leveraging the regularity of general CNN circuit designs.</p><p>In this work, we introduce a new approach to 2D systolic array placement on FPGAs exploiting the regularity. This approach is centered around a Region-wise Sweep in Alternating Direction (R-SAD) algorithm for placement on a single DSP column, which can simultaneously minimize intra-column wirelength and facilitate minimum inter-column wirelength. R-SAD achieves near-optimal solutions compared to ILP (Integer Linear Programming) solving while being tremendously faster. We also propose a partition enumeration and pruning technique, which is integrated with R-SAD for generating 2D array placement solutions. When used as a preprocessing for general FPGA placement, our approach usually leads to improvement on all of wirelength, routing resource utilization, placement runtime and circuit timing performance for CNN designs. The main contributions of this work are summarized as follows.</p><p>• We develop a linear complexity Region-wise Sweep in Alternating Direction (R-SAD) algorithm for placement of systolic array kernels on a single DSP column. R-SAD achieves near-optimal solution compared to ILP solving and is over 50K× faster. • A partition enumeration and pruning technique is developed to utilize R-SAD for 2D array placement, which is integrated with general FPGA placement for the layout of systolic-array based CNN circuit designs. • We demonstrate an improvement of 23% -25% in half-perimeter wirelength, 19% -22% in routing resource utilization, and 3% to 10% less runtime compared to existing industrial and academic FPGA placement tools.</p><p>• Our approach increases the maximum frequency by 1% -3% on average compared to an existing industrial and academic FPGA placement tools.  A typical architecture for a systolic array-based CNN circuit can be seen in Figure <ref type="figure" target="#fig_2">2</ref>. The architecture includes a global buffer, often implemented using SRAM, a 2D array of PEs (Processing Elements), and control logic beside the PE array. Data communication is usually handled using a network-on-chip. Each PE consists of a MAC (Multiply and Accumulate) unit, a register file, and intra-PE control circuitry. The systolic array, which is the 2D PE array, not only has a regular topology but also has only local data interconnects. This means that the data interconnects between PEs are restricted to their neighbors.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. SYSTOLIC ARRAY-BASED CNN CIRCUIT</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. HOW TO LEVERAGE THE REGULARITY?</head><p>A straightforward approach to leverage the regularity is to retain the regularity as the 3 × 3 array example shown in Figure <ref type="figure" target="#fig_4">3(a)</ref>. However, such an approach has some significant drawbacks:</p><p>1) It is often infeasible. The number of DSP columns in an FPGA is usually less than 10 while the systolic array dimensions of a CNN circuit can easily reach 16 × 16 and beyond. Hence, it is often impossible to let each systolic array column to occupy an entire DSP column for keeping the regularity. 2) Even when the number of systolic array columns is no greater than the number of DSP columns, this approach may result in inferior solutions due to the fact that the distance between two neighboring DSP columns is often much larger than the distance between two neighboring DSP blocks in the same column. For the example in Figure <ref type="figure" target="#fig_4">3</ref>, if we pack the three systolic array columns into two DSP columns as in (b), the HPWL (Half-Perimeter Wire-Length) can be reduced from 30 to 28, although the regularity is not retained. 3) When keeping the regularity is infeasible, even an effort to approximate the regularity can be harmful for the same reason as the previous item. Figure <ref type="figure" target="#fig_6">4</ref> demonstrates the placement solutions for a CNN circuit with an 8 × 8 systolic array from Vivado and our placement method. The Vivado solution occupies 4 DSP columns and is closer to the square aspect ratio of 1 : 1 compared to our approach. However, the solution of our method reduces HPWL by 13%. Without an effort to retain or approximate the regularity, how can we leverage the regularity for better placement solutions? Here is the answer: the regularity provides a nice problem structure that facilitates efficient solution search for minimizing wirelength. An    analogy is that it is much easier to find the maximum value in a set of sorted numbers than in a set of unsorted numbers. Performing evolutionary algorithms for the placement of a regular structure can be likened to searching for the maximum value among sorted numbers using enumeration. Indeed, the regularity of systolic arrays is heavily utilized in our R-SAD algorithm and partition enumeration/pruning technique.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. CNN CIRCUIT PLACEMENT METHODOLOGY</head><p>Usually, a DSP block can only accommodate the MAC unit of a PE and the rest of the PE needs to be placed in CLB/RAMs nearby. As such, we propose the following two-phase methodology for the placement of systolic array-based CNN circuits.</p><p>• Phase 1: MAC array placement on DSPs by our algorithm.</p><p>• Phase 2: placement of the rest circuit, including global buffer, control logic, and register files and intra-PE control of PEs, using a conventional FPGA tool with the MAC array locations fixed. One can treat the MACs as the backbone of a systolic array. By considering only the backbone, Phase 1 can be focused on leveraging the regularity without worrying other details, such as the connections between register files and MACs. Once the locations of MACs are fixed after Phase 1, the other wirelength, e.g., those between register files and MACs, and the connections between PEs and the global buffers, can be minimized by conventional tools in Phase 2, which are the best techniques so far for handling irregular designs. Please note that there is no direct wire connection between IO pins and PEs as IO pins are mostly connected with the global buffer. As such, the wirelength related to IO pins is also minmized in Phase 2.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. MAC ARRAY PLACEMENT PROBLEM</head><p>Given an m × n array of MACs, each of which corresponds to a PE in the given systolic array, and a set of DSP columns of a specific FPGA architecture, our algorithm is to place the MACs onto DSP slots, where DSP blocks are located, such that the total wirelength among the MACs is minimized.</p><p>The m×n MAC array can be described by a grid graph G=(V, E), where V ={v1, v2, ..., v |V | } is a set of vertices, each corresponding to a MAC, and E={e1, e2, ..., e |E| } is a set of edges indicating the interconnect between the PEs corresponding to the MACs. Please note |V |=m•n and |E|=m(n -1) + n(m -1). A vertex v ∈ V can be alternatively represented by vi,j, where i and j are row and column indices, respectively, and 1 ≤ i ≤ m and 1 ≤ j ≤ n. The edge connecting two vertices vi,j and vp,q can be represented as e(vi,j, vp,q). The edges are restricted to neighboring vertices, i.e., there is an edge between vi,j and vp,q if and only if |i-p|+|j-q|=1.</p><p>The given DSP slots also form a k ×l array and can be represented by P = {p1,1, p2,1, ..., p k,1 , p1,2, p2,2..., p k,l }, where pi,j indicates a slot in the i-th row and j-th column. Each slot pi,j ∈ P has a location specified by x(pi,j) = j•dH and y(pi,j) = i•dV , where dH (dV ) is the horizontal (vertical) distance between adjacent DSP columns (rows), respectively. Normally, dH &gt;&gt;dV , k&gt;&gt;l and n&gt;l. MAP (MAC Array Placement) Problem: Given a grid graph G = (V, E) representing a MAC array and an array of DSP slots P satisfying |P | ≥ |V |, find the mapping f : V → P such that the total half-perimeter wirelength (HPWL)</p><formula xml:id="formula_0">L(f ) = e(v i ,v j )∈E |x(f (vi)) -x(f (vj))| + |y(f (vi)) -y(f (vj))| is minimized.</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. MAC ARRAY PLACEMENT ALGORITHM</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Overview</head><p>Our MAC array placement algorithm consists of three steps: </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Step 1: Partition Candidate Generation</head><p>In this step, the given MAC array is partitioned into a set of subarrays, each of which will be placed onto a distinct DSP column. For example, in Figure <ref type="figure" target="#fig_9">5</ref>(b), the 5 × 3 array is partitioned into two subarrays, which are indicated by different colors and will be placed onto two separate DSP columns. At this step, it is unclear which partitioning would eventually lead to the solution with the minimum HPWL. Thus, we enumerate multiple candidate solutions, including the case of single sub-array like in Figure <ref type="figure" target="#fig_9">5(a)</ref>.</p><p>We preserve the MAC columns intact during the partitioning, i.e., the MACs in the same column are never partitioned into different sub-arrays. There are two motivations behind this approach. First, the dimension of a MAC array is usually close to square (m ≈ n) whereas the DSP arrays are generally tall and thin (k &gt;&gt; l). Therefore, a MAC column height is less than that of a DSP column (m &lt; k) when |P | ≥ |V |. Therefore, we can usually pack one or multiple MAC columns into a single DSP column and there is no need to split a MAC column into different DSP columns. Second,  with MAC columns intact, we can enumerate partitioning options in an exhaustive manner with polynomial complexity.  The pseudo-code of our partition candidate generation is provided in Algorithm 1. The set of candidates is initialized in line 1. The for-loop starting from line 2 enumerates candidates of different sizes in terms of the number of sub-arrays. Figure <ref type="figure" target="#fig_9">5</ref> shows candidates with sizes of 1, 2, 3 and 5. For each size, we obtain at most one candidate, which is a set of sub-arrays initialized in line 3. Line 4 defines the width or the maximum number of columns for the sub-arrays in a candidate. For example, in Figure <ref type="figure" target="#fig_9">5</ref>(c), w = ⌈5/3⌉ = 2. The whileloop starting from line 6 sweeps the MAC columns from left to right, and j is the MAC column index for this sweeping. In each iteration (lines 7 and 8) except the last one, w MAC columns starting from column j are taken to form a sub-array. In the last iteration (line 10), the remaining MAC columns form a sub-array. These sub-arrays are added into candidate c in line 11 and the generated candidate c is added to C in line 12. Sometimes, no candidate is obtained for a certain size i. For the example in Figure <ref type="figure" target="#fig_9">5</ref>, when i=4, w=2 and the algorithm ends up with the candidate with 3 sub-arrays as in (c).</p><p>Although the algorithm appears to be simple, it is carefully designed to achieve the following important properties.</p><p>• Property 2. For each candidate, at most one sub-array has a width smaller than w. For the example in Figure <ref type="figure" target="#fig_9">5</ref>, we do not allow partitioning {{q1, q2}, {q3}, {q4}, {q5}}, where w = 2. This is why there is no 4-sub-array candidate in Figure <ref type="figure" target="#fig_9">5</ref>. This property is required by the candidate pruning in Step 2. • Property 3. The sub-array with width smaller than w cannot be sandwiched between two sub-arrays with size w. For example, in Figure <ref type="figure" target="#fig_9">5</ref>(c), the green sub-array is not in the middle between two other sub-arrays. This property will help our R-SAD-based placement to minimize wirelength.</p><p>These properties can be achieved by our simple algorithm partly due to the regularity in the problem. This is a place where the regularity is exploited for efficient solution search.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Step 2: Partition Candidate Pruning</head><p>In this step, some partition candidates are pruned out, and only the remaining ones are forwarded to Step 3 for placement in order to reduce computation runtime. The pruning is based on estimated bounds on post-placement HPWL, and only those candidates leading to inferior placement solutions are pruned. An upper bound and a lower bound for placed HPWL is obtained for each candidate. The pruning criterion is that a candidate is pruned out if its HPWL lower bound is greater than the upper bound of any other candidate. As such, the pruning process is fairly straightforward once the bounds are established and the bound estimation is the key.</p><p>The bound estimate is composed by two parts: intra-column HPWL and inter-column HPWL. Here, the column means DSP columns, each of which accommodates one sub-array of a partition candidate. According to our R-SAD placement in Step 3 (Section VI-D), the estimated lower bound for intra-column HPWL for placing an m × h sub-array is given by</p><formula xml:id="formula_1">LI = min g [- 2 3 g 3 +2hg 2 +( 2 3 -h 2 -h)g + mh 2 + mh -m -h] (<label>1</label></formula><formula xml:id="formula_2">)</formula><p>where g is an integer in [1, min(m,h)</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>2</head><p>]. The value of g for the minimum on the RHS can be found through linear search. The derivation of this estimate is given in Section VI-D. This bound is based on the observation that R-SAD always achieves the same or better solutions than an ILP solver, but does not have theoretic guarantee. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>1) HPWL Lower Bound:</head><p>• Intra-column. The intra-column part of the lower bound is given by Equation <ref type="bibr" target="#b0">(1)</ref>. Please note the LI for the rightmost sub-array or DSP column can be different from the other sub-arrays (DSP columns) as shown in Figure <ref type="figure" target="#fig_11">6</ref>(c). In the intra-column lower bound estimation, we assume that all MACs of the same DSP column are placed in a contiguous manner without any vacant slots among them. Evidently, placing MACs with vacant slots in the middle increases the intra-column HPWL.</p><p>• Inter-column. The inter-column wires include horizontal and vertical segments, as shown by the red lines in Figure <ref type="figure" target="#fig_11">6</ref>. In the lower bound estimate, the vertical segments are ignored. The horizontal inter-column wirelength is the product between dH , the horizontal distance between two neighboring DSP columns, and the number of inter-column nets. In Figure <ref type="figure" target="#fig_11">6</ref>(c), this value is 6dH .</p><p>2) HPWL Upper Bound: Please note this is an upper bound for the minimum HPWL placement solution as the upper bound for arbitrary solutions is infinite. The upper bound estimate starts with a dummy MAC padding process. If the rightmost sub-array or DSP column has less MAC columns than the other sub-arrays, dummy MAC columns are padded into this sub-array so that all DSP columns have the same number of MACs. The padding is illustrated in Figure <ref type="figure" target="#fig_11">6(b)</ref>, where the white boxes with dotted boundaries indicate dummy MACs. This is where the second property of Algorithm 1 is utilized. Then, the bound estimate assumes placement including the dummy MACs.</p><p>• Intra-column. The intra-column part of the upper bound is also given by Equation ( <ref type="formula" target="#formula_1">1</ref>). However, the resulting HPWL is greater than or equal to the lower bound due to the padding of dummy MACs.</p><p>• Inter-column. When all DSP columns have the same number of MACs, including dummy MACs, our R-SAD-based placement can guarantee that only horizontal wires are needed between two neighboring columns. This is demonstrated in Figure <ref type="figure" target="#fig_11">6(d)</ref>.</p><p>Therefore, the inter-column part of the upper bound is equal to the inter-column part of the lower bound estimate.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Step 3: Placement of Partition Candidates Using R-SAD</head><p>A candidate is a MAC array that is partitioned into a set of subarrays, each of which is to be placed onto a DSP column. The remaining partition candidates after the pruning in Step 2 are placed, and the minimum wirelength one among the candidates is selected to be the final solution. The key part of this step is the R-SAD (Regionwise Sweep in Alternating Directions) algorithm for placing a subarray on a single DSP column to minimize intra-column wirelength in linear time. Due to the regularity of MAC arrays, R-SAD can be applied for all sub-arrays in a way such that the inter-column wirelength is also minimized.</p><p>Placing a sub-array onto a DSP column to minimize intra-column wirelength is very similar to the traditional linear placement problem <ref type="bibr" target="#b11">[12]</ref>, which is known to be NP-hard. However, a sub-array has a very regular topology. We exploit the regularity to derive some useful constraints and obtain the R-SAD algorithm.</p><p>1) Constraints Used in R-SAD: Due to the regularity, there could be redundant solutions with the same wirelength. We enforce the following constraints to reduce solution space without missing the optimal solution.</p><p>Constraint 1: The MAC v1,1 in the lower-left corner of a sub-array is always placed at the lowest slot of the DSP column. </p><formula xml:id="formula_3">(iu ≤ iv) ∧ (ju ≤ jv) =⇒ y(f (u)) ≤ y(f (v)),</formula><p>where iu, iv, ju and jv denote the row and column indices of MACs u and v, respectively. This constraint effectively reduces the solution space and simplifies the wirelength calculation in Section VI-D2. 2) R-SAD (Region-wise Sweep in Alternating Directions): In order to place an m × h sub-array onto a DSP column with the minimum wirelength, a naïve approach is row-by-row sweep. More specifically, the first row at the bottom of a sub-array is first placed at the bottom of the DSP column, then the 2nd row is placed right above, and so on. For example, row-by-row sweep for the 3 × 2 subarrays in Figure <ref type="figure" target="#fig_11">6</ref>(a) leads to the placement in DSP columns in 6(c), which has the minimum wirelength. However, such a naïve approach results in inferior solutions when the sub-array size becomes large. In Figure <ref type="figure" target="#fig_13">7</ref>, where the numbers in squares indicate y-coordinates in the DSP column, the row-by-row sweep solution has significantly greater HPWL than R-SAD. Lemma 1. If each MAC vi,j in an m × h sub-array is placed at ycoordinate y (i,j) in the DSP column following the order consistency constraint, the total HPWL is given by</p><formula xml:id="formula_4">h j=1 (y (m,j) -y (1,j) ) + m i=1 (y (i,h) -y (i,1) )<label>(2)</label></formula><p>Proof. Omitted due to space limit.</p><p>Lemma 1 shows that with the OC (Order Consistency) constraint, only the placement of the MACs in the bottom/top row (y (1,j) , y (m,j) ) and left/right columns (y (i,1) , y (i,n) ) contributes to the total HPWL. Minimizing HPWL implies minimizing the y coordinates of the MACs on the top row and right column, and maximizing the y coordinates of the MACs on the bottom row and left column. Please note that the MACs at the four corners don't affect HPWL since y (1,1) = 1 and y (m,h) = m•h due to Constraints 1 and 2, and y (m,1) and y (1,h) are canceled out in Equation <ref type="bibr" target="#b1">(2)</ref>. R-SAD divides the given sub-array into 7 regions, and each region is placed independently. The region division and the placement order of the 7 regions are shown in Figure <ref type="figure" target="#fig_13">7(a)</ref>. The dimensions of the regions depend on an integer parameter g≤ min(m, h)/2. The value of g is decided through a linear search according to corresponding placement HPWL, which can be calculated using Equation (1) without performing the actual placement. The row-by-row sweep method in Figure <ref type="figure" target="#fig_13">7</ref>(b) is a special case of R-SAD for g=1. Lower-left region: The R-SAD placement of the lower-left region, a g×g square, is illustrated in Figure <ref type="figure" target="#fig_14">8(a)</ref>, where the numbers indicate the order along y-direction in the DSP column after placement, e.g., the MAC with 9 is right above the MAC with 8 in the DSP column. Visually, the order follows sweeps alternating between horizontal and vertical directions. This order has three properties.</p><p>1) The R-SAD order conforms to the order consistency constraint.</p><p>2) For any sub-square starting from the lower-left corner, the upper-right corner MAC always has the maximum order index.</p><p>For the lower-left 2 × 2 sub-square in Figure <ref type="figure" target="#fig_14">8</ref>(a), its upperright corner MAC has index 4, which is the maximum among the 4 MACs in this sub-square. Such index is the minimum that permits an order within the sub-square satisfying the order consistency constraint. 3) This order allows an analytical form expression for assigning the order index to each MAC.</p><p>For a MAC in the i-th row and j-th column of the lower-left region, its order index is given by</p><formula xml:id="formula_5">O ll (i, j) = i 2 -i + j if i ≥ j (j -1) 2 + i if i &lt; j (3)</formula><p>For the diagonal MACs vi,i, Equation ( <ref type="formula">3</ref>) is reduced to O ll (i, i) = i 2 , which is the size of its lower-left sub-square. The diagonal MACs serve as anchors for deriving the order indices of the other MACs. For a MAC vi,j above the diagonal (i &gt; j), MAC vi,i serves as the anchor and the index difference from the anchor equals the horizontal distance from the anchor. Therefore,</p><formula xml:id="formula_6">O ll (i, j) = O ll (i, i) -(i -j) = i 2 -i + j.</formula><p>For MACs below the diagonal (i &lt; j), vj-1,j-1 is used as the anchor. The index difference between vi,j and vj-1,j-1 is i and O ll (i, j) = O ll (j -1, j -1) + i = (j -1) 2 + i. Lower-right region: The R-SAD placement for the lower-right region is illustrated in Figure <ref type="figure" target="#fig_15">9</ref>(b) and the order index is given by</p><formula xml:id="formula_7">O lr (i, j) = -1 2 j 2 + (g + 3 2 )j -g + i -1, i ≤ g -j + 1 1 2 g(g -1) + 1 2 i(i -1) + j, i &gt; g -j + 1<label>(4)</label></formula><p>Please note the row/column indices i/j and order index O lr here are with respect to the region instead of the sub-array. For the example in Figure <ref type="figure" target="#fig_13">7</ref>(a), the absolute placement order of the lower-right (purple) region ranges from 16 to 24, and the MAC placed at y = 16 has relative row/column indices (1, 1).</p><p>Upper-left region: The order index is given by</p><formula xml:id="formula_8">O ul (i, j) = -1 2 i 2 + (g + 3 2 )i -g + j -1, i ≤ g -j + 1 1 2 g(g -1) + 1 2 j(j -1) + i, i &gt; g -j + 1<label>(5)</label></formula><p>Upper-right region: The order index is given by</p><formula xml:id="formula_9">Our(i, j) = 2g • j -j 2 + i -g if i ≥ j 2g • i -i 2 + i + j -2g if i &lt; j<label>(6)</label></formula><p>Lower-middle and upper-middle regions: The MACs in the lower-middle and upper-middle regions are placement in column-bycolumn sweeps. The order index is given by</p><formula xml:id="formula_10">O lm (i, j) = Oum(i, j) = (j -1)g + i<label>(7)</label></formula><p>Central region: The MACs in the (m -2g)×g central region are placed in row-by-row sweeps with the order index given by</p><formula xml:id="formula_11">Octr(i, j) = (i -1)h + j<label>(8)</label></formula><p>From Figure <ref type="figure" target="#fig_14">8</ref> and 9 one can that the R-SAD placement in the four corner regions are actually in the same pattern and is symmetric to the center of the MAC sub-array.</p><p>Lemma 2. The intra-column HPWL obtained from R-SAD placement of a m × h sub-array is given by Equation (1).</p><p>Proof. Equation ( <ref type="formula" target="#formula_1">1</ref>) is derived by integrating Equations ( <ref type="formula">3</ref>) -( <ref type="formula" target="#formula_11">8</ref>) and the details are omitted due to space limit.</p><p>Lemma 3. The computational complexity of R-SAD is O(1) for a 2 × 2 or larger sub-array (m, h ≥ 2).</p><p>Proof. The RHS of Equation 1 is a third-degree polynomial function of g. The critical points of it can be calculated by setting the derivative to zero:</p><formula xml:id="formula_12">g1,2 = h ± 1 2 (h - 1 2 ) 2 + 5 24 ,<label>(9)</label></formula><p>where g1 reaches local minimum and g2 reaches local maximum. It can also be proved that 0</p><formula xml:id="formula_13">&lt; g1 &lt; h 2 &lt; g2 for h ≥ 2. Since g is an integer in [1, min(m,h) 2 ], the local minimum becomes the minimum in [1, min(m,h) 2</formula><p>]. Therefore, the best g with minimum HPWL can be found in {⌈g1⌉, ⌊g1⌋, ⌊ m 2 ⌋}. 3) Partition Candidate Placement Using R-SAD: A partition candidate consists of s sub-arrays, each of which is placed on a single DSP column using R-SAD. According to Algorithm 1, the first s -1 sub-arrays always have the same width (number of MAC columns) while the last one may the same or smaller width. For sub-arrays of the same width, we index them from left to right according to the given MAC array order. R-SAD is performed for the first sub-array, and the solution is duplicated for all sub-arrays with odd-numbered indices. Meanwhile, the solution of the first sub-array is mirrored and then applied to all sub-arrays with even-numbered indices. By doing so, the solutions of every two neighboring sub-arrays are mirrored </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VII. EXPERIMENTS</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Testcases and Experiment Setup</head><p>Table <ref type="table" target="#tab_3">II</ref> Six systolic array-based CNN circuits are designed according to <ref type="bibr" target="#b2">[3]</ref>. The characteristics of these testcases are summarized in Table <ref type="table" target="#tab_3">II</ref>. These cases cover both Input Stationary (IS) and Output Stationary (OS) designs. They are placed onto two different FPGA architectures, FPGA1 and FPGA2. FPGA1 is adopted from the ISPD 2016 placement contest <ref type="bibr" target="#b12">[13]</ref> and has 678 DSPs distributed in four columns. FPGA2 is a larger architecture with 1800 DSPs distributed in five columns. The clock period constraints are generated in a way such that the resulting worst slacks are slightly less than zero when using Vivado placement in timing driven mode. The experiments are performed on a computer with a 3.80 GHz CPU and 32 GB RAM.</p><p>In the experiment, we compare the following methods.</p><p>• Our R-SAD for MAC array placement. It is combined with other placers as R-SAD+Vivado, R-SAD+elfPlace and R-SAD+QP to generate the placement of entire CNN circuits. • Vivado, an industrial FPGA tool <ref type="bibr" target="#b13">[14]</ref>. It is used to place entire CNN circuits or the non-MAC parts of circuits. We run Vivado Design Suite 2018.3 in both timing-driven mode and non-timingdriven mode, while the other parameters being in default values. • QP, a quadratic placer based on UTPlaceF <ref type="bibr" target="#b14">[15]</ref>. It is used to place entire CNN circuits, only place MAC arrays in QP+Vivado, or only place the non-MAC parts in R-SAD+QP.</p><p>• elfPlace <ref type="bibr" target="#b9">[10]</ref>, a state-of-the-art placer. It is based on the same algorithm as DreamPlaceFPGA <ref type="bibr" target="#b10">[11]</ref> but runs on CPU. It is used to place entire CNN circuits, only place MAC arrays in elf-Place+Vivado, or place the non-MAC parts in R-SAD+elfPlace. • EA, the evolutionary algorithm using NSGA-II <ref type="bibr" target="#b15">[16]</ref> package as in RapidLayout <ref type="bibr" target="#b6">[7]</ref> for MAC array placement. We use the same genotype and parameter settings as in <ref type="bibr" target="#b6">[7]</ref>. MAC array HPWL  serves as the objective function. It is performed with Vivado in EA+Vivado to generate placement for entire circuits as in <ref type="bibr" target="#b6">[7]</ref>. When QP and elfPlace are employed for only MAC array placement, we run their global placement for the entire circuit. Then, the MAC locations in the global placement results are retained, and the rest circuits are placed by Vivado. The description of the greedy floorplan constraint approach in <ref type="bibr" target="#b3">[4]</ref> lacks sufficient details for replicating its implementation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Main Results</head><p>Table I lists the HPWL and placement runtime of Vivado (nontiming-driven), elfPlace, and QP with and without our R-SAD-based MAC array placement. Metrics are normalized separately for each placer to demonstrate the improvement achieved by R-SAD. It shows that R-SAD reduces the HPWL of Vivado placement by 20% and 29% on two FPGAs, and also decreases total runtime. For elfPlace and QP, applying R-SAD reduces HPWL by 22%-48%, with similar placement runtime. The runtime of R-SAD alone is always less than 70 milliseconds for every case, which is negligible compared to the total placement runtime.</p><p>In Figure <ref type="figure" target="#fig_17">11</ref>, we compare our R-SAD+Vivado approach with other methods, most of which have MAC array placed by EA, elfPlace and QP. The Vivado placement and routing are performed in both timing-driven and non-timing-driven modes. The results are evaluated by HPWL, routing resource utilization, placement runtime (MAC array + non-MAC parts), worst negative slack, and maximum frequency of the routed designs. One can see that the solutions from EA, which is similar to RapidLayout <ref type="bibr" target="#b6">[7]</ref>, are generally not competitive. Our R-SAD+Vivado approach always achieves the best average results on all these metrics. Besides the 23% -25% reduction on HPWL compared with Vivado, our approach usually reduces routing resource utilization by 19% or more. This implies that our approach helps routability significantly. Combined with R-SAD, the placement runtime of Vivado reduces 3% -10%. In the timing-driven mode, our approach obtains the least worst negative slack and the maximum frequency on average. The MAC array placement problem can be formulated as an ILP problem or a QAP (Quadratic Assignment Problem) <ref type="bibr" target="#b16">[17]</ref>. We use ILP solver Gurobi <ref type="bibr" target="#b17">[18]</ref> and QAP solver with the FAQ method <ref type="bibr" target="#b18">[19]</ref> from SciPy <ref type="bibr" target="#b19">[20]</ref> library to place an 8 × 8 MAC array with different distances between two neighboring FPGA columns. The results are shown in Figure <ref type="figure" target="#fig_18">12</ref>. For all these cases, the ILP solver spends 1 hour runtime without finding the optimal solution, while the QAP solver finishes in 30-60 seconds without guaranteeing optimality either. One can see that R-SAD always achieves shorter HPWL than both ILP and QAP. Moreover, R-SAD is 50K× faster than the ILP solver.  To examine the effect of the OC (Order Consistency) constraint proposed in Section VI-D1, we use the ILP solver to place MAC sub-arrays with and without the OC constraint. The runtime of the ILP solver is set to be 24 hours. Figure <ref type="figure" target="#fig_19">13</ref> shows the HPWL of MAC sub-arrays of different sizes after placement. One can see that the OC constraints facilitate significantly optimizing HPWL for large cases and do not affect the results for small cases. Figure <ref type="figure" target="#fig_20">14</ref> shows the HPWL changes over the runtime for a 16×16 sub-array. With the OC constraints, the solver converges much faster, while the solution is much worse without the constraints.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Comparison with ILP and QAP Solver</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Effect of the Order Consistency Constraint</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>E. Effect of Partition Candidate Pruning</head><p>To show the effectiveness of Step 2 (partition candidate pruning), we list the number of partition candidates before and after pruning for the two FPGA architectures in Figure <ref type="figure" target="#fig_21">15</ref>. On average, 55% of partition candidates are pruned out in Step 2, hence about a half of the downstream computation workload is reduced. Please note that Step 1 (partition candidate generation) implicitly prunes out candidates that do not satisfy the properties mentioned in Section VI-B. Combining Steps 1 and 2, the percentage of pruned candidates is even higher.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VIII. CONCLUSIONS</head><p>In this paper, we have presented an algorithmic approach for systolic array placement on FPGAs. In particular, we propose a Region-wise Sweep in Alternating Direction (R-SAD) algorithm to place MAC sub-arrays on a single DSP column with empirically minimum intra-column wirelength. A partition enumeration and pruning framework is developed to utilize R-SAD for 2D MAC array placement. With our framework being integrated with general FPGA placement tools, we demonstrate 23%-25% reduced HPWL as well as improvement in routing resource utilization, accelerated placement runtime, and timing performance.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head></head><label></label><figDesc>This work is partially supported by NSF CMMI-2038625, CCF-1937396 and CCF-2106725.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: A typical FPGA architecture.</figDesc><graphic coords="1,337.08,170.66,200.85,85.56" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: A systolic array-based CNN circuit architecture.A typical architecture for a systolic array-based CNN circuit can be seen in Figure2. The architecture includes a global buffer, often implemented using SRAM, a 2D array of PEs (Processing Elements), and control logic beside the PE array. Data communication is usually handled using a network-on-chip. Each PE consists of a MAC (Multiply and Accumulate) unit, a register file, and intra-PE control circuitry. The systolic array, which is the 2D PE array, not only has a regular topology but also has only local data interconnects. This means that the data interconnects between PEs are restricted to their neighbors.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Placement of 3 × 3 systolic array.</figDesc><graphic coords="2,461.98,151.07,73.44,144.62" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head></head><label></label><figDesc>(a) Vivado placement, HP W L = 2.47 × 10 4 (b) Our systolic array placement, HP W L = 2.15 × 10 4</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: Impact of systolic array placement. Red color indicates PEs placed on DSPs, and light blue implies circuits placed on CLBs.</figDesc><graphic coords="2,319.82,152.42,115.20,143.27" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>• Step 1 :</head><label>1</label><figDesc>Partition candidate generation. The given MAC array is partitioned into sub-arrays, and each sub-array is to be placed onto a distinct DSP column. Multiple partitioning candidate solutions are generated through enumeration. • Step 2: Partition candidate pruning. By estimating the upper and lower bound of wirelength, the candidates that would lead to inferior placement solutions are pruned out. • Step 3: Placement of remaining candidates. Placement is performed for the remaining candidates using our R-SAD (Regionwise Sweep in Alternating Directions) algorithm and the solution with the minimum wirelength is selected.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head></head><label></label><figDesc>(a) 1 sub-array (b) 2 sub-arrays (c) 3 sub-arrays (d) 5 sub-arrays</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: Enumerating different partitioning options.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>else 10 :</head><label>10</label><figDesc>s ← {qj, qj+1, ..., qn} 11: c ← c ∪ {s}; j = j + w 12: C ← C ∪ {c} 13: return C</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Placement for HPWL upper-bound, lower-bound estimate.</figDesc><graphic coords="4,49.09,503.11,250.80,192.65" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Constraint 2</head><label>2</label><figDesc>Order Consistency (OC): If MAC u is to the lowerleft of MAC v in the sub-array, then MAC u must be placed in a lower slot than MAC v in the DSP column.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Placement of an 8 x 8 MAC sub-array. The number in each MAC denotes its y-coordinate after placement. Each color denotes a region.</figDesc><graphic coords="5,61.52,151.44,225.95,112.74" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: R-SAD placement of the MACs in the lower-left and upperright regions. The numbers indicate relative placement order in ydirection.</figDesc><graphic coords="5,330.81,49.59,213.39,114.92" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_15"><head>Figure 9 :</head><label>9</label><figDesc>Figure 9: R-SAD placement of the MACs in the lower-right and upper-left regions. The numbers indicate relative placement order in y-direction.</figDesc><graphic coords="5,330.81,565.47,213.40,113.68" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_16"><head>Figure 10 :</head><label>10</label><figDesc>Figure 10: R-SAD placement of an 8 x 12 MAC array partitioned to four 8 x 3 sub-arrays. The numbers indicate y-coordinates in DSP columns. The red lines indicate inter-column wires. from each other. In Figure 10, the placement of the second sub-array is mirrored from the placement of the first sub-array. One can see that two MACs with inter-column connection always have the same y-coordinate (horizontally aligned) in their DSP columns. As such, there is no vertical wire for inter-column connections. This property not only minimizes inter-column wirelength, but also facilitates the HPWL bound estimation in Step 2 (Section VI-C). If the right-most sub-array has a smaller width, dummy MAC columns are padded to it in the same way in HPWL upper bound calculation.</figDesc><graphic coords="6,330.81,49.59,213.40,71.50" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_17"><head>Figure 11 :</head><label>11</label><figDesc>Figure 11: Vivado place &amp; route results with different MAC array placements. Vivado runs in timing-driven and non-timing-driven modes.</figDesc><graphic coords="7,51.53,210.55,508.94,359.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_18"><head>Figure 12 :</head><label>12</label><figDesc>Figure 12: HPWL of an 8x8 MAC array placed by R-SAD, ILP, and QAP solvers with different dH (distance between DPS columns).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_19"><head>Figure 13 :</head><label>13</label><figDesc>Figure 13: HPWL of MAC sub-arrays placed by ILP solver with and without the order consistency constraint.</figDesc><graphic coords="8,86.62,455.20,175.74,107.13" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_20"><head>Figure 14 :</head><label>14</label><figDesc>Figure 14: HPWL of 16 × 16 MAC sub-array placed by ILP solver with and without the order consistency constraint.To examine the effect of the OC (Order Consistency) constraint proposed in Section VI-D1, we use the ILP solver to place MAC</figDesc><graphic coords="8,61.52,596.82,225.96,73.83" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_21"><head>Figure 15 :</head><label>15</label><figDesc>Figure 15: Number of candidates before and after pruning (Step 2).</figDesc><graphic coords="8,313.23,49.59,248.55,99.35" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_22"><head>F 2 ]</head><label>2</label><figDesc>Figure16shows HPWL versus g for placing an m×h sub-array onto one DSP column by R-SAD. The curves correspond to the RHS of Equation<ref type="bibr" target="#b0">(1)</ref>. It can be seen that HPWL is convex in the search range g ∈ [1, min(m,h) 2 ] (solid line). Therefore, the best g for the minimum HPWL can be determined in constant time.</figDesc><graphic coords="8,61.52,213.69,225.96,72.16" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_23"><head>Figure 16 :</head><label>16</label><figDesc>Figure 16: HPWL of R-SAD placement v.s. g for different sub-arrays.</figDesc><graphic coords="8,322.96,434.93,225.96,148.99" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head></head><label></label><figDesc>: Characteristics of testcases.</figDesc><table><row><cell cols="4">Designs PE Array Size #Cells #DSPs</cell><cell>Clock Period (ns)</cell></row><row><cell>IS8</cell><cell>8 x 8</cell><cell>4.4K</cell><cell>64</cell><cell>4</cell></row><row><cell>OS8</cell><cell>8 x 8</cell><cell>5.5K</cell><cell>64</cell><cell>4</cell></row><row><cell>IS16</cell><cell>16 x 16</cell><cell>16K</cell><cell>256</cell><cell>5</cell></row><row><cell>OS16</cell><cell>16 x 16</cell><cell>20K</cell><cell>256</cell><cell>5</cell></row><row><cell>IS32</cell><cell>32 x 20</cell><cell>35K</cell><cell>640</cell><cell>6</cell></row><row><cell>OS32</cell><cell>32 x 20</cell><cell>40K</cell><cell>640</cell><cell>6</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table I :</head><label>I</label><figDesc>HPWL (×105 ) and placement runtime (seconds) with and without R-SAD-based MAC array placement.</figDesc><table><row><cell>Device</cell><cell>Design</cell><cell cols="4">Vivado HPWL CPU HPWL R-SAD + Vivado CPU</cell><cell cols="4">elfPlace HPWL CPU HPWL R-SAD + elfPlace CPU</cell><cell cols="4">QP HPWL CPU HPWL CPU R-SAD + QP</cell></row><row><cell></cell><cell>IS8</cell><cell>0.25</cell><cell>47</cell><cell>0.19</cell><cell>45</cell><cell>0.37</cell><cell>146</cell><cell>0.20</cell><cell>141</cell><cell>0.25</cell><cell>9</cell><cell>0.21</cell><cell>8</cell></row><row><cell></cell><cell>OS8</cell><cell>0.25</cell><cell>61</cell><cell>0.21</cell><cell>44</cell><cell>0.29</cell><cell>129</cell><cell>0.28</cell><cell>115</cell><cell>0.30</cell><cell>11</cell><cell>0.25</cell><cell>11</cell></row><row><cell></cell><cell>IS16</cell><cell>1.24</cell><cell>101</cell><cell>0.92</cell><cell>104</cell><cell>0.82</cell><cell>124</cell><cell>0.75</cell><cell>116</cell><cell>1.36</cell><cell>28</cell><cell>0.88</cell><cell>25</cell></row><row><cell>FPGA1</cell><cell>OS16</cell><cell>1.19</cell><cell>110</cell><cell>0.90</cell><cell>102</cell><cell>0.91</cell><cell>171</cell><cell>0.81</cell><cell>113</cell><cell>1.71</cell><cell>39</cell><cell>0.97</cell><cell>38</cell></row><row><cell></cell><cell>IS32</cell><cell>3.91</cell><cell>207</cell><cell>2.36</cell><cell>219</cell><cell>2.73</cell><cell>194</cell><cell>1.94</cell><cell>184</cell><cell>4.94</cell><cell>62</cell><cell>2.15</cell><cell>58</cell></row><row><cell></cell><cell>OS32</cell><cell>3.43</cell><cell>199</cell><cell>2.76</cell><cell>190</cell><cell>2.73</cell><cell>128</cell><cell>2.14</cell><cell>123</cell><cell>4.61</cell><cell>99</cell><cell>3.48</cell><cell>89</cell></row><row><cell></cell><cell>Norm.</cell><cell>1.00</cell><cell>1.00</cell><cell>0.71</cell><cell>0.97</cell><cell>1.00</cell><cell>1.00</cell><cell>0.78</cell><cell>0.89</cell><cell>1.00</cell><cell>1.00</cell><cell>0.60</cell><cell>0.92</cell></row><row><cell></cell><cell>IS8</cell><cell>0.26</cell><cell>59</cell><cell>0.23</cell><cell>76</cell><cell>0.21</cell><cell>142</cell><cell>0.20</cell><cell>237</cell><cell>0.25</cell><cell>9</cell><cell>0.21</cell><cell>12</cell></row><row><cell></cell><cell>OS8</cell><cell>0.25</cell><cell>61</cell><cell>0.25</cell><cell>75</cell><cell>0.21</cell><cell>135</cell><cell>0.19</cell><cell>204</cell><cell>0.28</cell><cell>12</cell><cell>0.24</cell><cell>15</cell></row><row><cell></cell><cell>IS16</cell><cell>1.08</cell><cell>120</cell><cell>0.90</cell><cell>102</cell><cell>2.71</cell><cell>255</cell><cell>0.69</cell><cell>182</cell><cell>1.21</cell><cell>42</cell><cell>0.85</cell><cell>37</cell></row><row><cell>FPGA2</cell><cell>OS16</cell><cell>1.18</cell><cell>116</cell><cell>0.89</cell><cell>111</cell><cell>1.72</cell><cell>229</cell><cell>0.78</cell><cell>237</cell><cell>1.49</cell><cell>36</cell><cell>0.93</cell><cell>52</cell></row><row><cell></cell><cell>IS32</cell><cell>2.22</cell><cell>216</cell><cell>1.66</cell><cell>202</cell><cell>3.26</cell><cell>297</cell><cell>1.89</cell><cell>286</cell><cell>3.51</cell><cell>57</cell><cell>2.43</cell><cell>60</cell></row><row><cell></cell><cell>OS32</cell><cell>2.75</cell><cell>222</cell><cell>2.26</cell><cell>200</cell><cell>2.77</cell><cell>305</cell><cell>1.89</cell><cell>256</cell><cell>4.39</cell><cell>76</cell><cell>1.96</cell><cell>72</cell></row><row><cell></cell><cell>Norm.</cell><cell>1.00</cell><cell>1.00</cell><cell>0.80</cell><cell>0.96</cell><cell>1.00</cell><cell>1.00</cell><cell>0.52</cell><cell>1.03</cell><cell>1.00</cell><cell>1.00</cell><cell>0.60</cell><cell>1.07</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>• Property 1. Each candidate has sub-arrays of at most two different widths, one is w and the other is smaller than w.Since the placement solutions of sub-arrays with the same width are identical, the small number of sub-array widths avoids the runtime of generating many different sub-array placement solutions.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_1"><p>Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 09:17:12 UTC from IEEE Xplore. Restrictions apply.</p></note>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Systolic arrays (for VLSI)</title>
+		<author>
+			<persName><forename type="first">H</forename><forename type="middle">T</forename><surname>Kung</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">E</forename><surname>Leiserson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Sparse Matrix Proceedings</title>
+		<imprint>
+			<date type="published" when="1979">1979</date>
+			<biblScope unit="page" from="256" to="282" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">In-datacenter performance analysis of a tensor processing unit</title>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">P</forename><surname>Jouppi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Patil</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">A</forename><surname>Patterson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Agrawal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Bajwa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bates</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Bhatia</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><forename type="middle">J</forename><surname>Boden</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Borchers</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Boyle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Luc Cantin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Clark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Coriell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Daley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Dau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Dean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Gelb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">V</forename><surname>Ghaemmaghami</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Gottipati</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Gulland</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">B</forename><surname>Hagmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">R</forename><surname>Ho</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hogberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Hundt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hurt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ibarz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Jaffey</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Jaworski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kaplan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Khaitan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Killebrew</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Koch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Lacy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Laudon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Law</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Leary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">A</forename><surname>Lucke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Lundin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Mackean</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Maggiore</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Mahony</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Miller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Nagarajan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Narayanaswami</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Ni</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Nix</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Norrie</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Omernick</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Penukonda</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Phelps</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Ross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Ross</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Salek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Samadiani</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Severn</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Sizikov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Snelham</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Souter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Steinberg</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Swing</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Thorson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Toma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Tuttle</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Vasudevan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Walter</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Wilcox</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Yoon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Computer Architecture</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="12" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Automated systolic array architecture synthesis for high throughput cnn inference on FPGAs</title>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">H</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Frequency improvement of systolic array-based cnns on FPGAs</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Cong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Circuits and Systems</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Global placement exploiting soft 2D regularity</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Physical Design</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="203" to="210" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">How much does regularity help FPGA placement?</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Kong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Field-Programmable Technology</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="76" to="84" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">RapidLayout: Fast hard block placement of FPGA-optimized systolic arrays using evolutionary algorithms</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">X</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Kapre</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Field-Programmable Logic and Applications</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="145" to="152" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">UTPlaceF 2.0: A high-performance clock-aware FPGA placement engine</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Design Automation of Electronic Systems</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="23" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">RippleFPGA: Routability-driven simultaneous packing and placement for modern FPGAs</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-W</forename><surname>Pui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-K</forename><surname>Chow</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K.-C</forename><surname>Lam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Kuang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">F Y</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="page" from="2022" to="2035" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">elfPlace: Electrostaticsbased placement for large-scale heterogeneous FPGAs</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Meng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="page" from="155" to="168" />
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">DREAMPlaceFPGA: An open-source analytical placer for large scale heterogeneous FPGAs using deep-learning toolkit</title>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">S</forename><surname>Rajarathnam</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">B</forename><surname>Alawieh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Iyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Asia and South Pacific Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="300" to="306" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">An improved linear placement algorithm using node compaction</title>
+		<author>
+			<persName><forename type="first">Y</forename><forename type="middle">G</forename><surname>Saab</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Transactions on computer-aided design of integrated circuits and systems</title>
+		<imprint>
+			<date type="published" when="1996">1996</date>
+			<biblScope unit="page" from="952" to="958" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Routability-driven FPGA placement contest</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gayasen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Mulpuri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reddy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Aggarwal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Physical Design</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<monogr>
+		<author>
+			<persName><forename type="first">Tom</forename><surname>Feist</surname></persName>
+		</author>
+		<ptr target="https://docs.xilinx.com/v/u/en-US/wp416-Vivado-Design-Suite" />
+		<title level="m">White paper: Vivado design suite</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">UTPlaceF: A routability-driven FPGA placer with physical and congestion aware packing</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="page" from="869" to="882" />
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">A fast and elitist multiobjective genetic algorithm: NSGA-II</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Deb</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Agrawal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Pratap</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Meyarivan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Evolutionary Computation</title>
+		<imprint>
+			<biblScope unit="page" from="182" to="197" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Assignment problems and the location of economic activities</title>
+		<author>
+			<persName><forename type="first">T</forename><forename type="middle">C</forename><surname>Koopmans</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Beckmann</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Econometrica</title>
+		<imprint>
+			<biblScope unit="page">53</biblScope>
+			<date type="published" when="1957">1957</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<title level="m" type="main">Gurobi optimizer reference manual</title>
+		<author>
+			<persName><forename type="first">Gurobi</forename><surname>Optimization</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Llc</surname></persName>
+		</author>
+		<ptr target="https://www.gurobi.com" />
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Fast approximate quadratic programming for graph matching</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">T</forename><surname>Vogelstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">M</forename><surname>Conroy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Lyzinski</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">J</forename><surname>Podrazik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">G</forename><surname>Kratzer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">T</forename><surname>Harley</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">E</forename><surname>Fishkind</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><forename type="middle">J</forename><surname>Vogelstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">E</forename><surname>Priebe</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">PLOS ONE</title>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<monogr>
+		<title level="m" type="main">SciPy: Open source scientific tools for Python</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Oliphant</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Peterson</surname></persName>
+		</author>
+		<ptr target="http://www.scipy.org/" />
+		<imprint>
+			<date type="published" when="2001">2001</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

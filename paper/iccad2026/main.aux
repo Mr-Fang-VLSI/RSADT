@@ -1,0 +1,80 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{rsad2023}
+\citation{rsad2023}
+\@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{rsad2023}
+\citation{sysmix2024}
+\citation{date2021,ispd2017}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:rw}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Systolic-Array-Specific Placement}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Timing-Driven FPGA Placement}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Problem Formulation}{2}{section.3}\protected@file@percent }
+\newlabel{sec:problem}{{3}{2}{Problem Formulation}{section.3}{}}
+\newlabel{eq:weighted_hpwl}{{1}{2}{Problem Formulation}{equation.1}{}}
+\newlabel{eq:slack}{{2}{2}{Problem Formulation}{equation.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Proposed Method}{2}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{2}{Proposed Method}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Overview}{2}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Multi-Column Decomposition}{2}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Local swap patterns and affected nets in the OC proof sketch. The three panels correspond to the same-row or same-column case, the different-row and different-column case, and a boundary or corner degeneration. Red segments denote the local nets whose span enters the swap-local HPWL comparison, while blue blocks mark the neighboring DSPs referenced by the proof.}}{3}{figure.caption.5}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:oc_cases}{{1}{3}{Local swap patterns and affected nets in the OC proof sketch. The three panels correspond to the same-row or same-column case, the different-row and different-column case, and a boundary or corner degeneration. Red segments denote the local nets whose span enters the swap-local HPWL comparison, while blue blocks mark the neighboring DSPs referenced by the proof}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Why the OC Condition Is Legitimate}{3}{subsection.4.3}\protected@file@percent }
+\newlabel{eq:swap_same_line}{{3}{3}{Why the OC Condition Is Legitimate}{equation.3}{}}
+\newlabel{eq:swap_cross}{{4}{3}{Why the OC Condition Is Legitimate}{equation.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}From OC to an Ordered Objective}{3}{subsection.4.4}\protected@file@percent }
+\newlabel{eq:oc}{{5}{3}{From OC to an Ordered Objective}{equation.5}{}}
+\newlabel{eq:ordered_linear}{{6}{3}{From OC to an Ordered Objective}{equation.6}{}}
+\citation{dreamplace4}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces State-DAG view of the OC-constrained strip placement problem. A state records the monotone placement frontier, and each edge places exactly one new macro.}}{4}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:state_dag}{{2}{4}{State-DAG view of the OC-constrained strip placement problem. A state records the monotone placement frontier, and each edge places exactly one new macro}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}From Ordered Objective to State DAG}{4}{subsection.4.5}\protected@file@percent }
+\newlabel{eq:phi}{{7}{4}{From Ordered Objective to State DAG}{equation.7}{}}
+\newlabel{eq:incremental_cost}{{8}{4}{From Ordered Objective to State DAG}{equation.8}{}}
+\newlabel{eq:state_monotone}{{10}{4}{From Ordered Objective to State DAG}{equation.10}{}}
+\newlabel{eq:dag_shortest_path}{{11}{4}{From Ordered Objective to State DAG}{equation.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Dynamic Programming Solver}{4}{subsection.4.6}\protected@file@percent }
+\newlabel{eq:dp}{{12}{4}{Dynamic Programming Solver}{equation.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}CTR-Based Acceleration}{4}{subsection.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Timing-Driven Weight Update}{4}{subsection.4.8}\protected@file@percent }
+\newlabel{eq:dreamplace_style_1}{{14}{4}{Timing-Driven Weight Update}{equation.14}{}}
+\newlabel{eq:dreamplace_style_2}{{15}{4}{Timing-Driven Weight Update}{equation.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.9}Discussion of Optimality Scope}{4}{subsection.4.9}\protected@file@percent }
+\bibstyle{ACM-Reference-Format}
+\bibcite{rsad2023}{{1}{}{{}}{{}}}
+\bibcite{sysmix2024}{{2}{}{{}}{{}}}
+\bibcite{date2021}{{3}{}{{}}{{}}}
+\bibcite{ispd2017}{{4}{}{{}}{{}}}
+\bibcite{ripplefpga2016}{{5}{}{{}}{{}}}
+\bibcite{utplacef2017}{{6}{}{{}}{{}}}
+\bibcite{dreamplace4}{{7}{}{{}}{{}}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Average results over seven benchmarks.}}{5}{table.caption.7}\protected@file@percent }
+\newlabel{tab:main}{{1}{5}{Average results over seven benchmarks}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experimental Setup and Results}{5}{section.5}\protected@file@percent }
+\newlabel{sec:exp}{{5}{5}{Experimental Setup and Results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Setup}{5}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Main Results}{5}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Interpretation}{5}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Pending Insertions}{5}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{5}{section.6}\protected@file@percent }
+\newlabel{sec:conclusion}{{6}{5}{Conclusion}{section.6}{}}
+\@writefile{toc}{\contentsline {section}{References}{5}{section*.11}\protected@file@percent }
+\newlabel{tocindent-1}{0pt}
+\newlabel{tocindent0}{0pt}
+\newlabel{tocindent1}{4.185pt}
+\newlabel{tocindent2}{10.34999pt}
+\newlabel{tocindent3}{0pt}
+\newlabel{tocindent4}{0pt}
+\newlabel{tocindent5}{0pt}
+\providecommand\NAT@force@numbers{}\NAT@force@numbers
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Benchmark-wise HPWL\xspace  and F\textsubscript  {max}\xspace  comparison for all five methods.}}{6}{table.caption.8}\protected@file@percent }
+\newlabel{tab:bench_hpwl_fmax}{{2}{6}{Benchmark-wise \hpwl and \fmax comparison for all five methods}{table.caption.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Benchmark-wise WNS\xspace  and TNS\xspace  comparison for all five methods.}}{6}{table.caption.9}\protected@file@percent }
+\newlabel{tab:bench_wns_tns}{{3}{6}{Benchmark-wise \wns and \tns comparison for all five methods}{table.caption.9}{}}
+\newlabel{TotPages}{{6}{6}{}{page.6}{}}
+\gdef \@abspage@last{6}

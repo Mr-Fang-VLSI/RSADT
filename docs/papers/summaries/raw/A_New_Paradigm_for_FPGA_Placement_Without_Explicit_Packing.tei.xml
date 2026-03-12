@@ -1,0 +1,839 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">A New Paradigm for FPGA Placement Without Explicit Packing</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><roleName>Student Member, IEEE</roleName><forename type="first">Wuxi</forename><surname>Li</surname></persName>
+							<idno type="ORCID">0000-0002-9887-5109</idno>
+						</author>
+						<author>
+							<persName><roleName>Fellow, IEEE</roleName><forename type="first">David</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+							<idno type="ORCID">0000-0002-5705-2501</idno>
+						</author>
+						<title level="a" type="main">A New Paradigm for FPGA Placement Without Explicit Packing</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">685708D99D0817A9B2E3CC19615029C8</idno>
+					<idno type="DOI">10.1109/TCAD.2018.2877017</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:00+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Field programmable gate array (FPGA)</term>
+					<term>legalization</term>
+					<term>packing</term>
+					<term>parallel algorithm</term>
+					<term>placement</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Placement and packing are two important but separated optimization steps in a conventional field programmable gate array (FPGA) implementation flow. A packing engine clusters logic elements, like lookup tables and flip-flops, into configurable logic blocks, while a placement engine determines their physical locations in FPGA layouts. This paper presents a new paradigm for FPGA placement without an explicit packing stage. In the proposed framework, the solution spaces of placement and packing are simultaneously explored in a smooth and elegant way. Our experiments on ISPD 2016 and 2017 benchmark suites demonstrate the effectiveness of the proposed framework.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>T HE FIELD programmable gate array (FPGA)-based designs are becoming increasingly attractive for their reconfigurability, shorter time-to-market, and lower nonrecurring engineering costs. Beyond the success of FPGAs in traditional applications like fast application specific integrated circuits prototyping, FPGAs have also demonstrated their applicability as hardware accelerators in modern applications, such as machine learning, deep learning, and data center.</p><p>The advance of FPGA-based designs and applications is inseparable from the support of FPGA CAD. In a traditional FPGA CAD flow, logic synthesis, and technology mapping translate a design into a netlist consisting of lookup tables (LUTs), flip-flops (FFs), digital signal processors, block random access memories, and I/Os. Then, a packing engine clusters LUTs and FFs successively into architecture-legal basic logic elements (BLEs) and configurable logic blocks (CLBs). After that, placement determines the physical locations of these CLBs, followed by routing to finalize the implementation flow.</p><p>Given the significance of FPGA placement and packing in determining the overall implementation quality and efficiency, lots of research efforts have been devoted to them over the The authors are with the Department of Electrical and Computer Engineering, University of Texas at Austin, Austin, TX 78712 USA (e-mail: wuxi.li@utexas.edu; dpan@ece.utexas.edu).</p><p>Color versions of one or more of the figures in this paper are available online at <ref type="url" target="http://ieeexplore.ieee.org">http://ieeexplore.ieee.org</ref>.</p><p>Digital Object Identifier 10.1109/TCAD.2018.2877017 past two decades. Fig. <ref type="figure" target="#fig_0">1</ref> summarizes several representative placement and packing flows in previous works. In the early age of FPGAs, Pack-Place-Legalize flows (the red path), such as <ref type="bibr" target="#b0">[1]</ref>- <ref type="bibr" target="#b8">[9]</ref>, dominate industry and academic research. In this type of flow, the packing solution is first determined based on logical interconnects, then the placement and legalization are performed successively to produce a legal solution. Despite the efficiency, Pack-Place-Legalize flows do not incorporate placement/spatial information during their packing decision making, thus are likely to cause poor design quality. Place-Pack-Place-Legalize flows (the blue path) then emerged as a remedy to this issue <ref type="bibr" target="#b9">[10]</ref>- <ref type="bibr" target="#b12">[13]</ref>. In such a flow, a flat initial placement (FIP) is first performed. Then, both logical and spatial information is considered during the packing stage before the final placement and legalization. Another category of flows, namely Place-SemiPack-Legalize flows (the orange path), blur the boundary between placement and packing <ref type="bibr" target="#b13">[14]</ref>, <ref type="bibr" target="#b14">[15]</ref>. In particular, after an FIP similar to that in Place-Pack-Place-Legalize flows, they only group LUTs and FFs into intermediate clusters (e.g., BLEs). Then, the rest of packing work and the final placement are combined into a single legalization process. Among all these methodologies, Place-Pack-Place-Legalize flows (the blue path) currently dominate the state-of-the-art industrial FPGA CAD tools <ref type="bibr" target="#b10">[11]</ref>. However, large discrepancies between FIP solutions and final legal solutions can still be observed, which implies that metrics, like wirelength, timing, and routability, that are carefully optimized in FIPs can be 0278-0070 c 2018 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.</p><p>See <ref type="url" target="http://www.ieee.org/publications_standards/publications/rights/index.html">http://www.ieee.org/publications_standards/publications/rights/index.html</ref> for more information.</p><p>ruined in final legal solutions. The reason is usually twofold. First, most existing FIP techniques only seek to optimize the placement without considering the effect of packing. As a result, large perturbations can be introduced in the later packing stage, especially for those hard-to-pack designs. Second, when forming a BLE/CLB in the packing stage, its location is typically estimated by the average location of its containing cells, which, however, can be far away from its final legal position.</p><p>To remedy the aforementioned deficiencies in previous works, we propose a new paradigm for FPGA placement without explicit packing. We call it Place-Legalize flow. As shown in Fig. <ref type="figure" target="#fig_0">1</ref>, in the proposed flow (the green path), a final legal solution can be achieved directly from an FIP by incorporating the previously separated packing and final placement/legalization steps. Our experiments show that the overall implementation quality, as well as the correlation between FIPs and final legal solutions, can be significantly improved with the proposed flow. The major contributions of this paper are highlighted as follows.</p><p>1) We present a new paradigm for FPGA placement without an explicit packing stage, which is drastically different from the conventional placement and packing approaches. 2) We propose an accurate packing estimation model to incorporate the effect of packing in the FIP, which significantly improves the correlation between FIPs and final legal solutions compared with the previous state-of-the-art.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>3) We propose a fully parallelizable direct legalization (DL)</head><p>technique that can produce legal solutions straightly from FIPs by simultaneously exploring the solution spaces of placement and packing. 4) Our approach outperforms the winners of ISPD 2016 contest as well as three state-of-the-art academic placers UTPlaceF <ref type="bibr" target="#b11">[12]</ref>, RippleFPGA <ref type="bibr" target="#b13">[14]</ref>, and GPlace <ref type="bibr" target="#b15">[16]</ref> in routed wirelength with competitive runtime on ISPD 2016 benchmark suite <ref type="bibr" target="#b16">[17]</ref>. The rest of this paper is organized as follows. Section II reviews the FPGA architecture and quadratic placement, and formally defines the problem of DL. In Section III, we point out the inherent challenges of the proposed Place-Legalize flow. Section IV details our proposed algorithms. Section V shows the experimental results, followed by the conclusion and future work in Section VI.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. PRELIMINARIES</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. FPGA Architecture</head><p>We adopt the Xilinx UltraScale VU095 <ref type="bibr" target="#b17">[18]</ref> used in the ISPD 2016 FPGA placement contest <ref type="bibr" target="#b16">[17]</ref> as the target FPGA device. <ref type="foot" target="#foot_0">1</ref> Its BLE and CLB architectures are shown in Fig. <ref type="figure" target="#fig_1">2</ref>. In this particular architecture, a CLB slice consists of 8 BLEs and each BLE further contains 2 LUTs and 2 FFs. The 2 LUTs in a BLE can be either implemented as a single 6-input LUT or 2 smaller LUTs with a total number of distinct inputs no greater than 5. The 2 FFs in a BLE must share the same clock (CK) and set/reset (SR) signals, however, their clock enable (CEA and CEB) signals can be different. A CLB can be divided into two half CLBs, each of which consists of 4 BLEs that share the same set of CK, SR, CEA, and CEB.</p><p>In the rest of this paper, we will use "control set" to denote the tuple of (CK, SR, CE) for an FF (CE here is the CEA/CEB of FF A/B in Fig. <ref type="figure" target="#fig_1">2</ref>) and the tuple of (CK, SR, CEA, CEB) for a CLB.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Quadratic Placement</head><p>An FPGA netlist can be represented as a hypergraph H = (V, E), where V is the set of cells, and E is the set of nets. Let x = {x 1 , x 2 , . . . , x |V| } and y = {y 1 , y 2 , . . . , y |V| } be the x and y coordinates of all cells. The placement problem is to determine cell locations such that the total half-perimeter wirelength (HPWL) defined in (1) is minimized</p><formula xml:id="formula_0">HPWL(x, y) = e∈E max i,j∈e |x i -x j | + max i,j∈e |y i -y j | . (1)</formula><p>Quadratic placers approximate the HPWL by squared Euclidean distance between cells using various net models, such as hybrid net model <ref type="bibr" target="#b18">[19]</ref> and bound-to-bound net model <ref type="bibr" target="#b19">[20]</ref>. Thus, quadratic placers minimize the wirelength cost function defined as</p><formula xml:id="formula_1">W(x, y) = 1 2 x T Q x x + c T x x + 1 2 y T Q y y + c T y y + const. (<label>2</label></formula><formula xml:id="formula_2">)</formula><p>To eliminate cell overlapping, most state-of-the-art quadratic placers <ref type="bibr" target="#b11">[12]</ref>, <ref type="bibr" target="#b13">[14]</ref>, <ref type="bibr" target="#b20">[21]</ref>- <ref type="bibr" target="#b22">[23]</ref> adopted the idea of rough legalization <ref type="bibr" target="#b23">[24]</ref>. The final placement solution can be obtained by iteratively solving the quadratic program in (2) and performing rough legalization until cells are fully spread out.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. FPGA Direct Legalization Problem</head><p>In our Place-Legalize flow, the DL is a step that produces a legal solution directly from an FIP. Given the notations defined in Table <ref type="table" target="#tab_1">I</ref>, the FPGA DL problem can be defined as follows:  </p><formula xml:id="formula_3">max x,y s∈S φ v ∈ V|z v,s = 1 -λ • HPWL(x, y) (3a) s.t. s∈S z v,s = 1, ∀v ∈ V (3b) v|v ∈ V, z v,s = 1 is arch. legal, ∀s ∈ S (3c)</formula><formula xml:id="formula_4">|x v -x v | + |y v -y v | ≤ D, ∀v ∈ V. (<label>3d</label></formula><formula xml:id="formula_5">)</formula><p>The objective (3a) is to maximize the total clustering score s∈S φ({v ∈ V|z v,s = 1}) and minimize a wirelength term λ • HPWL(x, y) normalized by a positive parameter λ. The clustering score function φ(c) typically captures the pin/net sharing, timing impact, and so on, within each CLB slice, like affinity functions used in conventional packing algorithms <ref type="bibr" target="#b2">[3]</ref>, <ref type="bibr" target="#b4">[5]</ref>, <ref type="bibr" target="#b7">[8]</ref>. In general, φ(c) can be customized for different optimization targets. The details of the objective setting used in our framework will be elaborated in Section IV-C4. The constraint (3b) guarantees that each LUT and FF is assigned to one and only one CLB slice. The constraint (3c) assures that all the architecture rules stated in Section II-A are satisfied. The maximum displacement constraint (3d) is introduced to better preserve the FIP. We treat (3d) as a soft constraint, since a legal solution may not always exist for a given D.</p><p>Unlike previous approaches, our DL formulation guarantees both placement and packing legality while optimizing the objective (3a). Besides, the maximum displacement is explicitly considered. It is, however, much harder to be dealt with in traditional methods (e.g., Place-Pack-Place-Legalize flow).</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. CHALLENGES OF PLACE-LEGALIZE FLOW</head><p>Although Place-Legalize flows have lots of potential merits, there are several new challenges come into the field with it.</p><p>To achieve a smooth DL process, the FIP needs to be as near as possible to a legal solution. Otherwise, the final legal solution cannot be obtained with a small placement perturbation. In an FIP, each cell is associated with an area, and the final FIP solution heavily depends on the cell area assignment.</p><p>Therefore, a proper cell area assignment is essential for achieving a reasonably legal FIP. In most of the previous works, cell areas were set statically based on some empirical estimations <ref type="bibr" target="#b13">[14]</ref>, <ref type="bibr" target="#b15">[16]</ref>. However, the area of a cell should be largely determined by its resource demand, which is, in fact, determined by its packing solution. For example, if an FF occupies (the FF portion of) a half CLB slice alone in the final solution due to the control set conflict, it should be assigned a larger area in the FIP. Considering packing solutions are not actually available in FIPs, how to model the effect of packing in cell area assignment is indeed a challenge.</p><p>Another important problem in FIP is how to properly distribute cells of different types. In quadratic placers, to achieve a rough-legal placement, overlapping removal techniques (e.g., rough legalization) distribute cells by evening out area demand throughout the layout. However, an area overflow-free placement can be far away from a truly legal solution, since the area metric alone cannot capture utilizations of different cell types. This issue can be better illustrated in Fig. <ref type="figure" target="#fig_2">3</ref>. Here, the LUT and FF area demands (the blue curve and the red curve) represent the numbers of CLBs required by LUTs and FFs, respectively, in different locations. The CLB capacity (the lower dashed line) represents the numbers of CLB slices available in each location, and the area capacity (the upper dashed line) is the maximum LUT + FF area constraint used by the placers. In Fig. <ref type="figure" target="#fig_2">3</ref>(a), despite the satisfaction of the LUT + FF area constraint, large displacement will still be introduced in the later legalization step due to the FF demand overflow (the shaded red region). Fig. <ref type="figure" target="#fig_2">3</ref>(b) gives a legal case where both LUT and FF demands are lower than the CLB capacity. This issue, of course, can be avoided by over-constraining the area capacity, but at the cost of resource wasting.</p><p>To legalize a placement, many previous works adopted Tetris-like approaches <ref type="bibr" target="#b24">[25]</ref>. In such a greedy approach, only one cell/cluster is considered and legalized at a time, which leads to a narrow solution space exploration. To explore a broader solution space, however, much more expensive computational effort is typically required. The scalability issue is even more severe in the Place-Legalize flow, since the flat netlist without any preclustering is directly considered. Therefore, how to explore a sufficiently large solution space while maintaining good runtime scalability is also a challenge for the Place-Legalize flow.</p><p>To sum up, there are several issues discussed in this section that need to be resolved before we can confidently adopt the Place-Legalize flow. No existing work has considered these issues, therefore, how to overcome them is a major challenge of this paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. PROPOSED ALGORITHMS</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Overall Flow</head><p>The proposed overall flow is illustrated in Fig. <ref type="figure" target="#fig_3">4</ref>. The whole flow starts with an FIP. Besides the conventional quadratic program solving and rough legalization, a new dynamic LUT/FF area adjustment step is performed after each placement iteration. This new step is aiming at resolving the two FIP-related issues pointed out in Section III. More specifically, the area of each LUT and FF is dynamically adjusted to account for the impact of both packing and utilizations of different cell types. Once the FIP converges to a roughly legal solution, a high-quality legal placement can be straightly produced by the parallel DL, in which the formulation (3a)-(3d) is solved. The detailed placement (DP) then conducts further optimization on the legal placement before the final solution is delivered.</p><p>As the centerpieces of this paper, the dynamic LUT/FF area adjustment and the parallel DL techniques will be detailed in Sections IV-B and IV-C, respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Dynamic LUT/FF Area Adjustment</head><p>Since packing and cell utilization calculation are both very local-scoped in nature, it is reasonable to analyze them in a small spatial neighborhood contexts for each cell. Additionally, considering that cells of different types do not affect the packing legality or compete for logic resources against each other, it is also reasonable to consider each cell type individually from the perspective of solution legality. Therefore, the area of each cell can be largely determined based on its spatial neighbors of the same type.</p><p>In this section, a cell u is said to be a neighbor of a cell v if u and v have the same cell type and u falls into the box region</p><formula xml:id="formula_6">(x v -L, y v -L, x v + L, y v + L) centering at v, where (x v , y v )</formula><p>is the location of v and L is a constant being empirically set to 5 CLB slices in our framework. In the rest of this section, we will use N v to denote the set of neighbors of v, and use</p><formula xml:id="formula_7">N + v to denote {v} ∪ N v .</formula><p>1) Area Updating: To determine a cell area, the following three aspects are considered in our framework: (1) the cell resource demand; (2) the local resource utilization; and (3) the routability impact. As discussed in Section III, the resource demand of a cell is mainly determined by its packing solution, so the effect of packing is our major consideration here. Besides, the local resource utilization also needs to be considered and, as pointed out in Section III, this should be done for different cell types (e.g., LUT and FF) individually. We also take the routability impact into consideration to avoid over-congested solutions.</p><p>Given an LUT (FF) v, we first define the local LUT (FF) utilization at v, denoted by U v , as follows:</p><formula xml:id="formula_8">U v = i∈N + v A i C v (<label>4</label></formula><formula xml:id="formula_9">)</formula><p>where C v denotes the number of CLB slices within the box region (x v -L, y v -L, x v + L, y v + L) we used to define N v , and A i denotes the LUT (FF) resource demand of the cell i. The magnitude of A i here can also be interpreted as the degree of difficulty to pack i. The methods to compute A i for LUTs and FFs will be detailed in Section IV-B2 ( <ref type="formula" target="#formula_11">6</ref>) and Section IV-B3 <ref type="bibr" target="#b6">(7)</ref>, respectively. We then define the new area of v, denoted by a v , as follows:</p><formula xml:id="formula_10">a v = ⎧ ⎪ ⎪ ⎨ ⎪ ⎪ ⎩ min a v β + , A v U v γ v , if A v U v γ v &gt; a v max a v β -, A v U v γ v , if A v U v γ v &lt; a v and R v &lt; R max a v , otherwise<label>(5)</label></formula><p>where a v denotes the current area of v, γ v ≥ 1 denotes the cumulative inflation ratio of v for routability optimization, R v denotes the local routing utilization at v, and R max is an empirically determined constant representing the maximum routing utilization for area shrinking. Besides, β + &gt; 1 and β -&lt; 1 are two parameters to control the rates of area increasing/decreasing. Intuitively, if an LUT (FF) v is hard to pack (large A v ) and is located in a region with high LUT (FF) utilization (large U v ), as well as high routing congestion (large γ v ), its area will be inflated. Otherwise, we will shrink its area to allow other cells to get in, but only when the region is not routing-congested (R v &lt; R max ). To achieve a smooth area adjustment, β + and β - are set to 1.1 and 0.95, respectively. The γ v is cumulatively updated using a history-based cell inflation technique similar to <ref type="bibr" target="#b11">[12]</ref> and <ref type="bibr" target="#b13">[14]</ref>. The routing congestion is estimated by a fast global router NCTUgr <ref type="bibr" target="#b25">[26]</ref>, and R max is empirically set to 0.65 in our framework. The impacts of different β + , β -, and R max settings on the solution quality will be further discussed in Section V-B.</p><p>In the proposed flow, we perform rough legalization for LUTs and FFs together using the same fence regions to maintain the relative order between them. Considering LUTs and FFs do not occupy the same logic resources, adjusting their areas directly targeting to their resource demand A v (6) and <ref type="bibr" target="#b6">(7)</ref> can result in low resource usage. This issue is prevented by scaling A v using the local resource utilization U v in <ref type="bibr" target="#b4">(5)</ref>. By doing so, cells in low-utilization regions will be assigned areas that are much smaller than their actual resource demand to leave spaces for other cells.</p><p>Our dynamic area adjustment (DAA) technique can effectively mitigate the "unbalanced resource issue" illustrated in Fig. <ref type="figure" target="#fig_2">3</ref>, and resolve "packing hotspots" that are harmful to the smoothness of the subsequent DL process. Fig. <ref type="figure" target="#fig_6">5</ref> shows the LUT/FF utilization (4) maps of a design with/without this technique when area constraint is satisfied (see Fig. <ref type="figure" target="#fig_2">3</ref>). It can be seen that, with this technique, a huge FF hotspot [Fig. <ref type="figure" target="#fig_6">5(b)</ref>] is resolved [Fig. <ref type="figure" target="#fig_6">5(d)]</ref>. More interestingly, the LUTs that are original in the FF hotspot [Fig. <ref type="figure" target="#fig_6">5(a)</ref>] tend to follow the movement of their connected FFs, which results in a "valley" [Fig. <ref type="figure" target="#fig_6">5(c)]</ref>. This is actually an expected behavior, since it implicitly preserves the relative cell ordering, which is important for the placement quality.</p><p>2) LUT Resource Demand Estimation: Now we present the method to estimate the resource demand [the A i in ( <ref type="formula" target="#formula_8">4</ref>     <ref type="formula" target="#formula_11">6</ref>) is used instead for an LUT v with its neighbors</p><formula xml:id="formula_11">N v A (LUT) v = | N v | |N v | • 1 16 + |N v | -| N v | |N v | • 1 8<label>(6)</label></formula><p>where N v denotes the set of LUTs in N v that can be fitted into the same BLE with v. Intuitively, if an LUT is architecturally compatible with most of its neighbors, its resource demand will tend to be small, otherwise, it will end up with a larger resource demand.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>3) FF Resource Demand Estimation:</head><p>The resource demand [the A i in (4)] estimation for FFs is more subtle due to their complicated control set rules. Given an FF v, one can, of course, enumerate all possible packing solutions of N + v and come up with a weighted sum similar to <ref type="bibr" target="#b5">(6)</ref> to get an average-case estimation. However, this method is too computationally expensive to be practical. Instead, we turn to a best-case estimation based on the tightest packing solution, which can provide us a firm lower bound of the FF resource demand.</p><p>For the notation simplicity, here we define every 4 FFs that share the same (CK, SR, CE) in a CLB slice as a quarter CLB, <ref type="foot" target="#foot_2">2</ref> and define every 8 FFs that share the same (CK, SR) in a CLB slice as a half CLB. 2 For instance, in Fig. <ref type="figure" target="#fig_1">2</ref>, the 4 "FF A"s in BLE 0 -3 is a quarter CLB and the 8 FFs in BLE 0 -3 is a half CLB.</p><p>An instant observation is that, to produce the tightest packing solution, FFs with the same control set need to be packed together as much as possible. Given this observation, our approach to estimate the lower-bound FF demands can be illustrated by Fig. <ref type="figure" target="#fig_7">6</ref>. Using the (CK, SR) group of (B, P) in Fig. <ref type="figure" target="#fig_7">6</ref> as an example, there are 5 and 2 FFs with CE of X and Z. In the tightest packing solution, at least 5/4 = 2 and 2/4 = 1 quarter CLBs are required for the control sets (B, P, X) and (B, P, Z). Since any two of these 2 + 1 = 3 quarter CLBs can be fitted into the same half CLB, there will be a minimum of 3/2 = 2 half CLBs for the (B, P) group. Considering the control sets of any two half CLBs are independent, we can safely set the resource demand of each half CLB as 1/2 (of a CLB). Therefore, the minimum demand of the (B, P) group will be 1/2 • 2 = 1. After that, we can divide this demand of 1 into 2/(2 + 1) = 2/3 and 1/(2 + 1) = 1/3 based on the quarter CLB counts in (B, P, X) and (B, P, Z). Finally, the resource demands of each FF in (B, P, X) and (B, P, Z) can be estimated as 2/3/5 = 2/15 and 1/3/2 = 1/6, respectively, by evenly distributing the demand of 2/3 and 1/3 to 5 and 2 FFs.</p><p>To generalize the above discussion, let v be an FF with control set (CK 0 , SR 0 , CE 0 ), and let {CE 0 , CE 1 ,. . . , CE m } be the set of CE nets in N + v . If we denote the number of FFs in N + v with the control set (CK 0 , SR 0 , CE i ) as n i , for 0 ≤ i ≤ m, the estimated FF demand of v can be expressed as follows:</p><formula xml:id="formula_12">A (FF) v = 1 2 • n 0 4 m i=0 n i 4 • m i=0 n i 4 2 • 1 n 0 • α (FF) . (<label>7</label></formula><formula xml:id="formula_13">)</formula><p>Note that our analysis in Fig. <ref type="figure" target="#fig_7">6</ref> corresponds to the tightest packing, which realizes the lower bound FF demands. In practice, however, a packing solution is likely to be looser than that when considering net sharing and other optimization metrics. Therefore, we introduce α (FF) ≥ 1 in <ref type="bibr" target="#b6">(7)</ref> to give more flexibility to the packing. In our framework, we empirically set α (FF) to 1.1.</p><p>If we ignore the α (FF) term, the FF demand estimated by ( <ref type="formula" target="#formula_12">7</ref>) is in the range [1/16, 1/2], which implies that FF demands can vary up to 8× [e.g., the FF demands of (A, P, Z) and (B, Q, Y) in Fig. <ref type="figure" target="#fig_7">6</ref>]. In a traditional flow, the discrepancy between FIPs and legal solutions is mainly from their incapability of capturing this large demand variance, as shown in Fig. <ref type="figure" target="#fig_6">5</ref>. Therefore, our FF demand estimation method detailed in this section is essential for the proposed Place-Legalize flow.</p><p>It is worthwhile to mention that, although the LUT/FF resource demand estimations elaborated in Sections IV-B2 and IV-B3 are specific to the architecture detailed in Section II-A, the same idea is also applicable to other FPGA devices with different architectures.</p><p>4) Area Adjustment Scheduling: Another important question needs to be answered is when to start the area adjustment. There is a tradeoff between the area estimation accuracy ( <ref type="formula" target="#formula_11">6</ref>) and ( <ref type="formula" target="#formula_12">7</ref>) and the required area adjustment rates. In general, the later we start the DAA in the FIP, the more accurate area estimation we can make. However, it also requires faster adjustment rates (larger β + and smaller β -) to guarantee that cells can converge to their target areas within the reduced number of adjustment iterations. As will be discussed in Section V-B, a too fast adjustment rate can be harmful to the placement convergence and quality. Therefore, in the proposed flow, we choose to start the DAA from the beginning of the FIP with relatively slow adjustment rates β + = 1.1 and β -= 0.95.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Fully Parallelizable Direct Legalization</head><p>Our DL takes a rough-legal FIP and produces a legal solution by solving the formulation (3a)-(3d). The idea is partially similar to the clustering algorithms in <ref type="bibr" target="#b10">[11]</ref> and <ref type="bibr" target="#b26">[27]</ref>, but we are aiming at a legal placement directly. Besides, the cell displacement is explicitly considered in our formulation. Compared to traditional greedy methods, our method can explore a significantly larger solution space by exploiting the strength of parallelism.</p><p>For the simplicity, we will use "slice" to denote "CLB slice" in this section.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>1) College Admission Analogy:</head><p>The proposed DL algorithm is inspired by the College Admission Problem <ref type="bibr" target="#b27">[28]</ref>. One can think that each slice is a "college," each cell is a "student," and cells sharing common nets are "friends." Then, DL can be regarded as a process of colleges admitting students. By using this analogy, the DL process is fully parallelizable in nature in a sense that all colleges can make decisions simultaneously. Our DL formulation, however, is more complicated than the original college admission problem for the following two reasons: 1) a student (cell) rates a college (slice) not only based on the college (slice) itself, but also depending on the decision making of its friends (connected cells) and 2) some students (cells) cannot be in the same college (slice) for the FPGA architectural legality.</p><p>2) Node-Centric Algorithm: The key idea of our DL algorithm is that each slice finds the cluster of cells that fits it best, then offers this cluster to all the cells involved. "Admission" happens when all the cells in this cluster accept this "offer." The process of sending and accepting/rejecting offers between slices and cells is iteratively performed until no potential admission could happen anymore. Different slices here can create cluster candidates and make their own decisions independently. Moreover, a cluster can be simultaneously created and considered by multiple slices, which implicitly explores the solution space of placement together with packing. This elegant property overcomes the drawback of all existing methods, where placement and packing cannot be considered at the same time.</p><p>In our DL algorithm, the computation is mainly centered at each slice. Thus, we call each slice as a computation node and each computation node can run in parallel against each other.</p><p>The node-centric DL algorithm flow at each computation node is shown in Fig. <ref type="figure" target="#fig_8">7</ref>. Each computation node maintains a set of cells that have been determined in the slice (det), a priority queue of cluster candidates (pq), a set of neighbor cells (nbr), and a list of seed clusters (scl) for new candidate generation. The pq stores the K best clusters found so far at each computation node and we use K = 10. Clusters are created by adding cells in nbr into seed clusters in scl in our algorithm. Besides, a variable i is also maintained by each computation node to record the number of iterations since the last change of the best candidate in pq. We will use pq.top() to denote the best candidate in a pq. Before the DL starts, for each computation node, we initialize i = 0, det = ∅, and pq = ∅, nbr as the set of cells within a predefined distance d (default is 1) to the slice, and scl to contain an empty cluster without any cells.</p><p>In every DL iteration, as shown in Fig. <ref type="figure" target="#fig_8">7</ref>, each computation node first checks if its pq.top() (the best candidate in pq) can be committed into the slice. The pq.top() will be committed only if it has been stable for a long enough time (i ≥ I) and it has been accepted by all the cells in it. I is set to 3 in our algorithm to prevent committing premature candidates. Once the pq.top() is valid to commit, we will update det as pq.top() and reset pq. To guarantee that all subsequent candidates contain the set of determined cells det, scl is set to only have det after each pq.top() committing.</p><p>If the pq.top <ref type="bibr">()</ref> is not yet ready to commit, invalid candidates and cells will be removed from pq and nbr, respectively. A cell can become invalid if it has been added to another slice or it is no longer architecturally compatible with det. A cluster becomes invalid if one or more cells in it are invalid. After that, if there are too few available cells in nbr (|nbr| &lt; NNBR min ), the current maximum cell displacement constraint d will be relaxed by d, and more neighbor cells will be added to guarantee the scope of solution space we can explore. Besides, we will also copy all candidates in pq to scl to guarantee that they will be considered by these newly added neighbor cells. To honor the ultimate maximum displacement constraint D, we will stop increasing d when it reaches D. NNBR min , d, and D are set to 10, 1, and 12, respectively, in our algorithm.</p><p>To create new cluster candidates, we add each cell in nbr into each cluster in scl. Those valid new candidates will be added into pq. Meanwhile, we also store them in scl for the candidate generation in the next DL iteration. After that, i will be increased by 1 if pq.top() does not change, otherwise, we reset it to 0.</p><p>Finally, the computation node broadcasts its pq.top() to the involved cells and let each of them make a decision. The decisions of these cells will determine if this pq.top() can be committed in the next DL iteration.</p><p>After all computation nodes finish their broadcasting, a cell may receive multiple offers from a set of different slices S. In such a case, the cell will select the slice s ∈ S with the highest score improvement SCORE(s). The score improvement of a slice s is defined as</p><formula xml:id="formula_14">SCORE(s) = SCORE(pq.top() of s, s) -SCORE(det of s, s)<label>(8)</label></formula><p>where SCORE(c, s) represents the score of cluster c in slice s, and it will be given in Section IV-C4. Intuitively, SCORE(s) is the amount of score improvement by committing the pq.top() in slice s. Algorithm 1 summarizes the whole fully parallelizable DL process. All computation nodes are initialized in parallel in lines 1-7. In each DL iteration, the node-centric algorithm presented in Fig. <ref type="figure" target="#fig_8">7</ref> is executed by each slice individually in lines 9-11. After that, each cell receives offers from slices with pq.top() containing it, and it picks the one with the highest score improvement SCORE <ref type="bibr" target="#b7">(8)</ref> and inform its acceptance to the selected slice in lines 12-16. The loop from lines 8 to 17 is repeated until no more valid candidate exists.</p><p>3) Convergence Requirement: In general, a valid pq.top() may never be accepted by all the cells in it. In such a case, our DL algorithm will fall into an infinite loop. To guarantee the Algorithm 1 Fully Parallelizable DL Input: A rough-legal placement, the set of cells C, the set of slice (computation node) S, and the initial maximum displacement constraint d. Output: A legal placement.</p><p>1: parallel for each s ∈ S do 2:</p><p>s.i ← 0; 3:</p><p>s.det ← ∅; has the highest SCORE(s ) defined in Eq. ( <ref type="formula" target="#formula_14">8</ref>) <ref type="bibr">15:</ref> and inform s that c accepts its pq.top(); <ref type="bibr">16:</ref> end parallel for 17: end while convergence of the algorithm, an extra requirement is imposed as stated in Lemma 1.</p><p>Lemma 1: Suppose s 1 and s 2 are two different computation nodes (slices). If SCORE(s 1 ) = SCORE(s 2 ) holds for any choice of s 1 and s 2 in the same DL iteration, the convergence of the proposed DL algorithm is guaranteed.</p><p>Lemma 1 basically requires a tie-breaking mechanism for the case that multiple computation nodes offer the same score improvement (8) to a set of cells. In our implementation, a tie is broken based on the unique identifier of each computation node, since a cell can receive at most one offer from a computation node in each iteration.</p><p>4) Score Function: Since our DL explores the solution spaces of placement and packing simultaneously, the score function needs to capture both placement-and packing-related metrics. Given a slice s and a cluster c, the score of c in s is defined as follows:</p><formula xml:id="formula_15">SCORE(c, s) = e∈Net(c)</formula><p>InternalPins(e, c) -1</p><p>TotalPins(e) -1</p><formula xml:id="formula_16">-λ • HPWL(c, s)<label>(9)</label></formula><p>where Net(c) denotes the set of nets that have at least one cell in c, TotalPins(e) denotes the total pin count of net e, InternalPins(e, c) represents the number of pins of net e in c, and HPWL(c, s) represents the HPWL increase of moving cells in c from their FIP locations to s. λ is a positive weighting parameter, which is empirically set to 0.02 in our algorithm. The first term defines the clustering score φ(c) in (3a), and it here grants a higher score to clusters that absorb more external nets as internal ones, which can effectively reduce routing demands and improve routability. The second term gives a higher preference to candidates that lead to a large wirelength reduction.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>5) Parallelization Scheme:</head><p>As illustrated in Algorithm 1, our DL algorithm is massively parallelizable. Like colleges independently making decisions in the analogy of college admission (Section IV-C1), different computation nodes (slices) can execute the flow illustrated in Fig. <ref type="figure" target="#fig_8">7</ref> perfectly in parallel in each DL iteration (Algorithm 1 lines 9-11). Moreover, cells can also process the results generated by slices and send back their decisions individually (Algorithm 1 lines 12-16).</p><p>Since the number of slices and cells in a modern FPGA is typically at the scale of 10 4 or more (e.g., our target FPGA contains 67K slices), a fine-grained parallelization with even tens of threads is potentially viable in our DL algorithm. Our experiments in Section V-C demonstrates the near-linear runtime scalability of our DL algorithm with respect to the number of threads. This extreme parallelizability can further facilitate efficient implementations of our DL algorithm on hardware accelerators, like FPGAs and GPUs.</p><p>Another strong property of our DL algorithm is serial equivalency. Serial equivalency is a property to guarantee that a parallel algorithm always produces exactly the same solution as its serial version does. That is, our DL algorithm guarantees to produce the same solution, regardless of the number of threads used. Therefore, we can enable as much as available parallel computational resources without sacrificing the quality of results.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>6) Post-DL Exception Handling:</head><p>Although the convergence of our algorithm can be guaranteed by Lemma 1, after the regular DL process described in Algorithm 1, a small portion (typically &lt; 1%) of cells may still not be able to find legal positions within a given maximum displacement constraint D.</p><p>To legalize these remaining cells, one can, of course, keep relaxing D until a legal solution is reached, like a Tetris-based legalizer. However, this approach can result in a huge displacement. Instead of Tetris-based approaches, we choose to rip up some already determined clusters and reallocate these ripped cells together with those originally illegal ones to produce a legal solution. Since our FIP is nearly legal, this method is likely able to find a legal solution with very little placement perturbation.</p><p>One of the key question here is which cluster to break. For an illegal cell v and a slice s with its determined cluster c, we first define the score of breaking c in s for v as</p><formula xml:id="formula_17">SCORE ripup (v, s, c) = -λ 1 • HPWL(v, s) -λ 2 • SCORE(c, s) -λ 3 • Area(c)<label>(10)</label></formula><p>where HPWL(v, s) denotes the HPWL increase of moving v to s, SCORE(c, s) denotes the score of c in s as defined in <ref type="bibr" target="#b8">(9)</ref>, and Area(c) represents the total cell area (from FIP) in c. λ 1 , λ 2 , and λ 3 are three positive weighting parameters.</p><p>In our experiments, we empirically set them to 0.02, 1.0, and 4.0, respectively. Intuitively, we prefer to move v to a lowscore slice with little wirelength increase. The Area(c) term is introduced to evaluate if the ripped cells are easy to legalize. If c has a large area, it either contains many cells or the cells Eq. ( <ref type="formula" target="#formula_17">10</ref>) in descending order; <ref type="bibr">12:</ref> for each s ∈ ls (c)   <ref type="formula" target="#formula_11">6</ref>) and ( <ref type="formula" target="#formula_12">7</ref>)]. For both cases, we tend to not break it.</p><p>Algorithm 2 summarizes our post-DL exception handling technique that legalizes illegal cells after the regular DL process (Algorithm 1). In the main loop (lines 1-6), each illegal cell c is legalized with the maximum displacement constraint D (c) using function Legalize(c, D (c) ). For each c, we set the initial displacement constraint as D (line 2), and incrementally relax it (line 4) if a legal solution cannot be found. To legalize a illegal cell c with displacement constraint D using Legalize(c, D) (lines 8-18), we first collect the set of slices ls (c) that are within distance D with respect to the location of c in FIP (line 9). Then we sort all slices in ls (c) by their SCORE ripup defined in <ref type="bibr" target="#b9">(10)</ref> in descending order (lines 10 and 11). After that we try to ripup s ∈ ls (c) one by one and legalize c using function RipUpAndLegalize(s, c, D) until the legalization successes (lines <ref type="bibr" target="#b11">[12]</ref><ref type="bibr" target="#b12">[13]</ref><ref type="bibr" target="#b13">[14]</ref><ref type="bibr" target="#b14">[15]</ref><ref type="bibr" target="#b15">[16]</ref>. If c cannot be legalized by breaking any slice in ls (c) , Legalize(c, D) will return fail (line 17) and the displacement constraint will be relaxed in the main loop (lines 3-5).</p><p>The details of function RipUpAndLegalize(s, c, D) are given in lines 20-37. The goal of this function is to break s.det and legalize c as well as the cells in s.det under the displacement constraint D. We first rip up s.det and put c alone into it (line 22). Then, the cells that are originally in s.det are legalized sequentially in the loop from lines 23 to 35. For each such a cell v, we first collect the set of slices (ls (v) ) that are within distance D (with respect to the location of v in FIP) and have their det compatible with v (lines 24 and 25). If no such slice exists, we discard all the changes that have been made in this function call (lines 27 and 28) and return fail (line 29). Otherwise, among all candidate slices (ls (v) ), we pick the one with the highest score gain SCORE(s .det ∪ v, s ) -SCORE(s .det, s ) and put v into it (lines 31-33). The function call successes only when all cells that are originally in s.det can find legal positions within displacement D (line 36).</p><p>7) Extension to Clock-Aware Placement: Clock networks in modern FPGAs can impose extra layout constraints during placement stage. The most common one is "clock region constraint" <ref type="bibr" target="#b28">[29]</ref>, which only allows a limited number of clock nets occupying each clock region (each clock region is a predefined rectangular region in the layout). Some previous works <ref type="bibr" target="#b14">[15]</ref>, <ref type="bibr" target="#b29">[30]</ref> honor this constraint by finding a legal clockto-clock region assignment and restricting clock sinks (e.g., FFs, DSPs, and RAMs) to follow it.</p><p>Here, we assume such a legal clock-to-clock region assignment is given, that is, we know which cell can be placed into which slice. Then, to honor the clock region constraint, we only need to perform an extra checking step to reject cell-toslice assignments that violate the given clock assignment in our DL algorithm.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>V. EXPERIMENTAL RESULTS</head><p>We implemented the proposed framework in C++ based on UTPlaceF <ref type="bibr" target="#b11">[12]</ref> and performed the experiments on a Linux machine running with Intel Core i9-7900X CPUs (3.30 GHz, 10 cores, and 13.75 MB L3 cache) and 128 GB RAM. OpenMP 4.0 <ref type="bibr" target="#b30">[31]</ref> is used to support multithreading. The benchmark suite released by Xilinx for ISPD 2016 FPGA placement contest <ref type="bibr" target="#b16">[17]</ref> is used to validate the effectiveness of the proposed approaches. All the routings are conducted by Xilinx Vivado v2015.4 <ref type="bibr" target="#b31">[32]</ref>. The characteristics of ISPD 2016 benchmark suite are listed in Table <ref type="table" target="#tab_1">II</ref>.</p><p>To study the impact of clock constraints, we also integrate the proposed approaches to a clock-aware placer UTPlaceF 2.0 <ref type="bibr" target="#b29">[30]</ref>, and perform experiments on the benchmark suite released by Xilinx for ISPD 2017 FPGA clockaware placement contest <ref type="bibr" target="#b16">[17]</ref>. The routings of this benchmark suite are conducted by Xilinx Vivado v2016.4. The characteristics of ISPD 2017 benchmark suite are listed in Table <ref type="table" target="#tab_1">III</ref>. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Effectiveness Validation of Proposed Techniques</head><p>Table <ref type="table" target="#tab_5">IV</ref> demonstrates the effectiveness of the proposed DAA and DL techniques. Here, we compare four different placement methodologies, as listed in the four columns. Column "UTPlaceF" represents the original UTPlaceF <ref type="bibr" target="#b11">[12]</ref> flow. Column "UTPlaceF + DAA" applys DAA on top of the original UTPlaceF. Column "Proposed" employs both DAA and the proposed DL by replacing the packing, CLB-level placement, and legalization subroutines in UTPlaceF + DAA flow with the proposed DL. To further demonstrate the effectiveness of the proposed DL, we also implemented a greedy Tetris-based DL (greedy DL) for comparison. This greedy DL adopts the same score function <ref type="bibr" target="#b8">(9)</ref> used by the proposed DL, and it legalizes one cell at a time to maximize the score improvement defined in <ref type="bibr" target="#b7">(8)</ref>. The results of substituting the proposed DL in Proposed with this greedy DL are shown in column "DAA + Greedy DL." Metrics "WL" and "RT" represent the routed wirelength and runtime, while "WLR" and "RTR" represent the wirelength and runtime ratios normalized to the Proposed column. Note that these four flows share the same underlying global and DP engines, so that noises from parts that are irrelevant to this paper can be completely decoupled in this comparison.</p><p>It is worthwhile to mention that, the proposed DL should not be applied without DAA, since this can results in very suboptimal or even illegal solutions. In the proposed DL, all cells simultaneously seek to legalize themselves. Without DAA,  <ref type="bibr" target="#b11">[12]</ref> however, the FIP solution can be considerably far away from a truly legal placement, and in this case, a significant portion of cells can fail to find nearby legal positions. Therefore, we always employ the proposed DL together with the DAA technique in our experiments.</p><p>In this experiment, we enable 16 threads for our DL algorithm due to its parallel nature, and all other parts (global/DP) are single-threaded. While the UTPlaceF is universally executed with a single thread for the following two reasons.</p><p>1) The packing and legalization algorithms in UTPlaceF are inherently sequential and hard to be parallelized without quality degradation or extra threading communication overhead.</p><p>2) The packing and legalization in UTPlaceF only take about 15% of the total runtime on average, therefore, the overall performance gain would be still limited even if they have been carefully parallelized. We first compare columns UTPlaceF and UTPlaceF + DAA, where the only difference is whether or not DAA is applied. On average, UTPlaceF + DAA achieves 1.4% better routed wirelength with only 5% runtime overhead compared with UTPlaceF. The reason is that, with DAA applied, the FIP solution can be considerably closer to a truly legal solution due to its packing effect consideration. This can be further proved by the experimental results shown in Table <ref type="table">V</ref>, which we will discuss in details later in this section.</p><p>We then compare columns UTPlaceF + DAA and DAA + Greedy DL with Proposed to demonstrate the effectiveness of the proposed DL. These three methodologies share the same FIP solutions and only differ by their packing and legalization steps. As can be seen, on average, Proposed outperforms UTPlaceF + DAA and DAA + Greedy by 3.0% and 6.0%, respectively, in routed wirelength. It should be noted that Proposed outperforms DAA + Greedy DL on all twelve benchmarks in routed wirelength with only 7% longer runtime. Therefore, compared with the Pack-Place-Legalize methodology in UTPlaceF + DAA and the greedy DL, the proposed DL algorithm can effectively explores a larger solution space and achieves better solution quality.</p><p>By comparing columns Proposed and UTPlaceF, we can see that, with both DAA and DL employed, the proposed flow outperforms the original UTPlaceF by 4.4% in routed wirelength, while runs 1.24× faster. It is worthwhile to mention that, among all the designs, FPGA-10 contains the largest number of control sets and FFs, which make it severely difficult to pack and legalize. On this particular design, our approach outperforms UTPlaceF by 29.5% in routed wirelength. Besides, our approach also consistently excel on other control set intensive designs, like FPGA-06, FPGA-07, and FPGA-09. Thus, our approach is especially effective for hard-to-pack designs.</p><p>Another notable merit of our approach is that the correlation between FIPs and post-legalization solutions can be significantly improved. This property is appealing in a sense that metrics, like wirelength, timing, and routability, optimized in FIPs can be greatly preserved in legal solutions. Table <ref type="table">V</ref> shows the average and maximum cell displacements between the FIPs and the post-legalization/DL solutions by using the four different methodologies listed in Table <ref type="table" target="#tab_5">IV</ref>. As can be seen, the original UTPlaceF introduces huge cell displacements with average and maximum values of 21.4 and 162.5, respectively. DAA technique alone can effectively reduce them down to 11.7 and 135.0 in UTPlaceF + DAA. In DAA + Greedy DL, by applying the greedy DL instead of the packing-based methodology, the average and maximum displacements can be further reduced to 1.5 and 57.4, respectively. For all twelve benchmarks, the proposed methodology with DAA and the proposed DL together can achieve maximum displacements that are less than 12.0, which is the predefined constraint in our DL algorithm. Meanwhile, the average displacements are all in the range from 1.0 to 1.5. As expected, our DAA and DL techniques can greatly help to preserve the FIP solution even after a legal solution is obtained.</p><p>Fig. <ref type="figure" target="#fig_11">8</ref> visualizes the distributions of cell displacement between the FIPs and the post-legalization/DL solutions based on design FPGA-03. Compared with UTPlaceF, most cells in the proposed methodology are much closer to their original locations in the FIP. However, tremendously large displacements can be observed in UTPlaceF.</p><p>Table <ref type="table" target="#tab_7">VI</ref> shows the impact of DAA on HPWL and the maximum LUT and FF resource utilization (4) in FIP stage. On average, DAA reduces the maximum LUT/FF resource  The displacement of a cell is defined as the Manhattan distance between its locations in the FIP and the post-legalization/DL placement. The average/maximum displacements are 12.2/146.9, 7.7/90.9, 1.2/23.8, and 1.0/11.5 in UTPlaceF, UTPlaceF + DAA, DAA + Greedy DL, and the proposed flow, respectively. utilization from 1.82 to 1.17, while increases the wirelength by 2.5%. Note that, counter-intuitively, this wirelength increase is not a quality degradation, but an improvement in the sense that FIP solutions are getting closer to truly legal placements. This can be better illustrated by Fig. <ref type="figure">9</ref>. It shows the HPWL after the FIP, legalization/DL (LG), and DP stages in the four previously described flows. In spite of the larger HPWL after FIP, flows with DAA applied finally achieve better solutions with smoother wirelength convergence. Besides, we can also see that the proposed DL technique largely preserves the FIP solution in the LG stage, and this is the main reason that the proposed flow can significantly outperform the other three methodologies.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Parameter Choosing in Dynamic Area Adjustment</head><p>A proper parameter setting in our DAA algorithm is important to the overall solution quality. In this section, we discuss how several key parameters, including β + , β -, and R max in <ref type="bibr" target="#b4">(5)</ref>, should be set.   bottom-right (β + 1 and β - 1) regions in Fig. <ref type="figure" target="#fig_12">10</ref> correspond to slow and fast area adjustment processes, respectively. As can be seen, the optimal wirelength is achieved at a relatively slow area adjustment rate, while the wirelength gets worse when cell areas are adjusted too fast. This is because that, for a very sharp area change, the placer typically needs several iterations to "heal" the wirelength. That is, a too fast area adjustment can be significantly harmful to the placement convergence. However, a too slow area adjustment should also be avoided in the sense that all the cell should reach their "target areas" reasonably earlier than the FIP stops to leave enough time to the placement for stabilizing. In our framework, we empirically set β + = 1.1 and β -= 0.95, and we observe that the final solution quality is not very sensitive to settings around these two values.</p><p>Fig. <ref type="figure" target="#fig_14">11</ref> shows the normalized HPWL and routed wirelength under different R max values based on design FPGA-05. DAA only shrinks cells in regions with routing utilization less than R max to prevent from overfilling routing congested regions. We can see that, as R max increases, HPWL decreases steadily due to the more aggressive cell shrinking. However, the routability get worse at the same time, and as a result, the routed wirelength reduction gradually saturates and starts to increase until an unroutable solution is reached (not shown in the figure). Therefore, a proper R max is crucial to produce high-quality as well as routing-friendly solutions. In our framework, we empirically set R max = 0.65.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Runtime Scaling of the Direct Legalization</head><p>Fig. <ref type="figure" target="#fig_15">12</ref> shows the runtime scaling of our DL algorithm for different design sizes under 1, 2, 4, 8, and 16 threads. It can be seen that, with a fixed number of available threads, the algorithm scales linearly with respect to the design size. On the other hand, given a design, its runtime also decreases nearly linearly as the number of threads increases (except the 16thread case with hyper-threading). On average, 1.65×, 3.15×, 6.19×, and 8.68× speedups can be achieved with 2, 4, 8, and 16 threads, respectively, compared with the single-thread execution. Note that the scaling starts to saturate from 8 threads to 16 threads. This is because a CPU core can launch 2 hyperthreads that share the same execution resources and cannot be truly parallelized. Considering there are only 10 cores in our machine, at least 6 threads will not be running at their maximum speed in the case of 16 threads.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Comparison With Other State-of-the-Art Placers</head><p>To further demonstrate the effectiveness of our approach, we also compare our result with other state-of-the-art academic placers, including RippleFPGA <ref type="bibr" target="#b13">[14]</ref>, GPlace <ref type="bibr" target="#b15">[16]</ref> as well as  <ref type="table" target="#tab_8">VII</ref>.</p><p>As the experiment setup in Section V-A, we enable 16 threads only for our DL algorithm and keep all other parts single-threaded. All other placers are executed using a single thread. Although other placers can also gain some performance by parallelizing their packing and legalization algorithms, the improvement might be limited. This is because most of their packing legalization algorithms are not the runtime bottleneck, just like in UTPlaceF. For example, RippleFPGA only about 5% of the total on packing and legalization <ref type="bibr" target="#b13">[14]</ref>.</p><p>Despite of the different global/DP engines and the execution machines, our approach still shows the best overall routed wirelength. On average, our approach outperforms the three contest winners, GPlace, and RippleFPGA by 8.0%, 14.0%, 44.4%, 25.4%, and 4.1%, respectively. Again, our approach especially excels in control set intensive designs, like FPGA-06, FPGA-07, FPGA-09, and FPGA-10. which further evidences the effectiveness of our approach on hard-to-pack designs. As for the runtime, our approach is 3.96×, 4.90×, and 5.84× faster than the three contest winners. While comparing with GPlace and RippleFPGA, our approach runs 1.14× and 1.56× slower.</p><p>To demonstrate the capability of tackling clock constraint in the proposed approaches, we also integrate them into a clock-aware placer UTPlaceF 2.0 <ref type="bibr" target="#b29">[30]</ref>. Then, we compare it with the original UTPlaceF 2.0, the clock-aware version of RippleFPGA <ref type="bibr" target="#b14">[15]</ref>, <ref type="bibr" target="#b12">[13]</ref> as well as the top-3 winners of ISPD 2017 contest (the original UTPlaceF 2.0 is also the firstplace contest winner), on ISPD 2017 benchmark suite. The comparisons of routed wirelength and runtime are shown in Table <ref type="table" target="#tab_8">VIII</ref>.</p><p>We first compare the original UTPlaceF 2.0 and the proposed flow, which is the only apple-to-apple comparison here that decouples other irrelevant differences (e.g., global/DP and clock legalization algorithms). On average, the proposed approaches achieve 2.8% better routed wirelength with slightly  <ref type="table" target="#tab_5">IV</ref>, both wirelength and runtime improvements in ISPD 2017 benchmark suite turn out to be less. This is mainly because that, in the ISPD 2017 benchmark suite, no severely unbalanced resource distributions, like shown in Fig. <ref type="figure" target="#fig_6">5</ref>, are observed even without our DAA technique. Hence, the overall improvement from DAA in this benchmark suite is reduced. On average, the proposed approach outperforms the top-3 contest winners and RippleFPGA in routed wirelength by 2.8%, 6.3%, 12.8%, and 0.6%, respectively. It is also 1.02× and 6.31× faster than the top-2 contest winners, while runs 1.37× and 1.61× slower than the third-place contest winner and RippleFPGA. Compared with <ref type="bibr" target="#b12">[13]</ref>, the proposed approach is 0.9% worse in routed wirelength. However, <ref type="bibr" target="#b12">[13]</ref> does not report their placement runtime, so we cannot quantitatively compare the runtime. Considering <ref type="bibr" target="#b12">[13]</ref> uses an NTUplace <ref type="bibr" target="#b32">[33]</ref>-like nonlinear placement engine, we can expect that it runs substantially slower than our quadratic placement-based flow.</p><p>On both ISPD 2016 and 2017 benchmark suites, RippleFPGA achieves very competitive results compared with our approaches. It turns out that RippleFPGA adopts a methodology that is very similar to us, but there are following two key Fig. <ref type="figure" target="#fig_2">13</ref>. Runtime breakdown of our approach based on designs in ISPD 2016 benchmark suite. differences: 1) RippleFPGA empirically and statically set cell areas in their FIP, while we dynamically adjust them using the proposed DAA technique and 2) RippleFPGA legalizes cells in a greedy Tetris-based manner, while we explore a much larger solution space and legalize cells using the proposed DL algorithm. As a result, compared with RippleFPGA, our approach can potentially achieve better solution quality especially on challenging designs, but with slower runtime.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>E. Runtime Breakdown</head><p>The runtime breakdown of our approach based on all 12 designs in ISPD 2016 benchmark suite is shown in Fig. <ref type="figure" target="#fig_2">13</ref>. Again, we enable 16 threads only for DL and keep all other parts single-threaded. On average, 64.5% and 18.5% of the total runtime are taken by the quadratic placement (quadratic programming and rough legalization) and the DP, respectively. While the proposed DAA, DL, and post-DL exception handling techniques consume 2.2%, 12.5%, and 0.7% of the total runtime.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. CONCLUSION</head><p>In this paper, we have proposed a new paradigm for FPGA placement without explicit packing. The proposed framework significantly improves the correlation between the early placements and the final legal solutions. To realize the proposed framework, a dynamic LUT and FF area adjustment technique and a fully parallelizable DL algorithm are proposed. Our experiments on ISPD 2016 and 2017 benchmark suites demonstrate the effectiveness of the proposed approach. In the future, we plan to further improve the resource demand estimation models and implement the fully parallelizable DL algorithm on GPU/FPGA platforms. As this is the first work to perform FPGA placement without explicit packing, we expect more research to be done to further improve the quality of results.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 .</head><label>1</label><figDesc>Fig. 1. Representative FPGA placement and packing flows.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. CLB and BLE in Xilinx UltraScale architecture.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 3 .</head><label>3</label><figDesc>Fig. 3. (a) Area overflow-free placement but with FF demand overflow (the shaded red region). (b) Legal placement.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 4 .</head><label>4</label><figDesc>Fig. 4. Proposed overall flow.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head></head><label></label><figDesc>)] of an Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:54:47 UTC from IEEE Xplore. Restrictions apply.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head>Fig. 5 .</head><label>5</label><figDesc>Fig. 5. (a) and (b) 3-D LUT and FF utilization (4) maps without our DAA and (c) and (d) are the ones with it applied. The area constraint is satisfied in both placement solutions. This is an example of the challenging case illustrated in Fig.3. The experiments are based on design FPGA-10 in ISPD 2016 benchmark suite<ref type="bibr" target="#b16">[17]</ref>.</figDesc><graphic coords="5,56.39,54.89,124.94,83.66" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Fig. 6 .</head><label>6</label><figDesc>Fig. 6. Illustration of FF resource demand estimation.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head>Fig. 7 .</head><label>7</label><figDesc>Fig. 7. Node-centric DL algorithm flow at each computation node (slice).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>9 :parallel for each c ∈ C do 13 :</head><label>913</label><figDesc>← {c ∈ C | dist(c, s) ≤ d}; 6: s.scl ← {an empty cluster}; 7: end parallel for 8: while exists valid pq.top() for s ∈ S do parallel for each s ∈ S do 10:Run the node-centric algorithm shown in Fig.7Among {s ∈ S | c ∈ s.pq.top()}, pick s that 14:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Algorithm 2 3 : 8 :</head><label>238</label><figDesc>Post-DL Exception Handling Input: A post-DL placement with the set of illegal cells C , the set of all cells C, the set of all slices S, and the maximum displacement constraint D. Output: A legal placement. 1: for each c ∈ C do 2: D (c) ← D; while Legalize(c, D (c) ) is fail do 4: D (c) ← D (c) function LEGALIZE(c, D) 9: ls (c) ← {s ∈ S | dist(c, s) ≤ D}; 10:Sort slices in ls(c) by their SCORE ripup defined in 11:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>Fig. 8 .</head><label>8</label><figDesc>Fig. 8. Cell displacement distributions of UTPlaceF, UTPlaceF + DAA, DAA + Greedy and the proposed flow (DAA + DL) based on design FPGA-03.The displacement of a cell is defined as the Manhattan distance between its locations in the FIP and the post-legalization/DL placement. The average/maximum displacements are 12.2/146.9, 7.7/90.9, 1.2/23.8, and 1.0/11.5 in UTPlaceF, UTPlaceF + DAA, DAA + Greedy DL, and the proposed flow, respectively.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Fig. 10</head><label>10</label><figDesc>visualizes the normalized wirelength under different β + and β -values based on design FPGA-01. β + &gt; 1 and β -&lt; 1 control the rates of area inflation and shrinking, respectively, in DAA. The top-left (β + ≈ 1 and β -≈ 1) and</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Fig. 10 .</head><label>10</label><figDesc>Fig. 10. Normalized HPWL under different β + and β -in (5) based on design FPGA-01. All wirelengths are normalized to the solution without applying DAA.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><head>Fig. 11 .</head><label>11</label><figDesc>Fig. 11. Normalized HPWL and routed wirelengths under different R max in (5) based on design FPGA-05. All wirelengths are normalized to the solution with R max = 0 (i.e., area shrinking is disallowed).</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_15"><head>Fig. 12 .</head><label>12</label><figDesc>Fig. 12. Runtime scaling of the DL.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head></head><label></label><figDesc>Manuscript received February 21, 2018; revised April 16, 2018 and June 14, 2018; accepted July 24, 2018. Date of publication October 19, 2018; date of current version October 16, 2019. This work was supported by Xilinx, Inc. This paper was recommended by Associate Editor I. H.-R. Jiang.</figDesc><table /><note><p>(Corresponding author: Wuxi Li.)   </p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>TABLE I NOTATIONS</head><label>I</label><figDesc>USED IN THE DL PROBLEM</figDesc><table /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head></head><label></label><figDesc>do</figDesc><table><row><cell>13:</cell><cell>if RipUpAndLegalize(s, c, D) is success then</cell></row><row><cell>14:</cell><cell>return success;</cell></row><row><cell>15:</cell><cell>end if</cell></row><row><cell>16:</cell><cell>end for</cell></row><row><cell>17:</cell><cell>return fail;</cell></row><row><cell cols="2">18: end function</cell></row><row><cell>19:</cell><cell></cell></row><row><cell cols="2">20: function RIPUPANDLEGALIZE(s, c, D)</cell></row><row><cell>22:</cell><cell>s.det ← {c};</cell></row><row><cell>25:</cell><cell>is a legal cluster};</cell></row><row><cell>26:</cell><cell>if ls (v) is ∅ then</cell></row><row><cell>27:</cell><cell>Remove c from s.det;</cell></row><row><cell>28:</cell><cell>Put all v ∈ lv back to s.det;</cell></row><row><cell>29:</cell><cell>return fail;</cell></row><row><cell>30:</cell><cell>else</cell></row><row><cell>31:</cell><cell>Pick s ∈ ls (v) with the highest</cell></row><row><cell>32:</cell><cell></cell></row><row><cell>34:</cell><cell>end if</cell></row><row><cell>35:</cell><cell>end for</cell></row><row><cell>36:</cell><cell>return success;</cell></row><row><cell cols="2">37: end function</cell></row><row><cell cols="2">it contains are hard to pack [recall (</cell></row></table><note><p><p><p><p>21:</p>lv ← {v ∈ C | v ∈ s.det}; 23:</p>for each v ∈ lv do 24:</p>ls (v) ← {s ∈ S | dist(v, s) ≤ D and s.det ∪ v SCORE(s .det ∪ v, s ) -SCORE(s .det, s ); 33: s .det ← s .det ∪ v;</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>TABLE IV ROUTED</head><label>IV</label><figDesc>WIRELENGTH (IN 10 3 ) AND RUNTIME (IN SECONDS) COMPARISON WITH UTPLACEF †</figDesc><table /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_7"><head>TABLE VI HPWL</head><label>VI</label><figDesc>AND THE MAXIMUM LUT AND FF UTILIZATIONS (4) W/ AND W/O DAA AFTER FIP Fig. 9. Normalized HPWL after the FIP, legalization/DL (LG), and DP in the four methodologies listed in Table IV. All HPWL values are normalized to the post-DP HPWL of the proposed flow.</figDesc><table /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>TABLE VII ROUTED</head><label>VII</label><figDesc>WIRELENGTH (IN 10 3 ) AND RUNTIME (IN SECONDS) COMPARISON WITH OTHER STATE-OF-THE-ART ACADEMIC PLACERS ON ISPD 2016 BENCHMARK SUITE TABLE VIII ROUTED WIRELENGTH (IN 10 3 ) AND RUNTIME (IN SECONDS) COMPARISON WITH OTHER STATE-OF-THE-ART ACADEMIC PLACERS ON ISPD 2017 BENCHMARK SUITE shorter runtime. Compared with the results on ISPD 2016 benchmark suite shown in Table</figDesc><table /></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0"><p>We adopt this architecture because it is the only modern FPGA architecture that has public benchmarks, but our new paradigm can be easily adapted to other architecture as well.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_1"><p>Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:54:47 UTC from IEEE Xplore. Restrictions apply.</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_2"><p>The quarter/half CLBs here only contain FFs, since LUTs are irrelevant in this section.</p></note>
+		</body>
+		<back>
+			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0" />			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">VPR: A new packing, placement and routing tool for FPGA research</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Betz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Rose</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. FPL</title>
+		<meeting>FPL<address><addrLine>London, U.K.</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<biblScope unit="page" from="213" to="222" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Cluster-based logic blocks for FPGAs: Areaefficiency vs. input sharing and size</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Betz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Rose</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. IEEE Custom Integr. Circuits Conf. (CICC)</title>
+		<meeting>IEEE Custom Integr. Circuits Conf. (CICC)<address><addrLine>Santa Clara, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+			<biblScope unit="page" from="551" to="554" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Using cluster-based logic blocks and timing-driven packing to improve FPGA speed and density</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">S</forename><surname>Marquardt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Betz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Rose</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. FPGA</title>
+		<meeting>FPGA<address><addrLine>Monterey, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1999">1999</date>
+			<biblScope unit="page" from="37" to="46" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">RPack: Routability-driven packing for cluster-based FPGAs</title>
+		<author>
+			<persName><forename type="first">E</forename><surname>Bozorgzadeh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Ogrenci-Memik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Sarrafzadeh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. IEEE/ACM Asia South Pac. Design Autom. Conf. (ASPDAC)</title>
+		<meeting>IEEE/ACM Asia South Pac. Design Autom. Conf. (ASPDAC)<address><addrLine>Yokohama, Japan</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2001">2001</date>
+			<biblScope unit="page" from="629" to="634" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Efficient circuit clustering for area and power reduction in FPGAs</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Parthasarathy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Marek-Sadowska</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Trans. Design Autom. Electron. Syst</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="643" to="663" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Hierarchical FPGA clustering based on a multilevel partitioning approach to improve routability and reduce power dissapation</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Marrakchi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Mrabet</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Mehrez</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. Int. Conf. Reconfigurable Comput. FPGAs (ReConFig)</title>
+		<meeting>Int. Conf. Reconfigurable Comput. FPGAs (ReConFig)</meeting>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="25" to="28" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Timing-driven nonuniform depopulation-based clustering</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Akoglu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Int. J. Reconfigurable Comput</title>
+		<imprint>
+			<biblScope unit="issue">3</biblScope>
+			<date type="published" when="2010-01">2010. Jan. 2010</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">MO-pack: Many-objective clustering for FPGA CAD</title>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">T</forename><surname>Rajavel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Akoglu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. DAC</title>
+		<meeting>DAC<address><addrLine>New York, NY, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="818" to="823" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">K-way partitioning based packing for FPGA logic blocks without input bandwidth constraint</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. IEEE Int. Conf. Field Program. Technol. (FPT)</title>
+		<meeting>IEEE Int. Conf. Field Program. Technol. (FPT)<address><addrLine>Seoul, South Korea</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="8" to="15" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Improving timing-driven FPGA packing with physical information</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">T</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Vorwerk</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Kennings</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. FPL</title>
+		<meeting>FPL<address><addrLine>Amsterdam, The Netherlands</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2007">2007</date>
+			<biblScope unit="page" from="117" to="123" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">LSC: A large-scale consensusbased clustering algorithm for high-performance FPGAs</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Singhal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Iyer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Adya</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. DAC</title>
+		<meeting>DAC<address><addrLine>Austin, TX, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">UTPlaceF: A routability-driven FPGA placer with physical and congestion aware packing</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput.-Aided Design Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="869" to="882" />
+			<date type="published" when="2018-04">Apr. 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Clock-aware placement for large-scale heterogeneous FPGAs</title>
+		<author>
+			<persName><forename type="first">Y.-C</forename><surname>Kuo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICCAD</title>
+		<meeting>ICCAD<address><addrLine>Irvine, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="519" to="526" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">RippleFPGA: Routability-driven simultaneous packing and placement for modern FPGAs</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput.-Aided Design Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">37</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="2022" to="2035" />
+			<date type="published" when="2017-10">Oct. 2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Clock-aware ultrascale FPGA placement with machine learning routability prediction</title>
+		<author>
+			<persName><forename type="first">C.-W</forename><surname>Pui</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Ma</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">F Y</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICCAD</title>
+		<meeting>ICCAD<address><addrLine>Irvine, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="915" to="922" />
+		</imprint>
+	</monogr>
+	<note>Invited paper</note>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">GPlace: A congestion-aware placement tool for ultrascale FPGAs</title>
+		<author>
+			<persName><forename type="first">R</forename><surname>Pattison</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Abuowaimer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Areibi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Gréwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Vannelli</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICCAD</title>
+		<meeting>ICCAD<address><addrLine>Austin, TX, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="1" to="7" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">Routability-driven FPGA placement contest</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Gayasen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Mulpuri</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Reddy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R</forename><surname>Aggarwal</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ISPD</title>
+		<meeting>ISPD<address><addrLine>Santa Rosa, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+			<biblScope unit="page" from="139" to="143" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<monogr>
+		<ptr target="https://www.xilinx.com/products/silicon-devices/fpga/virtex-ultrascale.html#productTable" />
+		<title level="m">Xilinx Virtex UltraScale Product Table</title>
+		<imprint>
+			<date type="published" when="2018-02-21">Feb. 21, 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">FastPlace: Efficient analytical placement using cell shifting, iterative local refinement, and a hybrid net model</title>
+		<author>
+			<persName><forename type="first">N</forename><surname>Viswanathan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">C</forename></persName>
+		</author>
+		<author>
+			<persName><forename type="first">-N</forename><surname>Chu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput.-Aided Design Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">24</biblScope>
+			<biblScope unit="issue">5</biblScope>
+			<biblScope unit="page" from="722" to="733" />
+			<date type="published" when="2005-05">May 2005</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Kraftwerk2-A fast force-directed quadratic placement approach using an accurate net model</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Spindler</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Schlichtmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">M</forename><surname>Johannes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput.-Aided Design Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">8</biblScope>
+			<biblScope unit="page" from="1398" to="1411" />
+			<date type="published" when="2008-08">Aug. 2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">POLAR: Placement based on novel rough legalization and refinement</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">C</forename><surname>Chu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">R</forename><surname>Shinnerl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Bustany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><surname>Nedelchev</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICCAD</title>
+		<meeting>ICCAD<address><addrLine>San Jose, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="357" to="362" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">ComPLx: A competitive primaldual lagrange optimization for global placement</title>
+		<author>
+			<persName><forename type="first">M.-C</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">L</forename><surname>Markov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. DAC</title>
+		<meeting>DAC<address><addrLine>San Francisco, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="747" to="752" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">UTPlaceF 3.0: A parallelization framework for modern FPGA global placement</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICCAD</title>
+		<meeting>ICCAD<address><addrLine>Irvine, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="922" to="928" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">SimPL: An effective placement algorithm</title>
+		<author>
+			<persName><forename type="first">M.-C</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D.-J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">L</forename><surname>Markov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput.-Aided Design Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">31</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="50" to="60" />
+			<date type="published" when="2012-01">Jan. 2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Method and system for high speed detailed placement of cells within an integrated circuit design</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Hill</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">U.S. Patent</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="page" from="370" to="673" />
+			<date type="published" when="2002">2002</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">A fast maze-free routing congestion estimator with hybrid unilateral monotonic routing</title>
+		<author>
+			<persName><forename type="first">W.-H</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-L</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-K</forename><surname>Koh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ICCAD</title>
+		<meeting>ICCAD<address><addrLine>San Jose, CA, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="713" to="719" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Pregel: A system for large-scale graph processing</title>
+		<author>
+			<persName><forename type="first">G</forename><surname>Malewicz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ACM Conf. Manag. Data (SIGMOD)</title>
+		<meeting>ACM Conf. Manag. Data (SIGMOD)</meeting>
+		<imprint>
+			<date type="published" when="2010">2010</date>
+			<biblScope unit="page" from="135" to="146" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<analytic>
+		<title level="a" type="main">College admissions and the stability of marriage</title>
+		<author>
+			<persName><forename type="first">D</forename><surname>Gale</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">S</forename><surname>Shapley</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Amer. Math. Monthly</title>
+		<imprint>
+			<biblScope unit="volume">69</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="9" to="15" />
+			<date type="published" when="1962">1962</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Clock-aware FPGA placement contest</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>Yang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proc. ISPD</title>
+		<meeting>ISPD<address><addrLine>Portland, OR, USA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="159" to="164" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b29">
+	<analytic>
+		<title level="a" type="main">UTPlaceF 2.0: A highperformance clock-aware FPGA placement engine</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Trans. Design Autom. Electron. Syst</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page">42</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b30">
+	<analytic>
+		<title/>
+		<ptr target="http://www.openmp.org/" />
+	</analytic>
+	<monogr>
+		<title level="j">OpenMP</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">0</biblScope>
+			<date type="published" when="2018-02-21">Feb. 21, 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b31">
+	<monogr>
+		<ptr target="https://www.xilinx.com/products/design-tools/vivado.html" />
+		<title level="m">Xilinx Vivado Design Suite</title>
+		<imprint>
+			<date type="published" when="2018-02-21">Feb. 21, 2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b32">
+	<analytic>
+		<title level="a" type="main">NTUplace3: An analytical placer for large-scale mixed-size designs with preplaced blocks and density constraints</title>
+		<author>
+			<persName><forename type="first">T.-C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z.-W</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T.-C</forename><surname>Hsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H.-C</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-W</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Trans. Comput.-Aided Design Integr. Circuits Syst</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="1228" to="1240" />
+			<date type="published" when="2008-07">Jul. 2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

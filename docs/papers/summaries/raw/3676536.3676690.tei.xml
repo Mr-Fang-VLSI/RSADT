@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">SysMix: Mixed-Size Placement for Systolic-Array-Based Hierarchical Designs</title>
+				<funder ref="#_bbuKUPp">
+					<orgName type="full">National Science Foundation</orgName>
+				</funder>
+				<funder ref="#_UAdjUbK #_ZU84p29">
+					<orgName type="full">unknown</orgName>
+				</funder>
+				<funder ref="#_mYVJgJC">
+					<orgName type="full">Semiconductor Research Corporation</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Donghao</forename><surname>Fang</surname></persName>
+							<email>donghao@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit2">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit3">Rutgers University</orgName>
+								<orgName type="institution" key="instit4">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Hailiang</forename><surname>Hu</surname></persName>
+							<email>hailiang@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit2">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit3">Rutgers University</orgName>
+								<orgName type="institution" key="instit4">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Wuxi</forename><surname>Li</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit2">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit3">Rutgers University</orgName>
+								<orgName type="institution" key="instit4">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Bo</forename><surname>Yuan</surname></persName>
+							<email>bo.yuan@soe.rutgers.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit2">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit3">Rutgers University</orgName>
+								<orgName type="institution" key="instit4">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jiang</forename><surname>Hu</surname></persName>
+							<email>jianghu@tamu.edu</email>
+							<affiliation key="aff0">
+								<orgName type="institution" key="instit1">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit2">Texas A&amp;M University</orgName>
+								<orgName type="institution" key="instit3">Rutgers University</orgName>
+								<orgName type="institution" key="instit4">Texas A&amp;M University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">SysMix: Mixed-Size Placement for Systolic-Array-Based Hierarchical Designs</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">26EAF3C912CAA62223CD44AF583D0013</idno>
+					<idno type="DOI">10.1145/3676536.3676690</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:00+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>Mixed-size placement</term>
+					<term>systolic array</term>
+					<term>regularity</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Systolic array designs are gaining popularity due to their applications in hardware acceleration for ML computing, such as CNNs and transformers. Increasingly large ML models necessitate very high circuit energy-efficiency, which is highly correlated with minimizing placement wirelength in chip physical design. However, existing placement techniques are mostly general purpose and overlook unique properties of systolic array designs. We propose a mixed-size placement approach, called SysMix, which is tailored for systolic arrays and leverage their partial regularity in hierarchical design methodologies. Experimental results from multiple CNN designs show that SysMix achieves 53% wirelength reduction and 15X speedup compared to a commercial placer and a state-of-the-art academic placer.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">INTRODUCTION</head><p>Systolic array, composed of an array of PEs (Processing Elements), serves as a cornerstone for massively parallel computing. Systolic arrays are popular in hardware acceleration for ML (Machine Learning) computing, such as CNNs (Convolutional Neural Networks) and transformers, and have been adopted in industry, e.g., Google TPU <ref type="bibr" target="#b10">[11]</ref>. As shown in Figure <ref type="figure" target="#fig_0">1</ref>, systolic arrays are characterized by their highly regular structure, coupled with interconnect dominated by local connections, i.e., connections between adjacent PEs as opposed to non-adjacent PEs. Intuitively, such a regular structure is very friendly to layout designs and can potentially facilitate improved layout solution quality. Since all PEs in a systolic array are identical, they can be pre-designed as hard IP blocks, a.k.a. macros. Such macro IP-based design reuse is commonly seen in hierarchical design methodologies and SoC designs. At the same time, the control logic circuit does not exhibit such a regular structure and is distributed throughout the array. Therefore, it can be regarded as a set of dust cells. We will present a mixed-size placement approach for such systolic array designs in hierarchical design methodologies. To the best of our knowledge, our work is the first study on mixed-size placement tailored for systolic array designs on ASICs (Application-Specific Integrated Circuits) by leveraging their regularity. Although mixed-size placement has been extensively studied in the past <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b5">6,</ref><ref type="bibr" target="#b14">15,</ref><ref type="bibr" target="#b0">1,</ref><ref type="bibr" target="#b3">4]</ref>, they are mostly general-purpose and pay almost no attention to design regularities. Design regularity is considered in datapath placement <ref type="bibr" target="#b6">[7,</ref><ref type="bibr" target="#b19">20]</ref>. In addition to the difference between systolic array's 2D regularity and conventional datapath's 1D regularity, dust cells exist between PEs of a systolic array while datapath cells form contiguous rows without random logic cells in the middle. Therefore, datapath placement techniques are not directly applicable to systolic array designs. A macro placement approach for TPU designs is introduced in <ref type="bibr" target="#b18">[19]</ref>. It is a reinforcement learning approach with little emphasis on exploiting the design regularity. Systolic array placement is also studied for FPGAs (Field-Programmable Gate Arrays) <ref type="bibr" target="#b13">[14,</ref><ref type="bibr" target="#b9">10]</ref>.</p><p>Although the work of <ref type="bibr" target="#b8">[9]</ref> is for placement of systolic array designs, it treats all PE cells as dust cells and solves a cell placement problem instead of mixed-size placement. Thus, it is for flat designs as opposed to hierarchical designs as in our work. Both flat design and hierarchical design are popular methodologies, and each has its own advantages and disadvantages. In a hierarchical design methodology, where the PE design is purchased from an IP vendor, it makes little business sense to flatten the PE design and use cell placement like <ref type="bibr" target="#b8">[9]</ref>. Likewise, in a flat design methodology, it is usually better to apply cell placement like <ref type="bibr" target="#b8">[9]</ref> than macro-based mixed-size placement like our work. Therefore, the work of <ref type="bibr" target="#b8">[9]</ref> and ours are designed for two different application scenarios and not directly comparable.</p><p>The exploitation of structural regularity in placement of systolic array designs is not as straightforward as it appears to be. Due to the PE connections with global buffer, control logic cells, and IO pins, placing PEs in a strictly regular array usually results in increased wirelength. Instead, small wirelength results often exhibit partial regularity, where the spatial orders among PEs generally follow the schematic but there is not necessarily alignment for rows and columns. To solve the problem of mixed-size placement with partial regularity, we propose SysMix, an approach with three key ingredients: (1) PE-driven dust cell clustering; (2) regularityaware macro/PE placement via LP (Linear Programming); (3) dust cell placement with a new initial placement technique. In SysMix, the regularity is exploited to reduce solution search space and help achieve better solution quality. The benefits of exploiting the regularity are clearly observed in the experimental results. The contributions of this work are summarized as follows.</p><p>• This is the first study on exploiting regularity for mixed-size placement of systolic arrays in hierarchical designs, to the best of our knowledge. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">PREVIOUS WORKS</head><p>Mixed-size Placement. NTUplace3 <ref type="bibr" target="#b2">[3]</ref> is an early influential work on mixed-size placement based on multi-level analytical techniques. RePlAce <ref type="bibr" target="#b5">[6]</ref> is an electrostatics-based analytical placer, which outperforms most of its prior works on public domain benchmark suites and forms the key basis for many recent placers. DREAMPlace <ref type="bibr" target="#b14">[15]</ref> is a very fast analytical placer leveraging neural network training infrastructure and GPUs. AutoDMP <ref type="bibr" target="#b0">[1]</ref> is a mixed-size placement framework based on DREAMPlace. It uses multi-objective Bayesian optimization to fine-tune the parameters of the DREAMPlace engine, and achieves PPA (Performance, Power, Area) comparable to commercial tools. The work of <ref type="bibr" target="#b3">[4]</ref> proposes a stronger mixed-size global placement backbone based on DREAMPlace. It archives better robustness for convergence, and better HPWL (Half-Perimeter Wire-Length) and PPA.</p><p>Macro Placement. Macro placement has been extensively studied, and we summarize some recent research results in this area. MDP-trees <ref type="bibr" target="#b15">[16]</ref> is a simulated annealing-based macro placement approach, where the MDP (Multi-Domain Packing) tree is a new solution representation technique. A deep reinforcement learning-based macro placement approach is presented in <ref type="bibr" target="#b18">[19]</ref> and has been applied in Google TPU designs. RTL-MP <ref type="bibr" target="#b11">[12]</ref> is a simulated annealing-based macro placer that exploits RTL information regarding logical hierarchy. It achieves equally good or better PPA than a commercial tool and human experts, but suffers from scalability in runtime. A comparative study on different macro placement and mixed-size placement methods is provided in <ref type="bibr" target="#b4">[5]</ref>. The results show that routed wirelength, area, and power are often highly correlated. AutoDMP and a commercial tool often achieve the best results in this study.</p><p>Datapath Placement. In <ref type="bibr" target="#b6">[7]</ref>, datapath cells are first clustered into a single macro and then a mixed-size placement is performed. Next, the datapath macro is declustered and datapath cells are placed while the random logic cells are fixed. It concludes with a random logic placement fine-tuning stage. The work of <ref type="bibr" target="#b19">[20]</ref> simultaneously places datapath cells and random logic cells through a force-directed algorithm. Pseudo nets are inserted to align cells across multiple-bit slices to address datapath regularity.</p><p>Systolic Array Design Placement. In <ref type="bibr" target="#b13">[14]</ref>, a simulated annealing-based FPGA placement technique is developed considering the 2D regularity of systolic arrays. It achieves a 2X to 28X speedup compared to VPR <ref type="bibr" target="#b16">[17]</ref>, a well-known FPGA layout tool, with limited circuit performance loss. The work of <ref type="bibr" target="#b8">[9]</ref> proposes a global placement framework using soft 2D regularity constraints for systolic array-based CNN designs. It places PE cells instead of PE macros in flat design methodologies. Compared with RePlAce, it reduces HPWL by 6%. Since flat designs have fewer constraints than hierarchical designs, they may lead to better solution quality at the expense of longer turn-around time. Although it is also a systolic array placer, comparing a mixed-size placement and a cell placement of the same circuit would mostly disclose the difference between a hierarchical design methodology versus a flat design methodology instead of the effectiveness of placement algorithms. A new algorithmic approach for systolic array placement on FPGAs is proposed in <ref type="bibr" target="#b9">[10]</ref>. Compared with other FPGA placement tools, it obtains a 24% reduction in HPWL.</p><p>Summary. There is almost no prior study on mixed-size placement for systolic array designs in ASICs by leveraging their regularity.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">BACKGROUND 3.1 Graph Clustering by Bubble-FOS/C</head><p>We make use of Bubble-FOS/C <ref type="bibr" target="#b17">[18]</ref>, a graph partitioning/clustering algorithm, in our mixed-size placement. It is a connectivity-driven approach rather than minimizing cut sizes. Its framework has three stages: (1) randomly choosing a certain number of nodes as seeds;</p><p>(2) growing each cluster from a seed node to its neighboring nodes by simulating fluid diffusion till all nodes are clustered; (3) for each cluster, finding its center as the new seed and regrowing from the new seeds to form new clusters. In our work, only stage 2 is needed as the seeds are PEs, which do not need to be randomly selected at the beginning or reselected after stage 2. Stage 2 is an iterative process. In each iteration, a certain amount of fluid moves from node 𝑣 𝑗 to another 𝑣 𝑖 with probability 𝐴 𝑖,𝑗 if there is an edge (𝑣 𝑖 , 𝑣 𝑗 ) in the given graph. The probability depends on the connectivity between 𝑣 𝑖 and 𝑣 𝑗 . At the end, a node is assigned to a cluster if its fluid mostly comes from the seed of this cluster. This iterative simulation of diffusion behaves like a Markov chain, and probabilities 𝐴 𝑖,𝑗 can be treated as state transition probabilities of the Markov chain.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Background on RePlAce</head><p>The dust cell placement of SysMix is based on RePlAce <ref type="bibr" target="#b5">[6]</ref>, which is briefly reviewed here. Let 𝜆 = (𝑥, 𝑦) 𝑇 denote the vector of the coordinates of dust cells and macros. The objective is:</p><formula xml:id="formula_0">min 𝜆 𝑊 (𝜆) + 𝛽 • 𝐷 (𝜆)<label>(1)</label></formula><p>where 𝑊 (𝜆) is the cost function of wirelength, 𝐷 (𝜆) denotes the cost of cell density, and 𝛽 is a weight factor. RePlAce uses HPWL as the wirelength function. The HPWL of a net is approximated by the WA (Weighted-Average) model. The 𝑥 component of the WA wirelength is:</p><formula xml:id="formula_1">W𝑥 (𝑛𝑒𝑡) = 𝑖 ∈𝑛𝑒𝑡 𝑥 𝑖 𝑒 𝑥 𝑖 /𝛾 𝑖 ∈𝑛𝑒𝑡 𝑒 𝑥 𝑖 /𝛾 -𝑖 ∈𝑛𝑒𝑡 𝑥 𝑖 𝑒 -𝑥 𝑖 /𝛾 𝑖 ∈𝑛𝑒𝑡 𝑒 -𝑥 𝑖 /𝛾 (2)</formula><p>where 𝛾 is a smoothing factor. The density function 𝐷 (𝜆) is used to reduce overlap among cells. RePlAce models each cell as electric charges proportional to its area. The repelling forces among the charges naturally spread out cells during placement. For a placement canvas evenly divided into an 𝐵 × 𝐵 bin grid, the density function 𝐷 (𝜆) is modeled as the total potential energy:</p><formula xml:id="formula_2">Φ( x, ỹ) = ∑︁ 0≤ x &lt;𝐵 ∑︁ 0≤ ỹ&lt;𝐵 𝜌 ( x, ỹ)𝜓 ( x, ỹ)<label>(3)</label></formula><p>where x/ ỹ denotes the column/row indices of bins, 𝜌 denotes the charge density of a bin, and 𝜓 represents the local electric potential.</p><p>RePlAce solves the placement problem with unconstrained optimization techniques. However, as stated in <ref type="bibr" target="#b3">[4]</ref>, the mixed sizes of cells often cause issues with optimization convergence. Therefore, we mainly adopt it for the dust cell placement part of our method.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">PROBLEM FORMULATION</head><p>The input is a systolic array-based design characterized by a hypergraph 𝐺 = (𝑉 , 𝐸). The node set 𝑉 is composed of a set of PEs 𝑃, a set of dust cells 𝐶 and a set of fixed pins 𝑇 corresponding to IOs and preplaced global buffer, i.e., 𝑉 = 𝑃 ∪ 𝐶 ∪ 𝑇 . Set 𝑃 is an 𝑀 × 𝐾 array of PEs, where 𝑀 and 𝐾 are natural numbers. The hyperedge set 𝐸 is the netlist indicating connections among PEs, dust cells, and fixed pins. Each PE is treated as a hard macro, and its internal nets are neglected. The mixed-size placement is to decide PE and dust cell locations in a 2D plane such that the total HPWL (Half Perimeter Wire-Length) is minimized and there is no overlap among any PEs, dust cells, and fixed pins. Mixed-size placement for systolic array designs exploiting regularity is a relatively new problem. As such, it will be tackled in a step-by-step manner with an emphasis on HPWL in this work like many other mixed-size placement works. Other objectives, such as routability, will be addressed in our future research.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">THE PROPOSED SYSMIX PLACEMENT 5.1 Overview</head><p>Although the structure of a systolic array is very regular, its placement is not straightforward for two reasons. First, there are wire connections between PEs and fixed pins, which may distort the regularity. Second, there are a significant number of dust cells interleaved between PEs, which also disturb the regularity. The effect of fixed pins and dust cells on regularity is demonstrated in <ref type="bibr" target="#b8">[9]</ref>. Such partial regularity is significantly more difficult to exploit than complete regularity. A similar difficulty is also observed in datapath placement <ref type="bibr" target="#b19">[20]</ref>. On the other hand, even partial regularity provides an opportunity for further HPWL reduction. An overview of our proposed SysMix placement methodology is provided in Figure <ref type="figure" target="#fig_1">2</ref>. In the phase of macro placement, PEs are placed with the consideration of dust cells through dust cell clustering. The macro placement is realized through LP. In the second phase, dust cells are placed while the PEs are fixed. Both the macro placement and dust cell placement leverage the partial regularity of systolic array designs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2">Macro Placement</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.1">Dust Cell</head><p>Clustering for C3-Macro Generation. A C3-macro consists of a PE surrounded by a subset of related dust cells, like a Chocolate-Covered Cherry. The PE is a hard macro (cherry) and its surrounding dust cells form a firm shell (chocolate). In this step, every dust cell is clustered to a certain PE to form an 𝑀 × 𝐾 array of C3-macros. Such C3-macros provide a rough estimate of how much space to be reserved for dust cells around each PE when deciding PE locations. This is a special graph clustering problem different from ordinary graph clustering/partitioning <ref type="bibr" target="#b1">[2,</ref><ref type="bibr" target="#b12">13]</ref>. Thus, we adopt the Bubble-FOS/C algorithm <ref type="bibr" target="#b17">[18]</ref>, which fits our need very well. The overall Bubble-FOS/C algorithm is briefly reviewed in Section 3.1. Since we can directly use PEs as cluster seeds and there is no need for further seed adjustment, only stage 2 of Bubble-FOS/C is employed here.</p><p>Starting from PEs as cluster seeds, dust cells are clustered to PEs by simulating a fluid diffusion process. As illustrated in Figure <ref type="figure" target="#fig_3">3</ref>  Graph connectivity is described by edge set 𝐸 of the given circuit netlist. If the degree of a net 𝑒 ∈ 𝐸 is denoted by 𝛿 𝑒 , then the connection weight for this net is defined as</p><formula xml:id="formula_3">𝜂 (𝑒) = 1 2𝛿 𝑒 (𝛿 𝑒 -1) . (<label>4</label></formula><formula xml:id="formula_4">)</formula><p>The diffusion simulation is based on an 𝑁 ×𝑁 connectivity matrix 𝐴, where 𝑁 is the total number of dust cells and PEs, i.e., 𝑁 = |𝐶 | + |𝑃 |.</p><p>For two distinct nodes 𝑣 𝑖 , 𝑣 𝑗 ∈ 𝐶 ∪ 𝑃, the set of nets incident to both 𝑣 𝑖 and 𝑣 𝑗 is denoted by 𝐸 𝑖,𝑗 ⊂ 𝐸. Their corresponding entry in connectivity matrix 𝐴 is defined to be</p><formula xml:id="formula_5">𝐴 𝑖,𝑗 = ∑︁ 𝑒 ∈𝐸 𝑖,𝑗 𝜂 (𝑒)<label>(5)</label></formula><p>Since a node may be a PE, which consists of many cells, it is likely a PE 𝑣 𝑖 ∈ 𝑃 has multiple net connections with a dust cell 𝑣 𝑗 ∈ 𝐶. Each diagonal element 𝐴 𝑖,𝑖 = 𝑔, where 𝑔 is a user specified parameter. Every row of matrix 𝐴 is normalized as</p><formula xml:id="formula_6">Ã𝑖,𝑗 = 𝐴 𝑖,𝑗 𝑁 𝑘=1 𝐴 𝑖,𝑘<label>(6)</label></formula><p>After the normalization,</p><formula xml:id="formula_7">𝑁 ∑︁ 𝑗=1 Ã𝑖,𝑗 = 1, 𝑖 = 1, 2, ..., 𝑁<label>(7)</label></formula><p>Then, Ã𝑖,𝑗 can be interpreted as the probability of fluid flowing from node 𝑣 𝑗 to 𝑣 𝑖 . Although the matrix may contain symmetry, i.e., Ã𝑖,𝑗 = Ã𝑗,𝑖 , fluid flows from a node with the greater amount of fluid to its neighbor node with the less amount of fluid. A diagonal entry Ã𝑖,𝑖 means the probability that fluid stays at its current node.</p><p>If 𝑔 is too small, fluid diffuses too fast and little fluid would be left at the nodes near their sources. If 𝑔 is too large, it would take much more iterations for the fluids to cover all nodes. The fluid sources are described by an 𝑁 × |𝑃 | matrix 𝑆, whose entries are defined by  </p><formula xml:id="formula_8">𝑆 𝑖,𝑗 = 1, 𝑖 = 𝑗 + |𝐶 | 0, others<label>(8)</label></formula><formula xml:id="formula_9">              0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 1              </formula><formula xml:id="formula_10">𝐷 𝑘 = Ã𝑘 𝑆<label>(9)</label></formula><p>The iterations terminate when all entries of 𝐷 𝑓 are non-zero in iteration 𝑓 . For each dust cell 𝑣 𝑖 ∈ 𝐶, we find column 𝑗 in 𝐷 𝑓 such that 𝐷 𝑖,𝑗 is the maximum in row 𝑖 of matrix 𝐷 𝑓 . Then, 𝑣 𝑖 is assigned to PE 𝑣 𝑗 ∈ 𝑃 in the final clustering solution, as 𝑣 𝑖 receives more fluid from 𝑣 𝑗 than any other PEs. A C3-macro is composed of a PE and the dust cells assigned to this PE by the clustering process. The area of a C3-macro is its PE area plus all its dust cell areas. We try to make its aspect ratio conform with its PE and as close to a square as possible. In the subsequent macro placement, all pins of a C3-macro, including those from its PE and dust cells, are assumed to be at the C3-macro center.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2.2">C3-Macro</head><p>Placement. C3-macros are placed through LP (Linear Programming). The problem formulation is to decide the locations of all C3-macros such that total HPWL is minimized while there is no overlap between any two C3-macros. Please note that the HPWL here covers only the nets among C3-macros and fixed pins while the nets incidents to dust cells are contained within C3-macros and thus not included. The HPWL is estimated by</p><formula xml:id="formula_11">𝐻𝑃𝑊 𝐿 = ∑︁ 𝑒 ∈𝐸 ′ max 𝑢 ∈𝑒 𝑥 𝑢 -min 𝑣 ∈𝑒 𝑥 𝑣 + max 𝑢 ∈𝑒 𝑦 𝑢 -min 𝑣 ∈𝑒 𝑦 𝑣<label>(10)</label></formula><p>where 𝐸 ′ indicates the nets among C3-macros and fixed pins. A C3-macro is identified by the row and column indices of its PE in the systolic array. In other words, a C3-macro 𝜇 𝑖,𝑗 is in row 𝑖 and column 𝑗 of the corresponding systolic array. Due to the regularity of systolic arrays, we can enforce nonoverlapping constraints for only a local neighborhood of each C3macro instead of all C3-macro pairs. In this manner, the relevant ordering of the PEs in the schematic is followed while the center of PEs are not necessarily aligned in each row and column. There are two such local non-overlapping constraints. Horizontal non-overlapping constraint. For each C3-macro 𝜇 𝑖,𝑗 , we require</p><formula xml:id="formula_12">𝑥 𝑖,𝑗 -𝑥 𝑖 -1,𝑗 -1 ≥ 𝑤 𝑖,𝑗 + 𝑤 𝑖 -1,𝑗 -1 2 -𝜖 𝑥 (11) 𝑥 𝑖,𝑗 -𝑥 𝑖,𝑗 -1 ≥ 𝑤 𝑖,𝑗 + 𝑤 𝑖,𝑗 -1 2 (12) 𝑥 𝑖,𝑗 -𝑥 𝑖+1,𝑗 -1 ≥ 𝑤 𝑖,𝑗 + 𝑤 𝑖+1,𝑗 -1 2 -𝜖 𝑥<label>(13)</label></formula><p>where 𝑤 𝑖,𝑗 represents the width of C3-macro 𝜇 𝑖,𝑗 and 𝜖 𝑥 ≥ 0 is a user specified parameter. Constraint <ref type="bibr" target="#b11">(12)</ref> requires that for two  Vertical non-overlapping constraint. For each C3-macro 𝜇 𝑖,𝑗 , we require that</p><formula xml:id="formula_13">𝑦 𝑖,𝑗 -𝑦 𝑖 -1,𝑗 -1 ≥ ℎ 𝑖,𝑗 + ℎ 𝑖 -1,𝑗 -1 2 -𝜖 𝑦<label>(14)</label></formula><formula xml:id="formula_14">𝑦 𝑖,𝑗 -𝑦 𝑖 -1,𝑗 ≥ ℎ 𝑖,𝑗 + ℎ 𝑖 -1,𝑗 2<label>(15)</label></formula><formula xml:id="formula_15">𝑦 𝑖,𝑗 -𝑦 𝑖 -1,𝑗+1 ≥ ℎ 𝑖,𝑗 + ℎ 𝑖 -1,𝑗+1<label>2</label></formula><formula xml:id="formula_16">-𝜖 𝑦<label>(16)</label></formula><p>where ℎ 𝑖,𝑗 represents the height of C3-macro 𝜇 𝑖,𝑗 and 𝜖 𝑦 ≥ 0 is a user specified parameter. Large values of 𝜖 𝑥 and 𝜖 𝑦 allow more compact placement with risk of not being legalizable. Moreover, 𝜖 𝑥 &gt; 0 and 𝜖 𝑦 &gt; 0 cannot simultaneously hold, otherwise overlap between two diagonally neighboring C3-macros may appear. In other words, either 𝜖 𝑥 &gt; 0 or 𝜖 𝑦 &gt; 0. Such either-or constraints can be handled by ILP (Integer Linear Programming) but not LP. However, ILP is known to be slow and have poor scalability. To solve this difficulty, we propose a 2-pass LP approach, only one of 𝜖 𝑥 &gt; 0 and 𝜖 𝑦 &gt; 0 is true in each pass. 2-pass LP methodology. Due to different C3-macro sizes, unnecessary spacing may exist among small C3-macros if 𝜖 𝑥 = 𝜖 𝑦 = 0. This is illustrated in Figure <ref type="figure" target="#fig_7">4</ref>(a). To avoid such spacing and thereby reduce HPWL, we propose a 2-pass LP approach, where one LP is performed after another, and the objective function (minimizing HPWL) and non-overlapping constraints are almost the same except the 𝜖 values.</p><p>In the first pass LP, we set 𝜖 𝑦 = 0 and 𝜖 𝑥 &gt; 0. Then, C3-macros are horizontally compacted as shown in Figure <ref type="figure" target="#fig_7">4</ref>(b). In the second pass LP, if a C3-macro does not have horizontal overlap with its diagonal neighbors from the first pass, their corresponding 𝜖 𝑦 is set to be greater than 0. For example, in Figure <ref type="figure" target="#fig_7">4</ref>(b), 𝜇 4,3 and 𝜇 3,4 do not have horizontal overlap. Hence, their corresponding 𝜖 𝑦 is greater than 0 in the second pass LP and vertical overlap of Δ 𝑦 between them is allowed as shown in Figure <ref type="figure" target="#fig_7">4(c)</ref>. Comparing Figure <ref type="figure" target="#fig_7">4(c</ref>) and (a), our 2-pass LP allows much more compact placement without incurring overlap among C3-macros.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.3">Dust Cell Placement</head><p>In this phase, dust cells are declustered from C3-macros and placed while the PE locations are fixed. Our dust cell placement includes three steps: (1) initial placement; (2) global placement; (3) detailed placement and legalization. The initial placement in our SysMix is a new technique that makes use of the regularity of systolic arrays and will be elaborated later in this section. The global placement is carried out using RePlAce <ref type="bibr" target="#b5">[6]</ref> with a change. Although PE areas intuitively need to be counted toward cell densities in global placement, their large sizes overshadow the density of dust cells, which are to be placed in this phase. In order to let RePlAce focus on dust cells instead of PEs, we scale PE dimensions with a factor the same as the target density throughout our execution of RePlAce-based dust cell placement. Step 3, detailed placement and legalization, is realized by calling NTUplace3 <ref type="bibr" target="#b2">[3]</ref>.</p><p>In conventional cell placement methods <ref type="bibr" target="#b2">[3,</ref><ref type="bibr" target="#b5">6]</ref>, initial solutions are generated randomly or through quadratic placement. In our SysMix, we propose a new initial solution technique for dust cells by leveraging the regularity of systolic array designs. The main idea is to use the PE placement as a backbone and then place dust cells using the results of clustering described in Section 5.2.1.</p><p>The initial placement is based on dust cell connections with PEs. For simplicity, we use cells to refer dust cells. The netlist connections are described by matrix 𝐴, which is described in Section 5. The process for generating the cell-PE connection matrix Φ is outlined in Algorithm 1. Its lines 4 and 5 are to check the upper-left sub-matrix of 𝐴 to identify indirect connections, which are counted in matrix Φ in lines 6 and 7. Lines 10-14 examine the upper-right sub-matrix of 𝐴 to account for the direct connections in Φ. After the normalization in line 16, Φ 𝑖,𝑗 can be interpreted as the normalized connection weight between dust cell 𝑣 𝑖 ∈ 𝐶 and PE 𝑣 𝑗 ∈ 𝑃.</p><p>Let vectors (x 𝑃 , y 𝑃 ) denote the fixed PE locations, then our initial dust cell placement (x 𝐶 , y 𝐶 ) is obtained by Equation <ref type="bibr" target="#b16">(17)</ref>. return Φ 18: end procedure This is illustrated by an example in Figure <ref type="figure" target="#fig_10">5</ref>, where Φ = 0.5 0.4 0.1 0.0 0.4 0.1 0.0 0.5</p><formula xml:id="formula_17">x 𝐶 = Φ • x 𝑃 , y 𝐶 = Φ • y 𝑃<label>(17)</label></formula><formula xml:id="formula_18">, x 𝑃 = [1, 1, 2, 2] 𝑇 , y 𝑃 = [1, 2, 1, 2] 𝑇</formula><p>Then, the initial placement of the two dust cells is obtained by</p><formula xml:id="formula_19">x 𝐶 = Φ • x 𝑃 = 1.1 1.5 , y 𝐶 = Φ • y 𝑃 = 1.4 1.6</formula><p>One can see that the computations of Algorithm 1 and Equation ( <ref type="formula" target="#formula_17">17</ref>) have very limited complexity. Indeed, it is observed that our initial placement achieves better results than quadratic placement with much shorter runtime. It also enables significantly shorter HPWL compared to random initial placement.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6">EXPERIMENTAL RESULTS</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.1">Experiment Setup</head><p>Several systolic array-based CNN circuit designs are obtained according to <ref type="bibr" target="#b20">[21]</ref> for ASIC style. These circuits are synthesized using Synopsys Design Compiler with the ASAP7 cell library <ref type="bibr" target="#b7">[8]</ref>. They cover different dataflow types, WS (Weight Stationary) and OS (Output Stationary), and various PE array sizes. The characteristics of these circuits are summarized in the first column of Table <ref type="table" target="#tab_1">1</ref>.</p><p>We compared our method (SysMix) with the following state-ofthe-art mixed-size placers</p><p>• RePlAce <ref type="bibr" target="#b5">[6]</ref>;</p><p>• DREAMPlace <ref type="bibr" target="#b14">[15]</ref>;</p><p>• AutoDMP <ref type="bibr" target="#b0">[1]</ref>;</p><p>• The work of <ref type="bibr" target="#b3">[4]</ref>;</p><p>• A commercial placement tool.</p><p>AutoDMP usually generates multiple solutions with different PPA (Performance Power Area) tradeoffs. We pick its minimum HPWL solution for a fair comparison. Except AutoDMP and <ref type="bibr" target="#b3">[4]</ref>, all the other methods are evaluated on an 8-thread CPU machine with 3.4GHz frequency and 250GB RAM. AutoDMP can only be performed on a GPU platform, and it runs on NVIDIA GeForce RTX 2080 Ti in this experiment. The result of <ref type="bibr" target="#b3">[4]</ref> was obtained from an NVIDIA GeForce RTX 2080 GPU.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.2">Main Results</head><p>The main results of HPWL and total runtime are summarized in Table <ref type="table" target="#tab_1">1</ref>. All the HPWL values except those labeled with illegal are legalized results. For those results labeled with illegal, global placement was successful, and their global placement HPWL results are reported if available. Please note that each tool has its own legalizer, e.g., the legalization of DREAMPlace was performed using DREAMPlace's legalizer. The global placement of RePlAce cannot converge for circuit WS8 and circuit WS64. Among the six methods being compared, only our SysMix, the commercial tool, and AutoDMP can successfully find legalized solutions for all circuits. Compared to the commercial tool and Au-toDMP, our SysMix can reduce wirelength by over 53% on average and are 15× -217× faster. Although DREAMPlace's results look close to ours, DREAMPlace failed to legalize five out of the eight circuits. Among all methods, RePlAce is the fastest, but it failed in three circuits, and the available HPWL results are 78% larger than our SysMix on average. The method of <ref type="bibr" target="#b3">[4]</ref> failed in legalizing WS32 and generated 2.7× HPWL compared to our SysMix. (1) Regular PE placement. PEs instead of C3-macros are placed in a regular 2D array, where rows and columns are well aligned. Then, dust cells are placed using RePlAce with the PEs are fixed. This approach is straightforward yet the tricky part is the spacing among adjacement PEs. Since this is a regular array, the spacing for different columns and rows are the same. Too small spacing may cause legalization failures while too large spacing increases HPWL unnecessarily. For each case, we conduct multiple runs and choose the minimum spacing that allows successful legalization. (2) RePlAce with regular initial PE placement (RePlAce-RI). This is almost the same as RePlAce except that the initial PE placement is a regular 2D array instead of a random placement. Since this is merely an initial solution, the spacing among rows and columns is not important. The comparison results are shown in Table <ref type="table" target="#tab_2">2</ref>. Compared to the regular PE placement, SysMix can reduce legalized HPWL by almost a half and decrease runtime by 15%. This shows that the impact of dust cells and IO pins is complicated and cannot be handled by a very regular PE layout. RePlAce-RI shows much better results than the RePlAce results, which are shown in Table <ref type="table" target="#tab_1">1</ref>. However, it still causes 20% higher HPWL, which is quite significant for placement. Moreover, RePlAce cannot yet converge for WS8, even with the regular initial solution. Compared to random initial placement, our method reduces HPWL and global placement runtime by 6% and 33%, respectively. Compared to QP-based initial placement, our initial placement leads to 3% smaller HPWL and 30% reduction of the total runtime of initial placement and global placement. Since our initial solutions are computed very quickly and make dust cells well located, the remaining RePlAce iterations can be significantly reduced.  <ref type="table" target="#tab_3">3</ref>. Compared to the naïve clustering, the Bubble-FOS/C-based clustering in our method leads to 30% reduction in HPWL and 25% total placement runtime reduction. One reason for this difference is that Bubble-FOS/C clustering is based on a relatively sophisticated connectivity metric of Equation <ref type="bibr" target="#b4">(5)</ref>, which reflects the effect of net degrees. In addition, diffusion is a natural way to capture this metric through multiple connecting paths between dust cells and PEs. There are two parameters for the dust cell clustering described in Section 5.2.1. One is the diagonal element value 𝑔 for the connectivity matrix 𝐴, and the other is the number of iterations. We evaluate the impact of these parameters on case WS8. Since the impact on total runtime is limited, we mainly focus on the legalized HPWL, which is depicted in Figure <ref type="figure" target="#fig_14">8</ref>. One can see that too few iterations increase HPWL. When the number of iterations is sufficiently large, the middle choice of diagonal values 𝑔 leads to the best HPWL. This is consistent with our expectation that 𝑔 should not be too large or too small. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6.3">Ablation Studies</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7">CONCLUSIONS AND FUTURE RESEARCH</head><p>This work provides the first study on mixed-size placement for systolic array designs in hierarchical ASIC style, to the best of our knowledge. The proposed approach SysMix makes use of partial regularity in systolic array designs and produces significantly better wirelength results compared to state-of-the-art techniques including a commercial tool, which either fail in obtaining legalized solutions or lead to considerably greater wirelength. Ablation studies have been performed to the effectiveness of each component in our SysMix placer. In future research, we will extend this work to handle routability and evaluate solutions with global routing.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: A systolic array-based CNN circuit architecture.</figDesc><graphic coords="2,328.85,303.51,216.22,95.77" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Overview of the proposed SysMix placement method, where the green parts are our contributions.</figDesc><graphic coords="4,364.88,164.25,144.15,231.39" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head></head><label></label><figDesc>, PEs are fluid sources indicated by different colors. Over the time, or simulation iterations, the fluids diffuse to neighboring dust cells according to graph connectivity. When the diffusion covers the entire graph as the rightmost part of Figure 3, all dust cells are clustered with their PEs to form an array of C3-macros.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: An illustration of clustering by simulating fluid diffusion. The four large boxes are PEs and small rectangles indicate dust cells. Fluids are represented by different colors. The fluid flow coloring result correspond to 4 clusters of dust cells.</figDesc><graphic coords="5,53.80,144.28,240.24,50.68" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head></head><label></label><figDesc>where each column corresponds to a PE. The upper |𝐶 | rows of this matrix correspond to dust cells and are all zeros. The lower |𝑃 | rows imply interactions between dust cells and PEs, and form an identity sub-matrix. For |𝐶 | = 4 and |𝑃 | = 3, the 𝑆 matrix is</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5"><head></head><label></label><figDesc>An 𝑁 × |𝑃 | distribution matrix 𝐷 has entries 𝐷 𝑖,𝑗 indicating the amount of fluid from source 𝑣 𝑗 ending up at 𝑣 𝑖 . At the beginning, 𝐷 0 = 𝑆 for the initial distribution, where all fluids are at their source nodes. From iteration 𝑘 -1 to 𝑘, 𝐷 𝑘 = Ã𝐷 𝑘 -1 , and therefore</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_6"><head></head><label></label><figDesc>(a) C3-macro placement when 𝜖 𝑥 = 𝜖 𝑦 = 0. (b) First pass LP when 𝜖 𝑦 = 0 and 𝜖 𝑥 &gt; 0. (c) Second pass LP when 𝜖 𝑦 &gt; 0.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_7"><head>Figure 4 :</head><label>4</label><figDesc>Figure 4: C3-macro placement with non-overlapping constraints of different 𝜖 𝑥 and 𝜖 𝑦 settings.C3-macros 𝜇 𝑖,𝑗 and 𝜇 𝑖,𝑗 -1 , which are in the same row, 𝜇 𝑖,𝑗 must be strictly on the right of 𝜇 𝑖,𝑗 -1 . However, for diagonal neighbors in adjacent rows, e.g., 𝜇 𝑖,𝑗 and 𝜇 𝑖+1,𝑗 -1 , horizontal overlap up to 𝜖 𝑥 is allowed according to constraints<ref type="bibr" target="#b10">(11)</ref> and<ref type="bibr" target="#b12">(13)</ref>. For example, in Figure4(b), 𝜇 1,2 and its diagonal neighbor 𝜇 2,1 have horizontal overlap of Δ𝑥 ≤ 𝜖 𝑥 . This limited relaxation allows more compact placement, which can be seen by comparing Figures4(a) and (b). Vertical non-overlapping constraint. For each C3-macro 𝜇 𝑖,𝑗 , we require that</figDesc><graphic coords="6,238.96,73.72,129.60,118.40" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_8"><head></head><label></label><figDesc>2.1. It is an 𝑁 × 𝑁 matrix, where its upper-left |𝐶 | × |𝐶 | sub-matrix describes connections among cells, its lower-right |𝑃 | × |𝑃 | sub-matrix is for connections among PEs, the upper-right |𝐶 | × |𝑃 | sub-matrix and lower-left |𝑃 | × |𝐶 | sub-matrix indicate connections between cells and PEs. We derive a |𝐶 | × |𝑃 | matrix Φ from 𝐴 to capture direct and indirect connections between a cell and a PE. There is a direct connection between a cell 𝑣 𝑖 ∈ 𝐶 and a PE 𝑣 𝑗 ∈ 𝑃 if there is an edge 𝑒 ∈ 𝐸 such that 𝑣 𝑖 ∈ 𝑒 and 𝑣 𝑗 ∈ 𝑒. There is an indirect connection between a cell 𝑣 𝑖 ∈ 𝐶 and a PE 𝑣 𝑗 ∈ 𝑃 if there is another cell 𝑣 𝑘 ∈ 𝐶 such that {𝑣 𝑖 , 𝑣 𝑘 } ⊆ 𝑒 ∈ 𝐸 and 𝑣 𝑘 is assigned to C3-macro corresponding to 𝑣 𝑗 in the clustering described in Section 5.2.1.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_9"><head>Algorithm 1</head><label>1</label><figDesc>Generating Cell-PE Connection Weight Matrix 1: procedure CellPE-Connection(Connection matrix 𝐴) 2: Initialize |𝐶 | × |𝑃 | matrix Φ with all 0's 3: for 𝑖 in 1, ..., |𝐶 | -1 do // for all dust cells 4: for 𝑗 in 𝑖 + 1, ..., |𝐶 | do //check connection to other cells 5: if 𝐴(𝑖, 𝑗) &gt; 0 then 6: 𝑐 𝑗 ← C3-macro ID of cell 𝑣 𝑗 in clustering 7: Φ(𝑖, 𝑐 𝑗 )+ = 𝐴(𝑖, 𝑗) // indirect connect with PE 8: for 𝑗 in 1, ..., |𝑃 | do //check connection to PEs 11: if 𝐴(𝑖, 𝑗 + |𝐶 |) &gt; 0 then 12: Φ(𝑖, 𝑗)+ = 𝐴(𝑖, 𝑗) // direct connect with PE 13: Φ 𝑖,𝑗 = 1, 𝑖 = 1, ..., |𝐶 | 17:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_10"><head>Figure 5 :</head><label>5</label><figDesc>Figure 5: An illustration of dust cell initial placement. The small boxes indicate dust cells. The numbers along wire segments are non-zero elements of connection weight matrix Φ.</figDesc><graphic coords="7,100.73,335.41,144.14,127.77" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_11"><head>6. 3 . 1</head><label>31</label><figDesc>Effectiveness of LP-Based C3-Macro Placement. We compared our SysMix with two alternative approaches, which perform the PE placement differently.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_12"><head>Figure 6 :</head><label>6</label><figDesc>Figure 6: Legalized HPWL from different dust cell initial placement methods. 6.3.2 Effectiveness of Dust Cell Initial Placement. In order to examine the effectiveness of our proposed dust cell initial placement described in Section 5.3, we compare it with random placement and Quadratic Placement (QP), two commonly used conventional initial placement techniques, while the other parts of the SysMix</figDesc><graphic coords="8,70.70,532.26,204.22,97.36" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_13"><head>Figure 7 :</head><label>7</label><figDesc>Figure 7: Global placement runtime and total (global+initial) placement runtime.6.3.3 Effectiveness of Dust CellClustering. We compared our placer using the Bubble-FOS/C clustering (Section 5.2.1) with a naïve dust cell clustering method embedded in our placement framework. In this naïve clustering, a dust cell is clustered to its nearest neighbor PE according to the number of hops in the circuit graph. The comparison results are shown in Table3. Compared to the naïve clustering, the Bubble-FOS/C-based clustering in our method leads to 30% reduction in HPWL and 25% total placement runtime reduction. One reason for this difference is that Bubble-FOS/C clustering is based on a relatively sophisticated connectivity metric of Equation<ref type="bibr" target="#b4">(5)</ref>, which reflects the effect of net degrees. In addition, diffusion is a natural way to capture this metric through multiple connecting paths between dust cells and PEs.</figDesc><graphic coords="8,317.96,356.64,240.24,72.80" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_14"><head>Figure 8 :</head><label>8</label><figDesc>Figure 8: Effect of dust cell clustering parameters. 6.3.5 Effectiveness of PE Scaling in Dust Cell Global Placement.During the dust cell global placement in SysMix, we scale the dimensions of each PE by a factor equal to the target density such that PEs do not overshadow dust cells in bin density estimation of RePlAce<ref type="bibr" target="#b5">[6]</ref>. Despite its simplicity, this PE scaling technique plays a critical role in the success of SysMix. When PEs are not scaled as such, the global placement fails to converge for both WS8 and OS8, the two smallest cases.</figDesc><graphic coords="9,82.71,205.33,180.18,100.08" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>Table 1 :</head><label>1</label><figDesc>Comparison of (legalized unless specified) HPWL and total runtime. For results that failed in legalization, global placement HPWL values are reported. #cells means the number of dust cells.</figDesc><table><row><cell></cell><cell></cell><cell></cell><cell cols="2">SysMix</cell><cell cols="2">Commercial Tool</cell><cell>RePlAce</cell><cell></cell><cell cols="2">DREAMPlace</cell><cell cols="2">AutoDMP</cell><cell>Ref [4]</cell></row><row><cell cols="3">Circuit PE array #cells</cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell></row><row><cell>WS8</cell><cell>8×8</cell><cell>5K</cell><cell>3.72E+08</cell><cell>13</cell><cell>4.38E+08</cell><cell>96</cell><cell>Not converge</cell><cell cols="2">N/A 4.97E+08 Illegal</cell><cell>10</cell><cell cols="2">5.58E+08 3,654</cell><cell>2.37E+09</cell><cell>19</cell></row><row><cell>OS8</cell><cell>8×8</cell><cell>9K</cell><cell>4.06E+08</cell><cell>15</cell><cell>5.13E+08</cell><cell>151</cell><cell>4.38E+08</cell><cell>6</cell><cell>4.97E+08 Illegal</cell><cell>9</cell><cell cols="2">6.55E+08 5,083</cell><cell>5.67E+08</cell><cell>19</cell></row><row><cell>WS16</cell><cell>16×16</cell><cell>17K</cell><cell>1.70E+09</cell><cell>21</cell><cell>1.78E+09</cell><cell>381</cell><cell>1.99E+09</cell><cell>15</cell><cell>1.53E+09 Illegal</cell><cell>19</cell><cell cols="2">3.38E+09 3,052</cell><cell>7.65E+09</cell><cell>124</cell></row><row><cell>OS16</cell><cell>16×16</cell><cell>33K</cell><cell>2.08E+09</cell><cell>41</cell><cell>2.04E+09</cell><cell>689</cell><cell>2.42E+09</cell><cell>24</cell><cell>2.28E+09</cell><cell>57</cell><cell cols="2">4.58E+09 5,596</cell><cell>3.46E+09</cell><cell>124</cell></row><row><cell>WS32</cell><cell>32×32</cell><cell cols="2">105K 6.12E+09</cell><cell>30</cell><cell>3.78E+10</cell><cell>882</cell><cell>2.26E+10</cell><cell>21</cell><cell>5.62E+09 Illegal</cell><cell>32</cell><cell cols="3">1.19E+10 10,610 6.47E+09 Illegal</cell><cell>16</cell></row><row><cell>OS32</cell><cell>32×32</cell><cell cols="3">172K 2.34E+10 217</cell><cell cols="4">5.50E+10 2175 2.47E+10 Illegal 191</cell><cell>2.38E+10</cell><cell>231</cell><cell cols="2">3.70E+10 13,272</cell><cell>3.49E+10</cell><cell>57</cell></row><row><cell>WS64</cell><cell>64×64</cell><cell cols="3">268K 5.76E+10 562</cell><cell cols="2">1.90E+11 8,329</cell><cell>Not converge</cell><cell cols="3">N/A 4.27E+10 Illegal 763</cell><cell cols="2">1.57E+11 11,527</cell><cell>5.36E+10</cell><cell>93</cell></row><row><cell>OS64</cell><cell>64×64</cell><cell cols="3">463K 9.32E+10 798</cell><cell cols="2">4.10E+11 12,135</cell><cell>1.19E+11</cell><cell>854</cell><cell cols="4">9.49E+10 Illegal 1052 6.63E+11 24,032</cell><cell>1.69E+11</cell><cell>93.0</cell></row><row><cell cols="3">Normalized average</cell><cell>100%</cell><cell>1</cell><cell>216%</cell><cell>15.22</cell><cell>178%</cell><cell>0.59</cell><cell>108%</cell><cell>0.96</cell><cell>180%</cell><cell>217</cell><cell>274%</cell><cell>1.75</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>Table 2 :</head><label>2</label><figDesc>Comparisons with regular PE placement and Re-PlAce with regular initial PE placement.</figDesc><table><row><cell></cell><cell></cell><cell></cell><cell cols="2">Regular PE</cell><cell cols="2">RePlAce with regular</cell></row><row><cell></cell><cell cols="2">SysMix</cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell>Circuit</cell><cell></cell><cell></cell><cell cols="2">Placement</cell><cell cols="2">initial PE placement</cell></row><row><cell></cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell><cell>HPWL</cell><cell>RT(s)</cell></row><row><cell>WS8</cell><cell>3.72E+08</cell><cell>13</cell><cell>5.12E+08</cell><cell>10</cell><cell cols="2">Not converge N/A</cell></row><row><cell>OS8</cell><cell>4.06E+08</cell><cell>15</cell><cell>6.24E+08</cell><cell>11</cell><cell>4.25E+08</cell><cell>6</cell></row><row><cell>WS16</cell><cell>1.70E+09</cell><cell>21</cell><cell>7.82E+09</cell><cell>21</cell><cell>1.94E+09</cell><cell>14</cell></row><row><cell>OS16</cell><cell>2.08E+09</cell><cell>41</cell><cell>3.26E+09</cell><cell>65</cell><cell>2.39E+09</cell><cell>22</cell></row><row><cell>WS32</cell><cell>6.12E+09</cell><cell>30</cell><cell>7.23E+09</cell><cell>47</cell><cell>6.82E+09</cell><cell>34</cell></row><row><cell>OS32</cell><cell cols="2">2.34E+10 217</cell><cell cols="2">3.89E+10 265</cell><cell>3.61E+10</cell><cell>243</cell></row><row><cell>Norm avg</cell><cell>100%</cell><cell>1</cell><cell>199%</cell><cell>1.15</cell><cell>120%</cell><cell>0.71</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>Table 3 :</head><label>3</label><figDesc>Comparison between our clustering and a naïve clustering method. 6.3.4 Effect of Dust Cell Clustering Parameters.</figDesc><table><row><cell></cell><cell cols="3">Our Bubble-FOS/C clustering</cell><cell></cell><cell cols="2">Naïve clustering</cell></row><row><cell>Circuit</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row><row><cell></cell><cell>HPWL</cell><cell cols="2">RT Clustering RT</cell><cell>HPWL</cell><cell cols="2">RT Clustering RT</cell></row><row><cell>WS8</cell><cell cols="2">3.72E+08 13s</cell><cell>0.0018s</cell><cell cols="2">5.07E+08 17s</cell><cell>0.016s</cell></row><row><cell>OS8</cell><cell cols="2">4.06E+08 15s</cell><cell>0.0021s</cell><cell cols="2">6.18E+08 21s</cell><cell>0.017s</cell></row><row><cell>Ave</cell><cell cols="2">3.89E+08 14s</cell><cell>0.0020s</cell><cell cols="2">5.63E+08 19s</cell><cell>0.017s</cell></row><row><cell cols="2">Norm 100%</cell><cell>1</cell><cell>1</cell><cell>145%</cell><cell>1.34</cell><cell>8.5</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head n="8">ACKNOWLEDGMENTS</head><p>This work is partially supported by <rs type="funder">National Science Foundation</rs> (<rs type="grantNumber">CMMI-2038625</rs>, <rs type="grantNumber">CCF-2106725</rs> and <rs type="grantNumber">CCF-2212346</rs>) and <rs type="funder">Semiconductor Research Corporation</rs> (<rs type="grantNumber">GRC-CADT-3013.001</rs>).</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_bbuKUPp">
+					<idno type="grant-number">CMMI-2038625</idno>
+				</org>
+				<org type="funding" xml:id="_UAdjUbK">
+					<idno type="grant-number">CCF-2106725</idno>
+				</org>
+				<org type="funding" xml:id="_mYVJgJC">
+					<idno type="grant-number">CCF-2212346</idno>
+				</org>
+				<org type="funding" xml:id="_ZU84p29">
+					<idno type="grant-number">GRC-CADT-3013.001</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">AutoDMP: automated DREAMPlace-Based macro placement</title>
+		<author>
+			<persName><forename type="first">Anthony</forename><surname>Agnesina</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Puranjay</forename><surname>Rajvanshi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tian</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Geraldo</forename><surname>Pradipta</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Austin</forename><surname>Jiao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ben</forename><surname>Keller</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brucek</forename><surname>Khailany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haoxing</forename><surname>Ren</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Physical Design</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">An open-source constraints-driven general partitioning multi-tool for VLSI physical design</title>
+		<author>
+			<persName><forename type="first">Ismail</forename><surname>Bustany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Grigor</forename><surname>Gasparyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioannis</forename><surname>Koutis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bodhisatta</forename><surname>Pramanik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiang</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Compute-Aided Design</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">NTUplace3: an analytical placer for large-scale mixedsize designs with preplaced blocks and density constraints</title>
+		<author>
+			<persName><forename type="first">Tung-Chieh</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhe-Wei</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tien-Chang</forename><surname>Hsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hsin-Chen</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yao-Wen</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<date type="published" when="2008">2008</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Stronger mixed-size placement backbone considering second-order information</title>
+		<author>
+			<persName><forename type="first">Yifan</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zaiwen</forename><surname>Wen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yun</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yibo</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Computer-Aided Design</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Assessment of reinforcement learning for macro placement</title>
+		<author>
+			<persName><forename type="first">Chung-Kuan</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sayak</forename><surname>Kundu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yucheng</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiang</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Physical Design</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">RePlAce: advancing solution quality and routability validation in global placement</title>
+		<author>
+			<persName><forename type="first">Chung-Kuan</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ilgweon</forename><surname>Kang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lutong</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Structure-aware placement for datapath-intensive circuit designs</title>
+		<author>
+			<persName><forename type="first">Sheng</forename><surname>Chou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Meng-Kai</forename><surname>Hsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yao-Wen</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">ASAP7: a 7-nm finFET predictive process design kit</title>
+		<author>
+			<persName><forename type="first">Lawrence</forename><forename type="middle">T</forename><surname>Clark</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vinay</forename><surname>Vashishtha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lucian</forename><surname>Shifren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Aditya</forename><surname>Gujja</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Saurabh</forename><surname>Sinha</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brian</forename><surname>Cline</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chandarasekaran</forename><surname>Ramamurthy</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Greg</forename><surname>Yeric</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Microelectronics</title>
+		<imprint>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Global placement exploiting soft 2D regularity</title>
+		<author>
+			<persName><forename type="first">Donghao</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Boyang</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hailiang</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wuxi</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiang</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Physical Design</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Systolic array placement on FPGAs</title>
+		<author>
+			<persName><forename type="first">Hailiang</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Donghao</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wuxi</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiang</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Computer-Aided Design</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">In-datacenter performance analysis of a tensor processing unit</title>
+		<author>
+			<persName><forename type="first">Norman</forename><forename type="middle">P</forename><surname>Jouppi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Computer Architecture</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">RTL-MP: toward practical, human-quality chip planning and macro placement</title>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ravi</forename><surname>Varadarajan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiang</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Physical Design</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Multilevel hypergraph partitioning: application in VLSI domain</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Karypis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rajat</forename><surname>Aggarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vipin</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shashi</forename><surname>Shekhar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">How much does regularity help FPGA placement?</title>
+		<author>
+			<persName><forename type="first">Hongxin</forename><surname>Kong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lang</forename><surname>Feng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Chunhua</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bo</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiang</forename><surname>Hu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Conference on Field-Programmable Technology</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">DREAMPlace: deep learning toolkit-enabled GPU acceleration for modern VLSI placement</title>
+		<author>
+			<persName><forename type="first">Yibo</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zixuan</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jiaqi</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wuxi</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shounak</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Haoxing</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Brucek</forename><surname>Khailany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">MDP-Trees: multi-domain macro placement for ultra large-scale mixed-size designs</title>
+		<author>
+			<persName><forename type="first">Yen-Chun</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tung-Chieh</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yao-Wen</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sy-Yen</forename><surname>Kuo</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Asia and South Pacific Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">VPR 5.0: FPGA CAD and architecture exploration tools with single-driver routing, heterogeneity and process scaling</title>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Luu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ian</forename><surname>Kuon</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Jamieson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ted</forename><surname>Campbell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andy</forename><surname>Ye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Wei</forename><forename type="middle">Mark</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kenneth</forename><surname>Kent</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jonathan</forename><surname>Rose</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Transactions on Reconfigurable Technology and Systems</title>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Graph partitioning and disturbed diffusion</title>
+		<author>
+			<persName><forename type="first">Burkhard</forename><surname>Henning Meyerhenke</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Stefan</forename><surname>Monien</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Schamberger</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Parallel Computing</title>
+		<imprint>
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">A graph placement methodology for fast chip design</title>
+		<author>
+			<persName><forename type="first">Azalia</forename><surname>Mirhoseini</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">PADE: A high-performance placer with automatic datapath extraction and evaluation through high-dimensional data learning</title>
+		<author>
+			<persName><forename type="first">I</forename><surname>Samuel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Duo</forename><surname>Ward</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">David</forename><forename type="middle">Z</forename><surname>Ding</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Automated systolic array architecture synthesis for high throughput CNN inference on FPGAs</title>
+		<author>
+			<persName><forename type="first">Xuechao</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cody</forename><surname>Hao Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Youxiang</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuxin</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hangtao</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yun</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Cong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Design Automation Conference</title>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

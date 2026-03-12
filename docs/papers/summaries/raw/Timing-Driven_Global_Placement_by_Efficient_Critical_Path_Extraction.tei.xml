@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Timing-Driven Global Placement by Efficient Critical Path Extraction</title>
+				<funder ref="#_Qmt9Ewe">
+					<orgName type="full">National Science Foundation of China</orgName>
+				</funder>
+				<funder ref="#_dSAxK64">
+					<orgName type="full">National Science and Technology Major Project</orgName>
+				</funder>
+				<funder ref="#_mapz2eR">
+					<orgName type="full">National Science Foundation for PhD Students</orgName>
+				</funder>
+				<funder ref="#_SWZxgx8">
+					<orgName type="full">Fundamental Research Funds for the Central Universities</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Yunqi</forename><surname>Shi</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="laboratory">National Key Laboratory for Novel Software Technology</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">School of Artificial Intelligence</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff2">
+								<orgName type="institution">Huawei Noah&apos;s Ark Lab</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Siyuan</forename><surname>Xu</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="institution">Huawei Noah&apos;s Ark Lab</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Shixiong</forename><surname>Kai</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="institution">Huawei Noah&apos;s Ark Lab</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Xi</forename><surname>Lin</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="laboratory">National Key Laboratory for Novel Software Technology</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">School of Artificial Intelligence</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Ke</forename><surname>Xue</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="laboratory">National Key Laboratory for Novel Software Technology</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">School of Artificial Intelligence</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Mingxuan</forename><surname>Yuan</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="institution">Huawei Noah&apos;s Ark Lab</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Chao</forename><surname>Qian</surname></persName>
+							<email>qianc@lamda.nju.edu.cn</email>
+							<affiliation key="aff0">
+								<orgName type="laboratory">National Key Laboratory for Novel Software Technology</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="department">School of Artificial Intelligence</orgName>
+								<orgName type="institution">Nanjing University</orgName>
+								<address>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Timing-Driven Global Placement by Efficient Critical Path Extraction</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">4BA8E578FF25E03AD4BAF9858C7744E5</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:01+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Timing optimization during the global placement of integrated circuits has been a significant focus for decades, yet it remains a complex, unresolved issue. Recent analytical methods typically use pin-level timing information to adjust net weights, which is fast and simple but neglects the path-based nature of the timing graph. The existing path-based methods, however, cannot balance the accuracy and efficiency due to the exponential growth of number of critical paths. In this work, we propose a GPU-accelerated timing-driven global placement framework, integrating accurate path-level information into the efficient DREAMPlace infrastructure. It optimizes the fine-grained pin-to-pin attraction objective and is facilitated by efficient critical path extraction. We also design a quadratic distance loss function specifically to align with the RC timing model. Experimental results demonstrate that our method significantly outperforms the current leading timing-driven placers, achieving an average improvement of 40.5% in total negative slack (TNS) and 8.3% in worst negative slack (WNS), as well as an improvement in half-perimeter wirelength (HPWL).</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>I. INTRODUCTION</head><p>In the field of very-large-scale integration (VLSI) design, the placement process is critical as it forms the bridge between logical design and physical layout <ref type="bibr" target="#b7">[8]</ref>, <ref type="bibr" target="#b27">[28]</ref>. Traditional placement methods, while focusing on minimizing wirelength and reducing routing congestion, only implicitly address timing metrics <ref type="bibr" target="#b2">[3]</ref>, which may fail to satisfy the strict timing requirements of modern, large-scale chip designs. Direct optimization of timing is essential but typically demands considerable computational resources and turn-around time, emphasizing the need for more efficient timing-driven placement methods to improve design cycles and ensure timing closure.</p><p>Modern placement algorithms often consist of three main stages: global placement, legalization, and detailed placement <ref type="bibr" target="#b22">[23]</ref>. Global placement distributes cells across the target layout, balancing the wirelength and density. The coarse result is then refined by legalization and fine-tuned by detailed placement. Among these three stages, global placement plays a crucial role in determining the overall distribution of cells, significantly influencing the quality of the final placement, including timing. As a result, timing-driven placement (TDP) for global placement has been extensively studied, focusing on optimizing key timing metrics such as total negative slack (TNS) and worst negative slack (WNS).</p><p>Such TDP techniques basically have three components: foundational placement algorithms, timing analysis, and interfaces between them <ref type="bibr" target="#b25">[26]</ref>. The first component utilizes traditional global placement engines, which primarily focus on optimizing the trade-offs between wirelength and density. The second component involves either internal or external timing engines that assess the current layout of the placement to provide essential timing data, such as critical path delays or pin slacks. The third component translates timing metrics into certain weights or constraints to drive the foundational placement engines. Depending on the method of handling timing information, TDP techniques can be broadly categorized into two types: net-based and path-based approaches.</p><p>Net-based methods use timing analysis to adjust net weights <ref type="bibr" target="#b1">[2]</ref>, <ref type="bibr" target="#b4">[5]</ref>, <ref type="bibr" target="#b8">[9]</ref>, <ref type="bibr" target="#b9">[10]</ref>, <ref type="bibr" target="#b24">[25]</ref> or net constraints <ref type="bibr" target="#b10">[11]</ref>, <ref type="bibr" target="#b15">[16]</ref>, <ref type="bibr" target="#b21">[22]</ref> either dynamically or statically, indirectly guiding the placement to focus on critical nets. Since traditional placement algorithms primarily focus on minimizing wirelength, which inherently involves net considerations, only minimal modifications are required to adapt these for a timing-driven approach. Recently, Liao et al. upgraded the advanced nonlinear placer, DREAMPlace <ref type="bibr" target="#b19">[20]</ref>, to its timing-driven version 4.0 <ref type="bibr" target="#b17">[18]</ref>. This new version dynamically adjusts net weights, utilizing a momentum-guided mechanism that interacts with a timing analysis engine, enhancing its focus on timing optimization.</p><p>Path-based methods <ref type="bibr" target="#b6">[7]</ref>, <ref type="bibr" target="#b14">[15]</ref>, <ref type="bibr" target="#b26">[27]</ref> directly address paths extracted from the timing graph, typically formulated as a mathematical programming problem. These methods maintain an accurate view of timing during the optimization <ref type="bibr" target="#b3">[4]</ref>, thereby often ensuring high-quality results. However, they frequently encounter scalability issues as the number of paths grows exponentially with the increase of design size <ref type="bibr" target="#b17">[18]</ref>. Recently, Guo and Lin introduced a novel differentiable-timing-driven placement framework <ref type="bibr" target="#b11">[12]</ref>, which incorporates a GPU-accelerated, differentiable timing engine into DREAMPlace, enabling efficient path-based analysis. This approach not only achieves state-of-the-art performance but also operates at competitive speeds, addressing traditional scalability challenges effectively.</p><p>Despite significant advancements, the timing-driven placement problem remains largely unsolved. Net-based approaches often suffer from an indirect optimization objective and underutilized timing information. For path-based methods, although Guo and Lin <ref type="bibr" target="#b11">[12]</ref> have somewhat addressed the scalability issue, their approach potentially compromises accuracy by smoothing timing metrics. In this work, we introduce a timingdriven global placement framework that incorporates a fine-grained pin-to-pin attraction quadratic distance loss, directly targeting timing metrics. This is complemented by a path-level timing analysis module that extracts critical paths efficiently. We outline the key contributions as follows:</p><p>• We develop a GPU-accelerated, timing-driven placement flow that optimizes pin-to-pin attraction on critical paths, based on the leading placer DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref>. Our code is available at <ref type="url" target="https://github.com/lamda-bbo/">https://github.com/lamda-bbo/</ref> Efficient-TDP. • We introduce an efficient critical path extraction method that captures comprehensive timing information, enabling timing optimization at a high speed-achieving a 6× speed improvement over the default timer <ref type="bibr" target="#b13">[14]</ref>. • We design a quadratic Euclidean distance loss for pin-topin attraction, which is closely aligned with timing metrics and significantly contributes to the superior performance, showing 50% (30%) improvements on TNS (WNS) compared to other distance metrics. • Experimental results on the ICCAD2015 contest benchmark suites <ref type="bibr" target="#b16">[17]</ref> show that we can achieve about 60% (30%) improvements on TNS (WNS), compared to DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref> and about 50% (10%) improvements on TNS (WNS), compared to Guo and Lin's work <ref type="bibr" target="#b11">[12]</ref>. The rest of the paper is organized as follows: Section II gives the preliminaries for timing-driven global placement. Section III presents details of our proposed timing-driven placement flow. Section IV provides empirical studies and discussions. Section V concludes this paper.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>II. PRELIMINARIES</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Nonlinear Global Placement</head><p>Global placement is a critical phase in physical design, aiming to determine the locations of millions of cells within a specified chip layout. The goal of optimization is to minimize the wirelength connecting all relevant components while adhering to density constraints. To facilitate efficient optimization, the constrained problem is transformed into an unconstrained nonlinear optimization problem:</p><formula xml:id="formula_0">min x,y e∈E W L e (x, y) + λ • D(x, y),<label>(1)</label></formula><p>where x, y are the cell locations, E represents the set of all nets, W L is typically a smoothed half-perimeter wirelength (HPWL) function (e.g., weighted-average method <ref type="bibr" target="#b12">[13]</ref>), D is a density metric, and λ is the density penalty factor.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Static Timing Analysis</head><p>Static timing analysis (STA) <ref type="bibr" target="#b23">[24]</ref> evaluates circuit timing by modeling it as a directed acyclic graph, where edges represent timing arcs that indicate signal propagation directions. In this graph, a timing path starts from a source and ends at a sink, with the arrival time Arr propagated forward and the required arrival time Req backward along the path. The difference between these times at any point t defines the slack:</p><formula xml:id="formula_1">Slack(t) = Req(t) -Arr(t).<label>(2)</label></formula><p>A negative slack at an endpoint indicates a timing violation, necessitating further optimization. To quantify these violations, the metrics worst negative slack (WNS) and total negative slack (TNS) are used. WNS identifies the largest magnitude of violation, while TNS sums all the negative slacks:</p><formula xml:id="formula_2">WNS = min t∈V Slack(t),<label>(3)</label></formula><formula xml:id="formula_3">TNS = t∈V Slack(t),<label>(4)</label></formula><p>where V represents the set of all violated endpoints. If V = ∅, both WNS and TNS are zero, indicating that all timing constraints are met.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Timing-Driven Placement by Net Weighting</head><p>With WNS and TNS defined to measure the timing performance, vanilla nonlinear placement may be inefficient in optimizing these metrics, because wirelength does not directly target timing metrics. An intuitive idea is dynamically adjusting weight of nets using timing information. Among timing-driven placers, DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref> is the state-of-the-art opensource implementation. Built upon DREAMPlace <ref type="bibr" target="#b19">[20]</ref>, version 4.0 makes the most of the GPU acceleration framework and integrates the popular open-source timer OpenTimer <ref type="bibr" target="#b13">[14]</ref> for STA, further extracting timing information for net weighting. The nonlinear placement objective ( <ref type="formula" target="#formula_0">1</ref>) is thus formulated as:</p><formula xml:id="formula_4">min x,y e∈E w e • W L e (x, y) + λ • D(x, y),<label>(5)</label></formula><p>where w e is the weight assigned to net e. Nets that are timing critical are assigned larger weights.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>III. OUR ALGORITHM</head><p>In this section, we propose a GPU-accelerated timing-driven global placement framework shown in Fig. <ref type="figure">1</ref>. We introduce a fine-grained pin-to-pin attraction objective, which directly targets timing metrics, facilitated by an efficient critical path extraction method and a quadratic Euclidean distance loss.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Fine-Grained Weighting Scheme</head><p>As described in Sec.II-C, traditional net weighting methods aim to enhance the timing performance by assigning additional weights to critical nets. However, given the complexity of modern designs, which often feature large fan-out nets and shared data paths, this approach has notable shortcomings. Specifically, it may apply unnecessary weights to non-critical pin pairs and overlook the effects of path-sharing, which disable efficient optimization of timing performance.</p><p>To address these issues, we propose incorporating pin-to-pin attraction as a fine-grained objective, replacing the traditional method of applying extra net weights for timing optimization. The revised objective function is presented as follows: where β represents the penalty multiplier, and P P denotes the pin-to-pin attraction loss. Pin-to-pin attraction describes an attractive force that brings pins on critical path closer together, thereby reducing wire delay and improving timing performance. Fig. <ref type="figure" target="#fig_0">2</ref> compares the traditional net weighting scheme with the pin-to-pin attraction model for a three-pin net. We illustrate this with an example comprising three timing paths, indicated by green, yellow, and blue arrows. Traditionally, net weighting for timing optimization typically involves assigning a substantial weight to both pins B and C, based on the worst pin slack within the net (i.e., pin C in this case). But the weight is unnecessary for pin B, as positive slacks are disregarded in timing metrics. Furthermore, this heavy weighting could compromise the wirelength of other nets, potentially creating new critical paths. Additionally, pin C's slack is determined by the worst slack of the paths it belongs to, calculated as min(-400,-500), which ignores the effects of path-sharing due to the nature of pin-level timing analysis. In contrast, the pin-to-pin attraction method assigns weights selectively to critical pin pairs based on their individual slacks, offering a more refined control that benefits both overall timing and wirelength. What's more, we can analyse critical paths one by one, thus define the pin C's slack as sum(-400,-500), taking path-sharing into consideration.</p><formula xml:id="formula_5">min x,y e∈E W L e (x, y) + λ • D(x, y) + β • P P (x, y),<label>(6)</label></formula><p>Although a similar concept of 'pin-to-pin attraction' has been previously described as 'virtual path' in the literature <ref type="bibr" target="#b5">[6]</ref>, <ref type="bibr" target="#b20">[21]</ref>, the advantages of fine-grained weighting and path-sharing cannot be realized without extracting critical timing paths efficiently. This enables proper weights assigned to those critical pin pairs. This vital aspect has been insufficiently explored in prior studies due to its complexity and the potential for an exponential increase in the number of paths as chip scale grows.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Critical Path Extraction</head><p>To address the necessity of efficiently extracting path-level timing information, we integrate OpenTimer <ref type="bibr" target="#b13">[14]</ref>, a leading timing engine widely adopted by open-source projects and adapted from DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref>. OpenTimer provides an advanced feature, report_timing(n), which identifies the worst n endpoints based on slack and retrieves the n worst critical paths for each, resulting in n 2 paths from which the top n worst paths are selected. While report_timing(n) is effective for identifying critical paths when n is small (e.g., 1), allowing quick and detailed analysis of specific paths, its efficiency decreases as n increases due to the quadratic growth in analyzed paths. Additionally, the extracted paths tend to concentrate on a few critical endpoints, which does not align well with the TNS metric that requires summing negative slacks across all endpoints.</p><p>To address the afore-mentioned problem, we present the report_timing_endpoint(n,k) method for critical path extraction. Here n represents the number of most critical endpoints we want to investigate and k means the number of critical paths we extract for each endpoint. The method returns n × k paths that ensure each mentioned endpoint is properly covered, thus comprehensively reflecting the timing issue of the entire chip and directly targeting the TNS metric.</p><p>Table <ref type="table" target="#tab_1">I</ref> details the timing analysis for the superblue1 case <ref type="bibr" target="#b16">[17]</ref> using different methods. Initially, we identify a total of 26,300 failing endpoints. Employing OpenTimer's report_timing(26300), we find that out of these paths, only 6 unique endpoints and 748 unique pin pairs are extracted, which significantly deviates from the TNS metric's requirements that each failing endpoint's slack should be considered. Even increasing the path count to 26300 × 10, the extracted unique endpoints and pin pairs still fall short of the necessary criteria for a comprehensive TNS evaluation. In contrast, our method, report_timing_endpoint(26300,1), efficiently covers all endpoints and includes a broader range of * The number here is less than 263000, as not all endpoints can extract 10 critical paths. pin pairs. Increasing the number of paths per endpoint to 10 triples the time while only increasing the number of pin pairs by 1.5 times, indicating that the former setting is sufficient for effective optimization. Further empirical evaluations and discussions are available in Table <ref type="table" target="#tab_3">III</ref> and Sec. IV-B.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Quadratic Euclidean Distance Loss</head><p>To achieve effective optimization, it is desirable to design a loss function that aligns well with the final timing metrics. In practice, the RC delay model is fairly sufficient and widely adopted. Given the distributed RC network of a net, the delay from the net source s to sink t can be calculated as follows:</p><formula xml:id="formula_6">Delay s→t = R s→t C t ,<label>(7)</label></formula><p>where R s→t represents the equivalent resistance from s to t, and C t represents the capacitance at node t. For net delay, R and C here are both linear to wirelength, making the delay quadratic in length. Thus, we choose the square of the pin-topin Euclidean distance -quadratic loss as the objective:</p><formula xml:id="formula_7">Q(i, j) = (x i -x j ) 2 + (y i -y j ) 2 ,<label>(8)</label></formula><p>where Q(i, j) represents the pin-to-pin loss of pin i and j. Fig. <ref type="figure" target="#fig_1">3</ref> demonstrates the effectiveness of our quadratic loss design, comparing it to HPWL loss and Euclidean distance loss using the superblue16 case <ref type="bibr" target="#b16">[17]</ref>. We first identify the most critical path using report_timing(1) from the coarse placement before timing optimization, as shown in Fig. <ref type="figure" target="#fig_1">3(a)</ref>. Fig. <ref type="figure" target="#fig_1">3(b</ref>) and (c) show the corresponding path optimized to convergence by HPWL loss and linear Euclidean distance loss, respectively. Both paths and slacks appear similar in these two figures due to the nearly linear relationship both loss functions have with distance. Such linear loss fails to differentiate effectively between longer and shorter wires, with gradients indicating direction but not magnitude. Consequently, many cells may cluster together, while some wire segments become excessively long, as shown in Fig. <ref type="figure" target="#fig_1">3(b)</ref> and<ref type="figure">(c</ref>). In contrast, Fig. <ref type="figure" target="#fig_1">3(d)</ref>, which utilizes a quadratic distance loss, demonstrates improved path slack despite an increase in total wirelength. This improvement is attributed to the quadratic loss fostering a more uniform distribution of cells and maintaining more consistent wire segment lengths. It also implies that there are fewer excessively long wire segments, which typically necessitate the insertion of buffers that can escalate area, power, and thermal concerns, underscoring the utility in modern chip design <ref type="bibr" target="#b0">[1]</ref>. As this study focuses on academic cases which are not suited for post-CTS evaluations, optimizing area, power, and thermal is identified as a crucial future work.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>D. Workflow Summary</head><p>We detail the overall process for timing optimization as a summary. Initially, vanilla DREAMPlace <ref type="bibr" target="#b19">[20]</ref> is run to distribute the cells within the layout. Subsequently, we perform a path-level timing analysis every m rounds to extract critical paths and update the pin-to-pin loss. This involves report_timing_endpoint(n,1), where n denotes the number of all failing endpoints, to collect data on critical paths. As we traverse these paths, each pin pair (i, j) involved is added to a maintained set P , unless it has already been included. To address the path-sharing effect, the weight w (i,j) of each pin pair is dynamically updated as follows:</p><formula xml:id="formula_8">w (i,j) = w 0 , if (i, j) / ∈ P , w (i,j) + w 1 • (slack/WNS), otherwise,<label>(9)</label></formula><p>where w 0 and w 1 are hyperparameters, and slack indicates the negative slack of the respective critical path. The pin-to-pin attraction loss P P (x, y) of the layout is then computed as:</p><formula xml:id="formula_9">P P (x, y) = (i,j)∈P w (i,j) • Q(i, j),<label>(10)</label></formula><p>with Q(i, j) and w (i,j) defined in Eqs. 8 and 9, respectively. After defining the loss function properly, we implement the CUDA kernel of P P loss for GPU-acceleration. * For DREAMPlace <ref type="bibr" target="#b19">[20]</ref> and DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref>, we replicate the layout DEFs using the default configurations. † For Differentiable-TDP <ref type="bibr" target="#b11">[12]</ref>, we acquire the DEFs from its authors to evaluate. § For Distribution-TDP <ref type="bibr" target="#b18">[19]</ref>, we borrow their results as our evaluation script is identical. The HPWL values are not provided. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>IV. EXPERIMENTAL RESULTS</head><p>We have developed our timing-driven global placer based on the open-source placer DREAMPlace 4.0 released version 1 . We assess the efficacy of our placer using the well-established benchmark suite from the ICCAD 2015 contest <ref type="bibr" target="#b16">[17]</ref>. All the evaluations are conducted on a Linux server equipped with a 52-core Intel Xeon CPU at 2.60 GHz, an NVIDIA RTX 2080S GPU, and 128GB of RAM. The hyperparameters are set as follows: β = 2.5 × 10 -5 , m = 15, w 0 = 10, and w 1 = 0.2. The updating rule for the Lagrange multiplier λ is adopted from DREAMPlace. Timing optimization commences at the 500th iteration, a stage where cell distribution has typically stabilized, in line with the configurations specified in DREAMPlace 4.0.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>A. Main Results</head><p>Table II presents a comprehensive comparison of TNS, WNS, and HPWL metrics between our timing-driven placer and four baseline methods. All DEF results are assessed using the official evaluation kit from the ICCAD 2015 contest to ensure fair comparison. Our approach significantly outperforms the state-of-the-art timing-driven placers, notably Differentiable-TDP <ref type="bibr" target="#b11">[12]</ref> and Distribution-TDP <ref type="bibr" target="#b18">[19]</ref>. Specifically, our method achieves the best TNS results in seven out of eight test cases, showing an average improvement of 50.0% over Differentiable-TDP and 40.5% over Distribution-TDP. Our placer also shows a consistent 8.3% improvement in WNS compared to these 1 <ref type="url" target="https://github.com/limbo018/DREAMPlace/releases/tag/4.0.0">https://github.com/limbo018/DREAMPlace/releases/tag/4.0.0</ref> two leading placers. Furthermore, when compared to DREAM-Place <ref type="bibr" target="#b19">[20]</ref>, including its version 4.0 <ref type="bibr" target="#b17">[18]</ref>, our results consistently outperform theirs in all eight cases for TNS and WNS. It is surprising that our method surpasses baselines, including the original DREAMPlace, in terms of HPWL in six out of eight cases. This improvement can be attributed to our targeted pinto-pin attraction strategy, which minimizes the impact on noncritical pins and effectively preserves wirelength quality, unlike DREAMPlace 4.0 which applies weights to numerous nets. What's more, additional timing-driven optimization iterations may further optimize HPWL against density, compared to DREAMPlace with an earlier convergence.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>B. Ablation Study</head><p>Table <ref type="table" target="#tab_3">III</ref> summarizes the ablation study. The first two columns, 'w/ HPWL Loss' and 'w/ Linear Loss,' replace the quadratic distance loss with HPWL and linear Euclidean losses, respectively. They both fall short of the quadratic loss, consistent with the discussion in Sec. III-C. Nevertheless, they deliver a 15% improvement in TNS over DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref>, demonstrating the effectiveness of our pin-to-pin attraction modeling and critical path extraction. Furthermore, the superior performance of quadratic loss compared to HPWL/Euclidean loss suggests an advantage over Electrostatics-TDP <ref type="bibr" target="#b20">[21]</ref>, which relies on HPWL/Euclidean loss for its virtual path modeling. However, the differences in frameworks and datasets make direct comparisons with <ref type="bibr" target="#b20">[21]</ref> impossible.   <ref type="table" target="#tab_1">I</ref>, this approach provides insufficient coverage for comprehensive timing analysis, resulting in worse TNS performance. It also requires approximately 10× more computation time compared to our path extraction method which uses report_timing_endpoint(n,1).</p><p>The fourth column, 'w/ rpt_timing_ept(n,10),' extracts 10 critical paths (instead of one) per failing endpoint with report_timing_endpoint(n,10). This adjustment improves TNS by incorporating more detailed timing information but slightly degrades WNS and increases computation time.</p><p>The fifth column, 'w/o Path Extraction,' replaces our pathlevel timing analysis with the pin-level timing information and momentum-based weighting scheme proposed by DREAM-Place 4.0 <ref type="bibr" target="#b17">[18]</ref>. While this method achieves competitive TNS results, it performs worse in WNS, likely because pin-level analysis fails to consider path-sharing effects, overlooking some critical paths that significantly influence timing. <ref type="bibr" target="#b19">[20]</ref>, DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref>, and our method across eight designs. DREAMPlace achieves the best runtime in all cases, as it focuses on wirelength without a timing engine which is time consuming. Our method surpasses DREAMPlace 4.0 in most cases thanks to our efficient timing analysis and weighting scheme, as illustrated in Fig. <ref type="figure" target="#fig_2">4</ref>. For case superblue1, we break down the runtime into key components and normalize each against DREAMPlace 4.0's total runtime for clarity. The reductions in our runtime primarily result from our efficient critical path extraction and pin pair weighting techniques.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>C. Runtime Analysis and Additional Results</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Table IV compares runtime among DREAMPlace</head><p>Fig. <ref type="figure" target="#fig_3">5</ref> depicts the HPWL, overflow, TNS, and WNS throughout a placement run, comparing our method with DREAMPlace 4.0 <ref type="bibr" target="#b17">[18]</ref>. The two curves align until the 500th iteration, at which point timing optimization commences. In the HPWL and Overflow sub-figures, the application of substantial net weights by DREAMPlace 4.0 leads to poorer HPWL performance and a slower convergence rate. Furthermore, our method rapidly enhances TNS and WNS performance, and maintains stability until the optimization fully converges, thereby demonstrating the efficacy of our timing objective design.</p><p>V. CONCLUSION In this work, we introduce a GPU-accelerated, timing-driven global placement framework that integrates a pin-to-pin attraction objective within the popular open-source DREAM-Place framework. We develop a novel critical path extraction method for rapid, precise timing analysis and design a quadratic distance loss function to closely align with the specific timing metrics, thereby enhancing our framework's performance. Experimentation on the ICCAD2015 benchmark suite shows substantial improvements over leading timing-driven placers.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>VI. ACKNOWLEDGEMENT</head></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 2 .</head><label>2</label><figDesc>Fig. 2. Illustration of traditional net weighting and pin-to-pin attraction.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 3 .</head><label>3</label><figDesc>Fig. 3. Visualization of a specific critical path optimized using different distance losses. The slack of each path is given on the top of each figure.</figDesc><graphic coords="4,42.53,176.07,246.72,193.44" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 4 .</head><label>4</label><figDesc>Fig. 4. Runtime breakdown comparison between DREAMPlace 4.0 and our method for case superblue1. The time spent by each component is normalized by 615 seconds, the total runtime of DREAMPlace 4.0. The third column, 'w/ rpt_timing(n*10),' uses OpenTimer's original report_timing(n * 10) function for critical path extraction, where n is the number of failing endpoints. As shown in TableI, this approach provides insufficient coverage for comprehensive timing analysis, resulting in worse TNS performance. It also requires approximately 10× more computation time compared to our path extraction method which uses report_timing_endpoint(n,1).The fourth column, 'w/ rpt_timing_ept(n,10),' extracts 10 critical paths (instead of one) per failing endpoint with report_timing_endpoint(n,10). This adjustment improves TNS by incorporating more detailed timing information but slightly degrades WNS and increases computation time.The fifth column, 'w/o Path Extraction,' replaces our pathlevel timing analysis with the pin-level timing information and momentum-based weighting scheme proposed by DREAM-Place 4.0<ref type="bibr" target="#b17">[18]</ref>. While this method achieves competitive TNS results, it performs worse in WNS, likely because pin-level analysis fails to consider path-sharing effects, overlooking some critical paths that significantly influence timing.</figDesc><graphic coords="6,53.87,243.86,221.04,160.56" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 5 .</head><label>5</label><figDesc>Fig. 5. Optimization iterations for case superblue1. The blue curve is DREAMPlace 4.0, and the yellow one is our method. Timing optimization of both methods starts from the 500th iteration. TNS and WNS values are converted to their absolute values in the figure for better illustration.</figDesc><graphic coords="6,320.93,75.79,222.24,182.88" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1"><head>TABLE I TIMING</head><label>I</label><figDesc>STATISTICS COMPARISON AMONG VARIOUS CRITICAL PATH EXTRACTION METHODS.</figDesc><table><row><cell>report_timing(26300)</cell><cell>O(n 2 )</cell><cell>26300</cell><cell>6</cell><cell>748</cell><cell>41.64</cell></row><row><cell>report_timing(263000)</cell><cell>O(n 2 )</cell><cell>263000</cell><cell>20</cell><cell>2538</cell><cell>146.70</cell></row><row><cell>report_timing_endpoint(26300,1)</cell><cell>O(n × k)</cell><cell>26300</cell><cell>26300</cell><cell>62811</cell><cell>7.00</cell></row><row><cell>report_timing_endpoint(26300,10)</cell><cell>O(n × k)</cell><cell>135705*</cell><cell>26300</cell><cell>93740</cell><cell>21.46</cell></row></table><note><p>Command Complexity Number of Paths Number of Endpoints Number of Pin Pairs Time (sec)</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head>TABLE II COMPARING</head><label>II</label><figDesc>TNS (×10 5 ps), WNS (×10 3 ps), AND HPWL (×10 6 ) ACROSS DIFFERENT STATE-OF-THE-ART TIMING-DRIVEN PLACEMENT METHODS. THE BEST RESULTS ARE IN BOLD, AND THE RUNNER-UPS ARE COLORED BROWN.</figDesc><table><row><cell>Benchmark</cell><cell cols="3">DREAMPlace* [20] TNS WNS HPWL</cell><cell cols="3">DREAMPlace 4.0* [18] TNS WNS HPWL</cell><cell cols="3">Differentiable-TDP † [12] TNS WNS HPWL</cell><cell cols="3">Distribution-TDP § [19] TNS WNS HPWL</cell><cell cols="3">Efficient-TDP (ours) TNS WNS HPWL</cell></row><row><cell>superblue1</cell><cell cols="3">-262.44 -18.87 422.0</cell><cell cols="3">-85.03 -14.10 443.1</cell><cell cols="3">-74.85 -10.77 432.8</cell><cell>-42.10</cell><cell>-9.26</cell><cell>-</cell><cell>-17.44</cell><cell>-7.75</cell><cell>418.8</cell></row><row><cell>superblue3</cell><cell cols="3">-76.64 -27.65 478.2</cell><cell cols="3">-54.74 -16.43 482.4</cell><cell cols="3">-39.43 -12.37 478.4</cell><cell cols="2">-26.59 -12.19</cell><cell>-</cell><cell cols="3">-20.40 -11.82 462.5</cell></row><row><cell>superblue4</cell><cell cols="6">-290.88 -22.04 312.0 -144.38 -12.78 335.9</cell><cell>-82.92</cell><cell>-8.49</cell><cell cols="3">312.2 -123.28 -8.86</cell><cell>-</cell><cell>-82.88</cell><cell>-9.17</cell><cell>317.7</cell></row><row><cell>superblue5</cell><cell cols="3">-157.82 -48.92 488.3</cell><cell cols="6">-95.78 -26.76 556.2 -108.08 -25.21 488.7</cell><cell cols="2">-70.35 -31.64</cell><cell>-</cell><cell cols="3">-62.18 -24.65 484.2</cell></row><row><cell>superblue7</cell><cell cols="3">-141.55 -19.75 604.3</cell><cell cols="3">-63.86 -15.22 604.0</cell><cell cols="3">-46.43 -15.22 602.1</cell><cell cols="2">-95.89 -17.24</cell><cell>-</cell><cell cols="3">-43.52 -15.22 597.5</cell></row><row><cell cols="12">superblue10 -731.94 -26.10 935.9 -768.75 -31.88 1036.7 -558.05 -21.97 934.4 -691.10 -25.86</cell><cell>-</cell><cell cols="3">-558.14 -23.08 911.6</cell></row><row><cell cols="7">superblue16 -453.57 -17.71 435.8 -124.18 -12.11 448.1</cell><cell cols="3">-87.03 -10.85 485.1</cell><cell cols="2">-55.99 -12.21</cell><cell>-</cell><cell>-22.90</cell><cell>-8.63</cell><cell>471.6</cell></row><row><cell cols="4">superblue18 -96.76 -20.29 243.0</cell><cell cols="3">-47.25 -11.87 253.6</cell><cell>-19.31</cell><cell>-7.99</cell><cell>243.6</cell><cell>-19.23</cell><cell>-5.25</cell><cell>-</cell><cell>-16.16</cell><cell>-6.92</cell><cell>234.4</cell></row><row><cell>Average Ratio</cell><cell>6.90</cell><cell>2.07</cell><cell>1.004</cell><cell>2.75</cell><cell>1.40</cell><cell>1.06</cell><cell>2.00</cell><cell>1.09</cell><cell>1.02</cell><cell>1.68</cell><cell>1.11</cell><cell>-</cell><cell>1.00</cell><cell>1.00</cell><cell>1.00</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3"><head>TABLE III ABLATION</head><label>III</label><figDesc>STUDY COMPARING TNS (×10 5 ps) AND WNS (×10 3 ps) ACROSS VARIOUS SETTINGS. THE BEST RESULTS ARE IN BOLD, AND THE RUNNER-UPS ARE COLORED BROWN.</figDesc><table><row><cell>Benchmark</cell><cell cols="2">w/ HPWL Loss TNS WNS</cell><cell cols="2">w/ Linear Loss TNS WNS</cell><cell cols="2">w/ rpt_timing(n*10) TNS WNS</cell><cell cols="2">w/ rpt_timing_ept(n,10) TNS WNS</cell><cell cols="2">w/o Path Extraction TNS WNS</cell><cell cols="2">Our Method TNS WNS</cell></row><row><cell>superblue1</cell><cell>-74.70</cell><cell>-13.85</cell><cell>-76.66</cell><cell>-11.94</cell><cell>-80.61</cell><cell>-9.84</cell><cell>-12.69</cell><cell>-8.79</cell><cell>-19.27</cell><cell>-14.43</cell><cell>-17.44</cell><cell>-7.75</cell></row><row><cell>superblue3</cell><cell>-47.42</cell><cell>-15.81</cell><cell>-47.29</cell><cell>-13.00</cell><cell>-37.10</cell><cell>-11.71</cell><cell>-20.93</cell><cell>-11.91</cell><cell>-20.11</cell><cell>-16.47</cell><cell>-20.40</cell><cell>-11.82</cell></row><row><cell>superblue4</cell><cell>-155.23</cell><cell>-16.35</cell><cell>-153.76</cell><cell>-14.32</cell><cell>-139.05</cell><cell>-9.15</cell><cell>-86.49</cell><cell>-8.75</cell><cell>-102.39</cell><cell>-10.23</cell><cell>-82.88</cell><cell>-9.17</cell></row><row><cell>superblue5</cell><cell>-93.21</cell><cell>-26.37</cell><cell>-91.96</cell><cell>-28.23</cell><cell>-123.13</cell><cell>-27.28</cell><cell>-58.78</cell><cell>-25.58</cell><cell>-51.61</cell><cell>-34.57</cell><cell>-62.18</cell><cell>-24.65</cell></row><row><cell>superblue7</cell><cell>-68.68</cell><cell>-16.19</cell><cell>-59.47</cell><cell>-15.22</cell><cell>-47.70</cell><cell>-15.22</cell><cell>-35.14</cell><cell>-19.57</cell><cell>-34.96</cell><cell>-15.22</cell><cell>-43.52</cell><cell>-15.22</cell></row><row><cell>superblue10</cell><cell>-657.95</cell><cell>-23.39</cell><cell>-707.27</cell><cell>-27.67</cell><cell>-629.28</cell><cell>-24.50</cell><cell>-570.37</cell><cell>-23.23</cell><cell>-515.80</cell><cell>-21.94</cell><cell>-558.14</cell><cell>-23.08</cell></row><row><cell>superblue16</cell><cell>-61.96</cell><cell>-9.93</cell><cell>-63.69</cell><cell>-13.81</cell><cell>-30.87</cell><cell>-9.11</cell><cell>-25.17</cell><cell>-12.57</cell><cell>-24.44</cell><cell>-9.90</cell><cell>-22.90</cell><cell>-8.63</cell></row><row><cell>superblue18</cell><cell>-51.62</cell><cell>-13.18</cell><cell>-48.21</cell><cell>-13.70</cell><cell>-34.69</cell><cell>-7.40</cell><cell>-15.19</cell><cell>-7.20</cell><cell>-15.38</cell><cell>-7.64</cell><cell>-16.16</cell><cell>-6.92</cell></row><row><cell>Average Ratio</cell><cell>2.33</cell><cell>1.39</cell><cell>2.31</cell><cell>1.39</cell><cell>1.97</cell><cell>1.07</cell><cell>0.95</cell><cell>1.12</cell><cell>0.99</cell><cell>1.25</cell><cell>1.00</cell><cell>1.00</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4"><head>TABLE IV COMPARISON</head><label>IV</label><figDesc>ON RUNTIME (sec) WITH DREAMPLACE [20] AND DREAMPLACE 4.0 [18]. THE BEST RESULTS ARE IN BOLD, AND THE RUNNER-UPS ARE COLORED BROWN.</figDesc><table><row><cell>Benchmark</cell><cell cols="3">DREAMPlace DREAMPlace 4.0 Our Method</cell></row><row><cell>superblue1</cell><cell>122.95</cell><cell>615.61</cell><cell>531.28</cell></row><row><cell>superblue3</cell><cell>125.34</cell><cell>798.10</cell><cell>699.86</cell></row><row><cell>superblue4</cell><cell>80.88</cell><cell>372.28</cell><cell>591.33</cell></row><row><cell>superblue5</cell><cell>147.35</cell><cell>660.42</cell><cell>714.27</cell></row><row><cell>superblue7</cell><cell>190.32</cell><cell>926.91</cell><cell>799.40</cell></row><row><cell>superblue10</cell><cell>252.49</cell><cell>1163.32</cell><cell>1113.07</cell></row><row><cell>superblue16</cell><cell>62.61</cell><cell>442.99</cell><cell>409.06</cell></row><row><cell>superblue18</cell><cell>56.89</cell><cell>368.06</cell><cell>301.42</cell></row><row><cell>Average Ratio</cell><cell>0.20</cell><cell>1.04</cell><cell>1.00</cell></row></table></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_0"><p>Authorized licensed use limited to: Texas A M University. Downloaded on March 11,2026 at 14:55:09 UTC from IEEE Xplore. Restrictions apply.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><p>This work was supported by the <rs type="funder">National Science and Technology Major Project</rs> (<rs type="grantNumber">2022ZD0116600</rs>), the <rs type="funder">National Science Foundation of China</rs> (<rs type="grantNumber">62276124</rs>), and the <rs type="funder">Fundamental Research Funds for the Central Universities</rs> (<rs type="grantNumber">14380020</rs>). Ke Xue was supported by <rs type="funder">National Science Foundation for PhD Students</rs> (<rs type="grantNumber">624B2069</rs>). <rs type="person">Chao Qian</rs> is the corresponding author.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_dSAxK64">
+					<idno type="grant-number">2022ZD0116600</idno>
+				</org>
+				<org type="funding" xml:id="_Qmt9Ewe">
+					<idno type="grant-number">62276124</idno>
+				</org>
+				<org type="funding" xml:id="_SWZxgx8">
+					<idno type="grant-number">14380020</idno>
+				</org>
+				<org type="funding" xml:id="_mapz2eR">
+					<idno type="grant-number">624B2069</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Toward an open-source digital flow: First learnings from the openroad project</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Ajayi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><forename type="middle">A</forename><surname>Chhabria</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Fogaça</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Hashemi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Hosny</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">U</forename><surname>Mallappa</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Neseem</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Las Vegas, NV</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1" to="4" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Timing influenced layout design</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Burstein</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">N</forename><surname>Youssef</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Las Vegas, NV</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1985">1985</date>
+			<biblScope unit="page" from="124" to="130" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">On wirelength estimations for row-based placement</title>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Caldwell</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Mantik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">L</forename><surname>Markov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><surname>Zelikovsky</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Symposium on Physical Design</title>
+		<meeting>the International Symposium on Physical Design<address><addrLine>Monterey, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="4" to="11" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">A practical all-path timing-driven place and route design system</title>
+		<author>
+			<persName><forename type="first">C.-C</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Stabenfeldt</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">R.-S</forename><surname>Tsay</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Asia Pacific Conference on Circuits and Systems</title>
+		<meeting>the Asia Pacific Conference on Circuits and Systems<address><addrLine>Taipei, Taiwan</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1994">1994</date>
+			<biblScope unit="page" from="560" to="563" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">Net criticality revisited: An effective method to improve timing in physical design</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><surname>Shragowitz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Youssef</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sutanthavibul</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Symposium on Physical Design</title>
+		<meeting>the International Symposium on Physical Design<address><addrLine>San Diego, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2002">2002</date>
+			<biblScope unit="page" from="155" to="160" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Virtual-path-based timing optimization for VLSI global placement</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Conference on Solid-State &amp; Integrated Circuit Technology</title>
+		<meeting>the International Conference on Solid-State &amp; Integrated Circuit Technology<address><addrLine>Nanjing, China</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1" to="3" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<analytic>
+		<title level="a" type="main">How accurately can we model timing in a placement engine?</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Chowdhary</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><surname>Rajagopal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Venkatesan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">T</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Tiourin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Parasuram</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Halpin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Anaheim, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="page" from="801" to="806" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Placement</title>
+		<author>
+			<persName><forename type="first">C</forename><surname>Chu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Electronic Design Automation</title>
+		<imprint>
+			<publisher>Elsevier</publisher>
+			<date type="published" when="2009">2009</date>
+			<biblScope unit="page" from="635" to="685" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Chip layout optimization using critical path weighting</title>
+		<author>
+			<persName><forename type="first">A</forename><surname>Dunlop</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Agrawal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Deutsch</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Jukl</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Kozak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wiesel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Albuquerque, NM</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1984">1984</date>
+			<biblScope unit="page" from="133" to="136" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Generic global placement and floorplanning</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Eisenmann</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">M</forename><surname>Johannes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>San Francisco, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="269" to="274" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<analytic>
+		<title level="a" type="main">A performance driven macro-cell placement algorithm</title>
+		<author>
+			<persName><forename type="first">T</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">M</forename><surname>Vaidya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><forename type="middle">L</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Anaheim, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1992">1992</date>
+			<biblScope unit="page" from="147" to="152" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Differentiable-timing-driven global placement</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>San Francisco, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1315" to="1320" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">TSV-aware analytical placement for 3D IC designs</title>
+		<author>
+			<persName><forename type="first">M.-K</forename><surname>Hsu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-W</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">V</forename><surname>Balabanov</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>San Diego, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+			<biblScope unit="page" from="664" to="669" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Opentimer v2: A new parallel incremental timing analysis engine</title>
+		<author>
+			<persName><forename type="first">T.-W</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C.-X</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">D</forename><surname>Wong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="776" to="789" />
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Performance-driven placement of cell based ic&apos;s</title>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">A</forename><surname>Jackson</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">E</forename><forename type="middle">S</forename><surname>Kuh</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Las Vegas, NV</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1989">1989</date>
+			<biblScope unit="page" from="370" to="375" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<monogr>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Lienig</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">L</forename><surname>Markov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+		<title level="m">VLSI Physical Design: From Graph Partitioning to Timing Closure</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">ICCAD-2015 CAD contest in incremental timing-driven placement and benchmark suite</title>
+		<author>
+			<persName><forename type="first">M.-C</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">N</forename><surname>Viswanathan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of IEEE/ACM International Conference on Computer-Aided Design</title>
+		<meeting>IEEE/ACM International Conference on Computer-Aided Design<address><addrLine>Austin, TX</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2015">2015</date>
+			<biblScope unit="page" from="921" to="926" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">DREAMPlace 4.0: Timing-driven placement with momentum-based net weighting and lagrangian-based refinement</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Liao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Yu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">42</biblScope>
+			<biblScope unit="issue">10</biblScope>
+			<biblScope unit="page" from="3374" to="3387" />
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Timing-driven analytical placement according to expected cell distribution range</title>
+		<author>
+			<persName><forename type="first">J.-M</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-Y</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W.-L</forename><surname>Huang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the International Symposium on Physical Design</title>
+		<meeting>the International Symposium on Physical Design<address><addrLine>Taipei, Taiwan</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2024">2024</date>
+			<biblScope unit="page" from="177" to="184" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">DREAM-Place: Deep learning toolkit-enabled gpu acceleration for modern VLSI placement</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Dhar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">W</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Khailany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>Las Vegas, NV</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2019">2019</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">Electrostatics-based analytical global placement for timing optimization</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">P</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y.-W</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of Design, Automation &amp; Test in Europe Conference</title>
+		<meeting>Design, Automation &amp; Test in Europe Conference<address><addrLine>Valencia, Spain</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2024">2024</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">A fast physical constraint generator for timing driven layout</title>
+		<author>
+			<persName><forename type="first">W</forename><forename type="middle">K</forename><surname>Luk</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>San Francisco, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1991">1991</date>
+			<biblScope unit="page" from="626" to="631" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Progress and challenges in VLSI placement research</title>
+		<author>
+			<persName><forename type="first">I</forename><forename type="middle">L</forename><surname>Markov</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Hu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M.-C</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of IEEE/ACM International Conference on Computer-Aided Design</title>
+		<meeting>IEEE/ACM International Conference on Computer-Aided Design<address><addrLine>San Jose, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<biblScope unit="page" from="275" to="282" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<monogr>
+		<title level="m" type="main">Timing Analysis and Optimization of Sequential Circuits</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Naresh</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Sachin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1999">1999</date>
+			<publisher>Springer</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Quadratic placement using an improved timing model</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Obermeier</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">F</forename><forename type="middle">M</forename><surname>Johannes</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>San Diego, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="705" to="710" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b25">
+	<analytic>
+		<title level="a" type="main">Timing-driven placement</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">Z</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Halpin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Ren</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Handbook of Algorithms for Physical Design Automation</title>
+		<imprint>
+			<publisher>Auerbach Publications</publisher>
+			<date type="published" when="2008">2008</date>
+			<biblScope unit="page" from="423" to="446" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b26">
+	<analytic>
+		<title level="a" type="main">Timing driven placement for large standard cell circuits</title>
+		<author>
+			<persName><forename type="first">W</forename><surname>Swartz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">C</forename><surname>Sechen</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of ACM/IEEE Design Automation Conference</title>
+		<meeting>ACM/IEEE Design Automation Conference<address><addrLine>San Francisco, CA</addrLine></address></meeting>
+		<imprint>
+			<date type="published" when="1995">1995</date>
+			<biblScope unit="page" from="211" to="215" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b27">
+	<monogr>
+		<title level="m" type="main">Benchmarking end-to-end performance of AI-based chip placement algorithms</title>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Geng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Tu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Qian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><surname>Kai</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2407.15026</idno>
+		<imprint>
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

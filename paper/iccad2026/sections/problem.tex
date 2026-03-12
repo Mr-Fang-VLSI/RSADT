@@ -1,0 +1,21 @@
+\section{Problem Formulation}
+\label{sec:problem}
+
+We consider digital signal processing (DSP) placement for an $m \times h$ systolic-array kernel on a field-programmable gate array (FPGA) architecture with sparse DSP columns. Here $m$ denotes the number of array rows and $h$ denotes the number of array columns within one strip. The basic single-column placement variable is an order matrix $y \in \{1,\dots,mh\}^{m\times h}$, where $y_{i,j}$ is the placement order assigned to the processing element at row $i$ and column $j$. At this point, we do not yet impose the order-consistency (OC) condition; the role of OC will be justified in Section~\ref{sec:method} before it is used algorithmically.
+
+Under this representation, horizontal and vertical neighbor nets induce a half-perimeter wirelength (\hpwl) objective on the order matrix. Let $w^H_{i,j}$ be the weight of the horizontal edge between $(i,j)$ and $(i,j+1)$, and let $w^V_{i,j}$ be the weight of the vertical edge between $(i,j)$ and $(i+1,j)$. The weighted objective is
+\begin{equation}
+\min \sum_{i=1}^{m}\sum_{j=1}^{h-1} w^H_{i,j}\,|y_{i,j+1}-y_{i,j}|
+    + \sum_{i=1}^{m-1}\sum_{j=1}^{h} w^V_{i,j}\, d_V\, |y_{i+1,j}-y_{i,j}|,
+\label{eq:weighted_hpwl}
+\end{equation}
+where $d_V$ is the vertical spacing factor between adjacent rows.
+
+This weighted formulation is essential for timing-driven placement. The weights are not fixed constants; they are updated according to timing pressure so that long or critical connections receive more emphasis in later rounds. In our flow, the practical timing signal is derived from limiting the longest wirelength. Let $L_e$ denote the geometric length of edge $e$, and let $T$ denote the target maximum wirelength. The slack-like quantity is
+\begin{equation}
+s_e = T - L_e.
+\label{eq:slack}
+\end{equation}
+Reducing the longest wirelength improves the worst edges first, which empirically leads to lower \wns and higher \fmax.
+
+The challenge is therefore threefold. First, one must justify why it is legitimate to restrict attention to the OC-structured solution space introduced by \rsad. Second, the solver must optimize Eq.~(\ref{eq:weighted_hpwl}) exactly for a given set of weights once this structure is adopted. Third, it must remain applicable when the weights change across timing-driven rounds. The key steps of this paper are to justify the use of OC from the HPWL viewpoint and then show that the OC-structured weighted objective can be converted into a shortest-path problem on a state DAG.

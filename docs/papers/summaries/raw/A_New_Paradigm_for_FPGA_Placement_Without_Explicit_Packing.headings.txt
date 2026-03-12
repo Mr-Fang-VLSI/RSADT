@@ -1,0 +1,3 @@
+3:Abstract
+152:References
+177:Method and system for high speed detailed placement of cells within an integrated circuit design D Hill U.S. Patent 6 2002

@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">EasyPart: An Effective and Comprehensive Hypergraph Partitioner for FPGA-based Emulation</title>
+				<funder ref="#_AcAqjZP">
+					<orgName type="full">Beĳing Natural Science Foundation</orgName>
+				</funder>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName><forename type="first">Shengbo</forename><surname>Tong</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="institution">HyperSilicon Inc</orgName>
+								<address>
+									<settlement>Wuxi</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Haoyuan</forename><surname>Li</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jiahao</forename><surname>Xu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Chunyan</forename><surname>Pei</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Wenjian</forename><surname>Yu</surname></persName>
+						</author>
+						<author>
+							<persName><forename type="first">Shengjun</forename><surname>Liu</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Dept. Computer Science &amp; Tech</orgName>
+								<orgName type="institution" key="instit1">BNRist</orgName>
+								<orgName type="institution" key="instit2">Tsinghua Univ</orgName>
+								<address>
+									<settlement>Beĳing</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff1">
+								<orgName type="institution">HyperSilicon Inc</orgName>
+								<address>
+									<settlement>Wuxi</settlement>
+									<country key="CN">China</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Jian</forename><surname>Shen</surname></persName>
+						</author>
+						<title level="a" type="main">EasyPart: An Effective and Comprehensive Hypergraph Partitioner for FPGA-based Emulation</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date/>
+						</imprint>
+					</monogr>
+					<idno type="MD5">CC25FDC766B59C0E86CD49AF5C433CAF</idno>
+					<idno type="DOI">10.1145/3676536.3676680</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.2-SNAPSHOT" ident="GROBID" when="2026-03-11T15:00+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<textClass>
+				<keywords>
+					<term>hypergraph partitioning</term>
+					<term>interconnection and topology constraints</term>
+					<term>multi-FPGA system</term>
+					<term>logic emulation</term>
+				</keywords>
+			</textClass>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p>Logic verification becomes more and more important for the design of large-scale digital integrated circuits (ICs). This makes FPGA-based hardware emulation an imperative step in the design flow, and how to effectively partition and map the circuit netlist into the multi-FPGA system (MFS) for emulation is of concern. In this paper, we present EasyPart, an effective and comprehensive hypergraph partitioner for the FPGA-based hardware emulation. EasyPart can handle the practical constraints in the MFS for logic emulation and includes novel techniques for pursuing minimum hop during topology-driven partitioning and treating the interconnection constraints. We have evaluated EasyPart against state-of-the-art partitioners on public benchmarks. The results show that EasyPart can reduce the cutsize with a comparable or shorter runtime. EasyPart is capable of finding non-hop solutions with better robustness and performance compared to previous work. It also achieves significant improvements in terms of time division multiplexing (TDM) ratio and maximum hop when tested on industrial cases.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1">Introduction</head><p>Field-Programmable Gate Arrays (FPGAs) play a crucial role in the logic verification of digital integrated circuits (ICs), providing a flexible and efficient platform for validating and testing IC designs before fabrication. Because the capacity of a single FPGA is relatively limited, a large design usually needs to be partitioned into many subcircuits before it can be mapped into a multi-FPGA system (MFS) for logic emulation which largely accelerates the procedure of logic verification. The logic netlist of the design can be well described by a hypergraph with cell/gate denoted by graph vertex and interconnect net denoted by hyperedge. Therefore, a hypergraph partitioner is imperative to the MFS for logic emulation.</p><p>However, computing the optimal partition for a hypergraph is a well-known NP-hard problem <ref type="bibr" target="#b10">[11,</ref><ref type="bibr" target="#b14">15]</ref>, for which many heuristic algorithms have been proposed. hMETIS <ref type="bibr" target="#b11">[12]</ref>, along with other partitioners such as PaToH <ref type="bibr" target="#b6">[7]</ref>, employs a multilevel paradigm for hypergraph partitioning, which is a three-phase workflow composed of coarsening, initial partitioning, and refinement phases. KaHyPar <ref type="bibr" target="#b18">[19]</ref> further improves the partition quality by utilizing a highly localized local search with flow-based techniques. HyperSF <ref type="bibr" target="#b1">[2]</ref> and HyperEF <ref type="bibr" target="#b0">[1]</ref> use spectral methods to replace the coarsening phase, achieving more efficiency without losing the key structural properties of the original hypergraph. SpecPart <ref type="bibr" target="#b4">[5,</ref><ref type="bibr" target="#b5">6]</ref> is a spectral-based partitioner that can produce embeddings of vertices and improve the quality of partition. These hypergraph partitioners focus on minimizing the cutsize, which depicts how many netlists are partitioned across different FPGAs. While for the FPGA-based emulation, the definition of cutsize should reflect more information regarding the actual connective structure among FPGAs, because it further influences the total delay and clock frequency, which is crucial for logic emulation.</p><p>Furthermore, the logic partitioning for MFS enforces more constraints that may not be considered in a typical hypergraph partitioner. These constraints include the multi-dimensional balance constraint, the fixed vertex constraint, the grouping constraint, the interconnect constraint, the topology constraint, etc. The recently proposed TritonPart <ref type="bibr" target="#b3">[4]</ref> is an open-source partitioner that can handle multiple constraints, but it does not consider the interconnection constraint and the topology constraint. TopoPart <ref type="bibr" target="#b23">[24]</ref> is the first work that focuses on the topology constraint, which pursues non-hop solutions by calculating the feasible FPGAs that each cell/gate can be assigned. Li et al. <ref type="bibr" target="#b15">[16,</ref><ref type="bibr" target="#b16">17]</ref> improved TopoPart and proposed a simple method to find the most beneficial moves during the refinement phase to alleviate the interconnection imbalance. However, all the existing methods are not practical or effective enough to handle all the MFS constraints for logic emulation.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Table 1: Comparison of different hypergraph partitioners.</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Constraints for FPGA-based emulation</head><p>hMETIS <ref type="bibr" target="#b11">[12]</ref> PaToH <ref type="bibr" target="#b6">[7]</ref> KaHyPar <ref type="bibr" target="#b18">[19]</ref> TritonPart <ref type="bibr" target="#b3">[4]</ref> Li et al. <ref type="bibr" target="#b15">[16,</ref><ref type="bibr" target="#b16">17]</ref> EasyPart (ours)</p><formula xml:id="formula_0">Multi-dimensional balance constraint ✓ ✓ ✓ ✓ ✓ ✓ Fixed vertex constraint ✓ ✓ ✓ ✓ ✓ ✓ ✓ ✓ Grouping constraint ✓ ✓ ✓ ✓ Interconnection constraint ✓ ✓ ✓ ✓ Topology constraint ✓ ✓ ✓ ✓</formula><p>In Table <ref type="table">1</ref>, we list the capabilities of main hypergraph partitioners regarding the treatment of practical constraints in FPGA-based emulation. From it, we can see that most of the existing works do not consider the grouping and interconnection/topology constraints of the MFS. In this work, we present an effective and comprehensive hypergraph partitioner, named EasyPart, which considers all these constraints in the FPGA-based emulation. Our main contributions are as follows.</p><p>• We present an effective hypergraph partitioning engine based on a practical objective function of cutsize for logic partitioning <ref type="bibr" target="#b2">[3]</ref>, which reflects the direction of signal flow between FPGAs. Experiments show that our partitioning engine can reduce the cutsize compared to the state-of-the-art partitioners (hMETIS <ref type="bibr" target="#b11">[12]</ref>, TritonPart <ref type="bibr" target="#b3">[4]</ref>) with comparable or better runtime, on the Titan23 benchmark suite <ref type="bibr" target="#b17">[18]</ref>. • We propose an enhanced topology-driven initial partitioning algorithm that can find non-hop solutions under the topology constraint, and minimize the maximum hop of routing paths between FPGAs if no feasible solution exists. It achieves the same or better performance than the best existing method <ref type="bibr" target="#b16">[17]</ref> with more robustness. • We adapt the whole multi-level partitioning process by keeping and considering the direction of signal flow between FPGAs to handle the interconnection/topology constraint. A comprehensive gain function to evaluate the benefit of vertex moves in the refinement phase is proposed. The experiments on industrial cases demonstrate that with the proposed approaches, the time division multiplexing (TDM) ratio and the maximum hop of routing paths can be significantly reduced. • With the above contributions, we have developed an effective and comprehensive hypergraph partitioning framework, named EasyPart, considering the practical constraints for large-scale logic emulation with MFS.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2">Preliminaries 2.1 Problem Formulation of Hypergraph Partitioning</head><p>Table <ref type="table" target="#tab_0">2</ref> provides a list of important terminologies and notations used throughout this paper. In a hypergraph 𝐺 (𝑉 , 𝐸), each hyperedge can connect more than two vertices. The basic objective of the hypergraph partitioning is to divide the vertices into 𝐾 blocks 𝑉 1 , 𝑉 2 , • • • , 𝑉 𝐾 , such that the sum of weights of the hyperedges that connect vertices from different blocks is minimized, while satisfying the balance constraint:</p><p>(</p><formula xml:id="formula_1">𝐾 -𝜖) ∑︁ 𝑣 ∈𝑉 𝑤 (𝑣) ≤ ∑︁ 𝑣 ∈𝑉 𝑖 𝑤 (𝑣) ≤ ( 1 𝐾 + 𝜖) ∑︁ 𝑣 ∈𝑉 𝑤 (𝑣) , ∀ 1 ≤ 𝑖 ≤ 𝐾 (1)<label>1</label></formula><p>Here 𝑤 (𝑣) denotes the weight of vertex 𝑣, and 𝜖 is a user-defined tolerance depicting in what degree the hypergraph is not partitioned into 𝐾 equal-size parts <ref type="bibr" target="#b11">[12]</ref>. Although most existing hypergraph partitioners consider the constraint (1), KaHyPar <ref type="bibr" target="#b15">[16]</ref> only considers the upper bound in the inequality. Notice that a simple assumption is that the weight of every hyperedge is 1, and the optimization objective of the above problem is called 𝑐𝑢𝑡. The problem is sometimes referred to as a min-cut optimization problem. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2">Considerations in FPGA-based Emulation</head><p>For FPGA-based emulation, there should be more considerations of constraints than the above basic hypergraph partitioning problem. Therefore, the 𝑐𝑢𝑡 in the last subsection is very simplified and more meaningful cutsize definitions are needed.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.1">Cutsize Definitions.</head><p>Differently from the simplest cutsize definition cut (equals the sum of weights of the cut hyperedges), another definition multiplies the weight of each cut hyperedge by the number of its connected partitions before adding them up, which leads to the cutsize metric named sum-of-external-degrees (soed) in <ref type="bibr" target="#b21">[22]</ref>. While considering the logic partition problem, one should be aware that each hyperedge corresponds to a signal net which has a unique source node and maybe multiple drain nodes. Thus, neither the original 𝑐𝑢𝑡 nor soed reflects the nature of a signal flow. In this work, we use the following definition of cutsize for cut hyperedge 𝑒:</p><formula xml:id="formula_2">𝑐 (𝑒) = 𝑤 (𝑒) • |𝐷 (𝑒)\𝑆 (𝑒)| ,<label>(2)</label></formula><p>where 𝐷 (𝑒) and 𝑆 (𝑒) denote the sets of FPGAs containing the drain nodes and the source node corresponding to hyperedge 𝑒, respectively. "\" denotes the substraction of set, and "| • |" denotes the cardinality of set. The objective function in the hypergraph partitioning problem for FPGA-based emulation is the sum of cutsize for cut hyperedges, which also equals to the connectivity metric <ref type="bibr" target="#b8">[9]</ref> or the (𝐾 -1) metric <ref type="bibr" target="#b2">[3]</ref>.  Furthermore, for the 𝐾-way partitioning problem for MFS, the cutsize between two blocks (FPGAs) can be defined:</p><formula xml:id="formula_3">𝐶 ( v𝑖 , v 𝑗 ) = ∑︁ v𝑖 ∈𝑆 (𝑒 ), v𝑗 ∈𝐷 (𝑒 )\𝑆 (𝑒 ) 𝑤 (𝑒)+ ∑︁ v𝑗 ∈𝑆 (𝑒 ), v𝑖 ∈𝐷 (𝑒 )\𝑆 (𝑒 ) 𝑤 (𝑒)<label>(3)</label></formula><p>With it, one obtains a 𝐾 × 𝐾 cut matrix 𝐶. It is easy to prove:</p><formula xml:id="formula_4">𝐾 ∑︁ 𝑖=1 𝐾 ∑︁ 𝑖&lt; 𝑗 𝐶 ( v𝑖 , v 𝑗 ) = ∑︁ 𝑒 ∈𝐸 𝑐 (𝑒) = 𝑠𝑜𝑒𝑑 -𝑐𝑢𝑡<label>(4)</label></formula><p>where 𝑐𝑢𝑡 denotes the simplest cutsize definition in the last subsection. Notice that (4) is the cutsize metric considered in this work, which is relatively close to the 𝑠𝑜𝑒𝑑 metric.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.2.2">Multiple Constraints.</head><p>As shown in Table <ref type="table">1</ref>, some partitioners only consider the single-dimensional balance constraint. This is not adequate for the problem of FPGA-based emulation, because there are multiple types of resources in an FPGA. So, the multidimensional balance constraint should be considered. This is realized by simply changing 𝑤 (𝑣) in (1) to a vector</p><formula xml:id="formula_5">𝑤 (𝑣) = (𝑤 1 , 𝑤 2 , • • • , 𝑤 𝑚 ),</formula><p>where 𝑚 is the number of resource types. Besides, in some settings, certain circuit cell/gate must be assigned to a specific FPGA for debugging or other reasons. This is called fixed vertex constraint in hypergraph partitioning problem, and can be easily handled by forcing the partition result of this kind of vertices to their specific FPGAs and ignoring their placement in the partitioning process.</p><p>There is another constraint called grouping constraint, as some cells/gates in the circuit are closely related to each other, and it is recommended or even forced to assign them to the same FPGA. To meet this requirement, one can merge the related vertices into a super vertex and treat it as a single vertex in the partitioning process.</p><p>For the practical MFS for logic emulation, there are more complex constraints regarding the interconnection among FPGAs, e.g., limited interconnection wires exist among FPGAs. So, if the cutsize between two FPGAs exceeds the number of connection wires, TDM has to be used to resolve the congestion but leads to a larger signal delay. Moreover, some FPGA pairs may not have any wire connection in between (a special interconnect constraint). Simply ignoring this fact will lead to unavoidable routing after partitioning, which often results in longer signal paths with hops on intermediate FPGAs. These two constraints are referred to as the interconnection constraint and the topology constraint respectively.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.3">Interconnection-aware and Topology-driven Partitioning</head><p>If the partitioning algorithm does not consider the interconnection constraint among different FPGA pairs, it often causes a higher TDM ratio between some FPGAs <ref type="bibr" target="#b19">[20]</ref>, and thus larger maximum signal delay. To alleviate this problem, <ref type="bibr" target="#b15">[16]</ref> defines a score function to reflect the imbalance degree of TDM usage and try to reduce the maximum TDM ratio during the refinement phase. Its drawback is that it overlooks the potential opportunities in other phases and does not fully exploit the advantages of the multilevel paradigm.</p><p>TopoPart <ref type="bibr" target="#b23">[24]</ref> is the first work of hypergraph partitioning that focuses on topology constraint, aiming to find a non-hop solution. It solves the problem with a necessary and sufficient condition for feasible solutions and calculates the candidate set that contains all the available blocks for each vertex. <ref type="bibr" target="#b16">[17]</ref> improves TopoPart by introducing a more effective candidate set updating method. However, both algorithms ignore the importance of the relative size of vertex degree in MFS when choosing the best block, and do not handle the partitioning problem well when there is no feasible solution.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3">Proposed Method</head><p>In this section, we present the proposed EasyPart framework for the K-way partitioning problem in FPGA-based emulation, whose flowchart is shown in Fig. <ref type="figure" target="#fig_0">1</ref>. EasyPart includes an effective hypergraph partitioning engine that can achieve high-quality partitioning when there is no interconnection or topology constraint (Section 3.1). When the interconnection/topology constraint is considered, Easy-Part can handle it by making adaptations to the whole partitioning process (Section 3.2). Moreover, if the topology constraint exists, EasyPart utilizes a novel topology-driven initial partitioning algorithm to find a solution with minimum hop (Section 3.3). Notice that some techniques in the hypergraph partitioning engine are also applied if possible, when EasyPart handles the situation with interconnection/topology constraint. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1">An Effective Hypergraph Partitioning Engine</head><p>EasyPart reads in a hierarchical circuit netlist. Before performing the hypergraph partitioning, a step of hypergraph modeling using a top-down adaptive flattening approach is developed (as shown in Fig. <ref type="figure" target="#fig_0">1</ref>). It identifies when to flatten based on the resource ratio and net density of each cell. The hierarchical design can be modeled as a hierarchical tree. Fig. <ref type="figure">2</ref> shows an abstract description of a part of the hierarchical design and Fig. <ref type="figure">3</ref>(a) shows the corresponding hierarchical tree of cells. After adaptive flattening, the partially flattened design is transformed into a hypergraph to depict the cell-net relationship. Take the hierarchical design in Fig. <ref type="figure">2</ref> as an example. If during the adaptive flattening, cell a is flattened by one level and cells b and c are not flattened, the result of hypergraph modeling leads to the hypergraph shown in Fig. <ref type="figure">3(b</ref>). The top-down adaptive flattening approach preserves some hierarchical structures from human designers to benefit the final quality of logic partition, while avoiding a long time for hypergraph modeling and the largest hypergraph from complete flattening fed into the subsequent partitioner. This is also helpful for debugging and analysis of the design.</p><p>Our partitioning engine consists of the following five steps.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.1">Coarsening.</head><p>In the coarsening phase, we use the first-choice (FC) scheme <ref type="bibr" target="#b13">[14]</ref>, which merges vertices 𝑢 and 𝑣 with higher connectivity, measured by the heavy-edge function:</p><formula xml:id="formula_6">𝑟 (𝑢, 𝑣) = ∑︁ 𝑢,𝑣 ∈𝑒 𝑤 𝑒 |𝑒 | -1 .<label>(5)</label></formula><p>Large hyperedges are skipped to speed up the calculation of the heavy-edge functions. During the clustering process, we do not restrict the number of vertices to be merged into a super node unless their resource requirements reach a certain limit. We allow different vertex traversing orders, including random order, degree order, and weight order, to produce various partitioning results. If there are ties, we break them by favoring uncoarsened vertices. The time to stop each round of coarsening is determined by a given coarsening ratio factor. After merging the vertices, we merge parallel hyperedges and remove single-vertex hyperedges by using a fast hash function in <ref type="bibr" target="#b18">[19]</ref> to reduce |𝐸| and the number of (𝑢, 𝑣) pairs in <ref type="bibr" target="#b4">(5)</ref>, thus reducing the complexity of the algorithm. Because the value of cutsize is not influenced by the connection of vertices within each hyperedge, we do not care about the order of vertices during the merging process if interconnection/topology constraint is not considered.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.2">Initial</head><p>Partitioning. When the balance constraint only considers the upper bound, we use the greedy growing partitioning <ref type="bibr" target="#b12">[13]</ref> to get a relatively good initial solution. If no fixed vertices are given, we start from the one with the smallest degree and use shortest path algorithms to find the furthermost vertices until each FPGA has at least one assigned node. For the balance constraint with both upper and lower bounds, we simply use random partitioning to assign each FPGA with one node alternately. After the initial partitioning, we use techniques in the following refinement phase to reduce the cutsize as much as possible. Keeping only one solution may lead to fluctuating results, and the best initial result does not guarantee the best final result. So, we keep multiple solutions and pass them all to the refinement phase like hMETIS <ref type="bibr" target="#b11">[12]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.3">Refinement.</head><p>After different initial solutions are given, we refine them in parallel. At each level, we use different refinement methods to improve the partition quality, and partitions with cutsize 10% worse than the best solution are removed to save time <ref type="bibr" target="#b11">[12]</ref>. The most common refinement method is the Fiduccia-Mattheyses (FM) algorithm <ref type="bibr" target="#b9">[10]</ref>, which is a local search algorithm that iteratively moves vertices between partitions to reduce cutsize. Here we choose the K-way pairwise FM (PM) algorithm to achieve better performance <ref type="bibr" target="#b7">[8]</ref>.</p><p>After that, we run iterations of greedy K-way refinement <ref type="bibr" target="#b13">[14]</ref>, which produce high-quality partitions while consuming limited time. Both methods use the definition of cutsize (4) to evaluate the benefit of moves. Because calculating gains of vertex moves and updating priority queues are closely related to |𝐸| and |𝑒 |, we also skip large hyperedges just as in the coarsening phase. Unlike the previous methods that only save the best partition result at the last level, we keep all the remained solutions and pass them to the next step.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.4">Cut-Overlay Clustering and Partitioning (COCP).</head><p>After running the multilevel partitioning several times and generating a series of candidate solutions, we apply the COCP, a technique to further improve the solution by combining information from all candidates <ref type="bibr" target="#b5">[6]</ref>.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1.5">V-Cycle</head><p>Refinement. Lastly, we apply the V-cycle refinement to further improve the prior solution <ref type="bibr" target="#b11">[12]</ref>. The multilevel partitioning will be performed several times. In the coarsening phase, the prior solution is used as a community constraint. Then the initial partitioning phase generates multiple solutions, and the prior solution is also kept as an initial solution. Finally, the refinement phase returns the best partitioning result.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2">Treatment of Interconnection/Topology Constraint</head><p>To handle the interconnection/topology constraint based on the engine above, we should make adaptations to all three main phases of the partitioning process, as follows.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.1">Coarsening</head><p>. Because now we have to consider the exact cutsize between FPGAs instead of just the sum, we can only merge hyperedges with the same source node and drain nodes. However, the original merging process is unaware of the vertex order in each hyperedge. To solve this problem, we keep the source node and sort the drain nodes in each net, before using the hash function to merge them in an order-sensitive way.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2.2">Initial</head><p>Partitioning. Instead of judging whether to keep an initial solution or not just based on the cutsize, we now change the criterion to the TDM ratio, except when the topology constraint exists. If the topology constraint exits, we use the initial partitioning method described in Section 3.3. We also try to remap the FPGAs to get a better result when the interconnection resources between the FPGAs are not unified, because the partition result of the initial partitioning may not be optimized under the TDM ratio and routing cost. Therefore, we search for a K-element permutation 𝑃 to reduce them, and then reassign each node 𝑣 from 𝑝𝑎𝑟𝑡 (𝑣) to 𝑃 (𝑝𝑎𝑟𝑡 (𝑣)).</p><p>During the process, the total cutsize remains unchanged. We use different heuristic methods to search for a better solution, including pairwise exchange and simulated annealing.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>3.2.3</head><p>Refinement. This is the most important phase in handling the interconnection constraint, and we present an in-depth treatment to improve partitioning quality. First, we should restore all the large hyperedges since they now may lead to the use of unnecessary TDM in some corner cases. Because we use the PM algorithm which starts from the FPGA pairs that have the largest cutsize in between <ref type="bibr" target="#b7">[8]</ref>, we also change the criterion to the TDM ratio. This criterion goes the same when dropping the bad solutions at each refinement level.</p><p>When choosing the best vertices to move in different refinement methods, a vertex gain function will be defined to evaluate the benefit, originally only considering the cutsize. Now we consider the cutsize with the interconnection constraint together. The pseudocode of our interconnection-aware vertex gain function is shown in Algorithm 1. From lines 5 to 10, we calculate the cutsize gain of the vertex move, changing the source and drain nodes if necessary. From lines 12 to 23, we separately calculate the gain on interconnection and topology constraint. We traverse all the FPGA pairs: (a) if they are connected, we calculate the TDM ratio and multiply it by the interconnection violations (lines 20-21); (b) if they are not connected, we estimate the routing cost by multiplying the cutsize between them by their distance, and check whether the move leads to more topology violations (lines 17-18).</p><p>When we get a feasible solution under the topology constraint, no more topology violations should be allowed. So, if the vertex move causes more topology violations (routing distance exceeds the maximum allowed hop), it will have the least priority in the refinement process (lines 24-25). Otherwise, for the interconnection constraint, we set its weight factor to a variable 𝜏 that changes with the refinement level. At the beginning, we set 𝜏 to 0, and increase it by 1 in the next level. The reason for this is that at higher levels, moves of vertices often cause great changes in cutsize, and it is hard to refine it back if we place too much emphasis on the interconnection constraint. At the last few levels of the refinement phase, we can mainly focus on reducing the interconnection violations and TDM ratio, because we suppose the initial partitioning phase will not get</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Algorithm 1 Interconnection-aware vertex gain function</head><p>Input: An initial partition, Vertex 𝑣 𝑖 , FPGAs v𝑓 and v𝑡 Output: The gain of moving 𝑣 𝑖 from v𝑓 to v𝑡 1: 𝑐𝑢𝑡 1 ← 0, 𝑐𝑢𝑡 2 ← 0 ⊲ cutsizes related to 𝑣 𝑖 ⊲ initialize the cutsizes related to 𝑣 𝑖 between FPGAs 2: for each ( v𝑖 , v 𝑗 ) ∈ V × V , 𝑖 &lt; 𝑗 do 3:  During the calculation of the gain function, we need two global variables: the cut matrix 𝐶 and the interconnection resource matrix 𝐼𝑂. The latter will not change throughout the partitioning process, but the former will change constantly after each move. Since recalculating the cut matrix may lead to changes in the gain function of every vertex, we only update the cut matrix after a single round of the PM process to reduce time. For the greedy K-way refinement, we do the update right after each move. We assume that this lazy update will not affect the final result too much, and if it does, the greedy K-way refinement will correct it to a certain extent.</p><formula xml:id="formula_7">𝐶 1 ( v𝑖 , v 𝑗 ) ← 0, 𝐶 2 ( v𝑖 , v 𝑗 ) ←</formula><formula xml:id="formula_8">𝑔𝑎𝑖𝑛 𝑐𝑢𝑡 ← 𝑐𝑢𝑡 1 -𝑐𝑢𝑡 2 , 𝑔𝑎𝑖𝑛 𝑖𝑜 ← 0, 𝑔𝑎𝑖𝑛 𝑡𝑝 ← 0 12: for each ( v𝑖 , v 𝑗 ) ∈ V × V , 𝑖 &lt; 𝑗 do 13: 𝛿 ← 𝐶 1 ( v𝑖 , v 𝑗 ) -𝐶 2 ( v𝑖 , v 𝑗 ) 14: 𝑖𝑜 1 ← max(𝐶 ( v𝑖 , v 𝑗 ) -𝐼𝑂 ( v𝑖 , v 𝑗 ), 0) 15: 𝑖𝑜 2 ← max(𝐶 ( v𝑖 , v 𝑗 ) -𝐼𝑂 ( v𝑖 , v 𝑗 ) -𝛿, 0) 16: if ê ( v𝑖 , v 𝑗 ) ∉ Ê then ⊲ the same as 𝐼𝑂 ( v𝑖 , v 𝑗 ) = 0 17: 𝑔𝑎𝑖𝑛 𝑖𝑜 ← 𝑔𝑎𝑖𝑛 𝑖𝑜 + (𝑖𝑜 1 -𝑖𝑜 2 ) • 𝑑𝑖𝑠𝑡 ( v𝑖 , v 𝑗 )</formula></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.3">Min-hop Topology-driven Initial Partitioning</head><p>The topology constraint is a special case of interconnection constraint, where the interconnection resources between FPGAs are limited to 0. Therefore, modifications should also be applied to the whole process of partitioning as in the previous subsection to maintain the direction of signal flow in the original netlist. The main difference is that we need to calculate the candidate set 𝑐𝑑𝑑𝑡 beforehand and replace the initial partitioning algorithm with a topology-driven one, which will be discussed as follows.</p><p>The initial partitioning algorithms in <ref type="bibr" target="#b16">[17,</ref><ref type="bibr" target="#b23">24]</ref> can find a non-hop solution without topology violations effectively if the solution exists, but have the following drawbacks. Firstly, they only consider the cutsize when choosing FPGAs, but ignore the importance of its vertex degree, i.e. the number of its neighbors. Another problem is that if the algorithm fails at the coarsest level, it will either report no solution <ref type="bibr" target="#b23">[24]</ref> or give a solution with minimum violation <ref type="bibr" target="#b16">[17]</ref>, giving up the opportunity to find better solutions at upper levels. Besides, it is often difficult to find a non-hop solution when the topology of MFS is quite complicated. So, it is necessary to relax the non-hop constraint in the partitioning process. In our approach, we first do the candidate FPGA propagation as <ref type="bibr" target="#b23">[24]</ref>, and ensure the size of each cluster vertex is no less than a threshold 𝛽. Then, we transform the hypergraph into a simple graph, where each hyperedge 𝑒 is transformed into |𝑒 | -1 edges from the source node to the drain nodes, and run the min-hop topology-driven initial partitioning algorithm as Algorithm 2. We try to find a solution with the maximum hop no more than a given threshold 𝑎𝑙𝑙𝑜𝑤_ℎ𝑜𝑝. If we cannot find a solution, we will continue tracing back to the less coarsened graph until we find one. Otherwise, we will search with a larger 𝑎𝑙𝑙𝑜𝑤_ℎ𝑜𝑝. 𝐹 ← ∅ ⊲ failed nodes that has no available FPGA end if 26: end for During each iteration of Algorithm 2, when selecting the order to iterate vertices, we first sort them by the size of 𝑐𝑑𝑑𝑡 in ascending order, and break ties by favoring vertices with higher degrees. When choosing the best FPGA for a node, we first sort them by the number of its neighbors in descending order, and break ties by favoring FPGAs with smaller cutsize increments. After assigning 𝑣 to 𝑝𝑎𝑟𝑡 (𝑣), we do the propagation like <ref type="bibr" target="#b16">[17]</ref>, but with a slack ℎ (lines <ref type="bibr" target="#b15">[16]</ref><ref type="bibr" target="#b16">[17]</ref>, updating 𝑐𝑑𝑑𝑡 of each necessary vertex 𝑢 using the inequality: 𝑑𝑖𝑠𝑡 ( û, 𝑝𝑎𝑟𝑡 (𝑣)) ≤ 𝑑𝑖𝑠𝑡 (𝑢, 𝑣) +ℎ, ∀ û ∈ 𝑐𝑑𝑑𝑡 (𝑢). When 𝑐𝑑𝑑𝑡 of a node becomes empty due to insufficient resources or topology violation, we mark these nodes as failed nodes 𝐹 and temporarily skip them (lines <ref type="bibr" target="#b12">[13]</ref><ref type="bibr" target="#b13">[14]</ref>. If failed nodes exist, we recalculate 𝑐𝑑𝑑𝑡 of each failed node with slack ℎ + 1 according to the assigned nodes and remaining resources, and continue with the next iteration.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head>Algorithm 2 Min-hop topology-driven initial partitioning</head><p>If the non-hop solution cannot be found, a solution with violations will be given. The refinement methods will help find hidden opportunities for feasible solutions, but if the violations still exist after refinement, the inter-FPGA routing is executed to pass signals between FPGA pairs that are not directly connected. That is the main reason for our target of minimizing the hop. For each hyperedge cut that violates the topology of MFS, we start from the source node and find the shortest paths to all the drain nodes. To balance the load on MFS edges, we use an algorithm similar to <ref type="bibr" target="#b24">[25]</ref>. We assign every MFS edge a cost, which is positively correlated to the number of nets that go through the MFS edge and is dynamically adjusted during the whole routing process.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4">Experimental Results</head><p>In this section, we present the experimental results with the Titan23 benchmark suite <ref type="bibr" target="#b17">[18]</ref> and actual industrial designs to validate the proposed techniques. The statistics of these test cases are listed in Table <ref type="table" target="#tab_5">3</ref>, where those of the industrial cases are obtained after the hypergraph modeling phase of EasyPart. Each industry case requires 26 different types of resources. The proposed techniques and EasyPart are compared with hMETIS, TritonPart, and the approach in <ref type="bibr" target="#b16">[17]</ref>. The proposed techniques are implemented in C++. All the experiments are carried out on a Linux server with AMD EPYC 7V12 64-Core CPU and 512GB memory. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.1">Results on the Basic Hypergraph Partitioning</head><p>We first validate the effectiveness of the hypergraph partitioning engine in EasyPart. It is compared with two state-of-the-art hypergraph partitioners: hMETIS 2.0pre1 version1 and TritonPart2, on Titan23 benchmarks. Because the two partitioners consider both the upper and lower bounds of the balance constraint, we change the constraint of our engine to align with them. The imbalance factor 𝜖 is set to 5% and the number of FPGAs 𝐾 is set to 4. The compared hMETIS supports 64-bit architectures, direct K-way partition, and has more stable performance. It runs with default parameters: nruns = 10, ptype = kway, ctype = h1, rtype = krandom, cmaxnet = 50, rmaxnet = 50, nvcycles = 1, seed = 0. otype = soed is set so that its objective function becomes similar to our setting. For TritonPart, we set the seed = 0 and all other parameter settings as default. CPLEX3 is used as the primary ILP solver to keep the same as <ref type="bibr" target="#b3">[4]</ref>.</p><p>The results of the cutsize and runtime comparisons are listed in Table <ref type="table" target="#tab_6">4</ref>. For hMETIS and TritonPart, the values in the cutsize column are recalculated using <ref type="bibr" target="#b3">(4)</ref>. From the table, we can see that if we set hMETIS as the baseline, TritonPart achieves a cutsize that is on average 3% smaller, and EasyPart achieves a cutsize 14% smaller. For most cases, EasyPart achieves the best cutsize. This validates the effectiveness of our hypergraph partitioning engine which is presented in Section 3.1. Regarding the runtime, EasyPart is 2.69× slower than hMETIS, but still 22× faster than TritonPart. This is partially due to the support of multiple constraints in EasyPart, which makes it run slower than hMETIS. TritonPart runs very slowly in 1http<ref type="url" target="://glaros.dtc.umn.edu/gkhome/views/metis">://glaros.dtc.umn.edu/gkhome/views/metis</ref> 2We obtain the source code from <ref type="url" target="https://github.com/ABKGroup/TritonPart">https://github.com/ABKGroup/TritonPart</ref>. 3https<ref type="url" target="://www.ibm.com/analytics/cplex-optimizer">://www.ibm.com/analytics/cplex-optimizer</ref>  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.2">Validating the Proposed Topology-driven Partitioning Approach on Non-hop Setting</head><p>To compare the approaches for topology-driven partitioning fairly, we use the fixed nodes and MFS topology <ref type="bibr" target="#b20">[21]</ref> the same as TopoPart and <ref type="bibr" target="#b16">[17]</ref>, for the Titan23 benchmark suite. The original 𝑛-pin nets are transformed into (𝑛 -1) two-pin nets and the balance factor is ignored. For the hyperparameter 𝛽, TopoPart sets its default value as 2𝐾 3 , while <ref type="bibr" target="#b16">[17]</ref> sets it as 𝐾 3 because it eliminates all the violated status and therefore can have a more strict constraint. Here, we conduct an empirical study on the impact of 𝛽 on the partitioning results. We set 𝛽 from 𝐾 3 to 2𝐾 3 , namely 3, 4 and 5 in this case since 𝐾 = 8. Because <ref type="bibr" target="#b16">[17]</ref> is the enhanced version of TopoPart, we only implement <ref type="bibr" target="#b16">[17]</ref> as the baseline with all the default settings. We set the maximum allowed hop of our algorithm to 0, forcing it to get a nonhop solution. Table <ref type="table" target="#tab_7">5</ref> shows the cutsize of the partitions produced by <ref type="bibr" target="#b16">[17]</ref> and our algorithm across all test cases under different 𝛽 values. There is no significant difference in the runtime between the two algorithms so we do not list it in the table.</p><p>Both algorithms successfully get non-hop solutions for all 22 cases under different 𝛽 values. The results of <ref type="bibr" target="#b16">[17]</ref> when 𝛽 = 3 are overall smaller than those in its original paper due to different coarsening and refinement methods. From the results, we can see that our approach achieves approximately the same results as <ref type="bibr" target="#b16">[17]</ref> when 𝛽 = 3. But when 𝛽 increases, the cutsize of our algorithm is relatively steady  and even achieves significant improvements in many cases, while the cutsize of <ref type="bibr" target="#b16">[17]</ref> is quite sensitive to 𝛽 and has a large fluctuation in some cases, like sparcT2_core, sparcT1_chip2 and bitcoin_miner.</p><p>The reasons for the above results are as follows. The selection of 𝛽 is a trade-off between efficiency and quality <ref type="bibr" target="#b23">[24]</ref>. Therefore, if 𝛽 is relatively small, the coarsest hypergraph will have fewer vertices, resulting in less computation but smaller searching space, and often suboptimal solution (or even no solution). In contrast, if 𝛽 is relatively large, the search space will be larger, along with more computation. For example, sparcT2_core is clustered into 134 vertices when 𝛽 = 3, but 128255 vertices when 𝛽 = 5. Both TopoPart and <ref type="bibr" target="#b16">[17]</ref> only consider the size of 𝑐𝑑𝑑𝑡 and cutsize during the initial partitioning but ignore the effect of the number of neighbors of FPGA. Aiming for a smaller cutsize may lead to assigning a node to a marginal FPGA, which causes an unintended future increase of cutsize due to the lack of enough tracebacks. This phenomenon more likely happens when the number of vertices is quite large. For a complex MFS topology, it is very hard to find a solution at a high coarsening level. So, returning to lower levels and dealing with a large hypergraph is often unavoidable. All these reveal that our algorithm is more suitable for the non-hop topology-driven partitioning problem.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4.3">Validating EasyPart with Industrial Cases</head><p>Interconnection and topology constraints are common in actual MFS. To validate the proposed EasyPart, we carry out experiments on an industrial MFS topology as shown in Fig. <ref type="figure" target="#fig_3">4</ref>, with the interconnection between two FPGAs all set to 20. We use EasyPart to partition four actual designs from our industrial partner on this MFS. If completely flattened, these designs include up to 63 million cells. The numbers of cells and nets after the adaptive flattening for the following experiments of partitioning are listed in Table <ref type="table" target="#tab_5">3</ref>.</p><p>We first run EasyPart without considering the interconnection/topology constraint. Then, we run it in a mode only considering the interconnection constraint, and finally run it in the mode considering both the two constraints. EasyPart cannot find a non-hop solution on this MFS for the four industrial designs. So, the necessary routing as described in Section 3.3 is added. Before routing, we count the cutsize and topology violations of the partitioning result. After routing, we count the maximum and average TDM ratio, and the maximum hop of routing paths, which are the main metrics to evaluate the quality of interconnection-aware and topology-driven partitioning. The results are listed in Table <ref type="table" target="#tab_8">6</ref>. Notice that the partitions with smaller TDM ratios and smaller maximum hops have better performances of FPGA-based emulation <ref type="bibr" target="#b22">[23]</ref>.</p><p>From Table <ref type="table" target="#tab_8">6</ref>, we can see that before the routing, although the original partitioning solutions have a relatively small cutsize, they have a large number of topology violations. If the interconnection constraint is considered during the partition, the violations are largely reduced at the cost of some unavoidable cutsize increments. This becomes more obvious when we run EasyPart in full mode which also considers topology constraint at the early stage of partitioning. After the routing, all these topology violations are removed with each running mode of EasyPart. If comparing the three modes, we can see that if both constraints are considered, EasyPart produces the results with the smallest TDM ratios and the smallest maximum hops. This validates the effectiveness of the proposed techniques. We also list the runtimes of EasyPart in full mode in Table <ref type="table" target="#tab_9">7</ref>, including the runtimes for hypergraph modeling and hypergraph partitioning respectively. From it, we can see the efficiency of EasyPart, which costs no more than 23 minutes to deliver a high-quality partition for the industrial case with up to 63 million flattened cells. </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5">Conclusions</head><p>In this work, we introduce the constraints-driven circuit netlist hypergraph partitioning problem for FPGA-based logic emulation and present an effective and comprehensive partitioner, EasyPart. Adaptations are made in the multilevel partitioning paradigm to optimize it under this setting with considerations of multiple constraints. We also propose a min-hop initial partitioning algorithm to handle the topology constraint, and a detailed treatment to improve the quality of the partitioning solution under the interconnection constraint.</p><p>Extensive experimental results show that EasyPart can largely reduce the cutsize compared to the leading partitioners. We also demonstrate the effectiveness of EasyPart in handling the topology and interconnection constraints, achieving better partitioning results with more robustness compared to previous work, and significant improvements in TDM ratio and maximum hop when testing on industrial cases.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: Flowchart of the EasyPart framework for the K-way partitioning problem in FPGA-based emulation.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Figure 2 :Figure 3 :</head><label>23</label><figDesc>Figure 2: An abstract description of a part of hierarchical design.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Input: 5 :</head><label>5</label><figDesc>Converted simple graph 𝐺 ′ (𝑉 ′ , 𝐸 ′ ), fixed nodes 𝑉 ′ 𝑓 𝑖𝑥 , maximum allowed hop 𝑎𝑙𝑙𝑜𝑤_ℎ𝑜𝑝 Output: Partition result 𝑝𝑎𝑟𝑡 1: ∀ 𝑣 ∈ 𝑉 ′ , 𝑝𝑎𝑟𝑡 (𝑣) = -1 2: assign fixed nodes in 𝑉 ′ 𝑓 𝑖𝑥 to the corresponding FPGA 3: for ℎ = 0; ℎ &lt;= 𝑎𝑙𝑙𝑜𝑤_ℎ𝑜𝑝; ℎ + + do ⊲ Q: sort up by |𝑐𝑑𝑑𝑡 (𝑣)|, break ties by degree(𝑣) ⊲ R: sort down by degree( v), break ties by cutsize 4: priority queue 𝑄 ← ∅, 𝑅 ← ∅ ∀ unassigned 𝑣, 𝑄.insert({𝑣, |𝑐𝑑𝑑𝑡 (𝑣)|, degree(𝑣)}) 6:</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>F11Figure 4 :</head><label>4</label><figDesc>Figure 4: Topology of an industrial multi-FPGA system.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0"><head>Table 2 : Terminology and Notation</head><label>2</label><figDesc>The block (FPGA) which vertex 𝑣 is assigned to 𝑑𝑖𝑠𝑡 (𝑣 𝑖 , 𝑣 𝑗 ) Minimum distance between vertices 𝑣 𝑖 and 𝑣 𝑗</figDesc><table><row><cell>Variable</cell><cell>Definition</cell></row><row><cell>𝐺 (𝑉 , 𝐸 )</cell><cell>Hypergraph for circuit netlist, where 𝑉 denotes vertex set and 𝐸 denotes hyperedge set</cell></row><row><cell>𝑣 𝑖</cell><cell>A vertex in hypergraph, representing a cell in circuit</cell></row><row><cell>𝑒 𝑖</cell><cell>A hyperedge in hypergraph, representing a net in circuit</cell></row><row><cell>𝑤 (𝑣)</cell><cell>Weight of vertex 𝑣, i.e. the needed resource for the corresponding cell</cell></row><row><cell>𝑤 (𝑒 )</cell><cell>Weight of hyperedge 𝑒, i.e. the number of communicating signals on the corresponding net</cell></row><row><cell>𝑝𝑎𝑟𝑡 (𝑣)</cell><cell></cell></row><row><cell>𝑆 (𝑒 )</cell><cell>Set of the FPGA which the source node of the net corresponding to hyperedge 𝑒 is assigned to</cell></row><row><cell>𝐷 (𝑒 )</cell><cell>Set of the FPGAs which the drain nodes of the net corresponding to hyperedge 𝑒 are assigned to</cell></row><row><cell>𝑐 (𝑒 )</cell><cell>Cutsize of hyperedge 𝑒</cell></row><row><cell>𝐶 ( v𝑖 , v𝑗 )</cell><cell>Cutsize between two FPGAs v𝑖 and v𝑗</cell></row><row><cell>𝐼𝑂 ( v𝑖 , v𝑗 )</cell><cell>Supplied interconnection resources between v𝑖 and v𝑗</cell></row><row><cell>𝐾</cell><cell>The number of blocks (FPGAs) for partition</cell></row><row><cell>𝜖</cell><cell>Imbalance factor</cell></row><row><cell>𝛽</cell><cell>Threshold of |𝑐𝑑𝑑𝑡 (𝑣 𝑖 ) | for each cluster vertex</cell></row><row><cell>𝜏</cell><cell>Penalty factor on interconnection constraint</cell></row></table><note><p>Ĝ ( V , Ê ) Graph of MFS, where vertex set V denotes FPGAs and edge set Ê denotes the connectivity among FPGAs v𝑖 Vertex 𝑖 in the MFS graph, denoting the 𝑖-th FPGA ê𝑖 ( v𝑖 , v𝑗 ) An edge between vertices v𝑖 and v𝑗 , representing the physical connection between two FPGAs 𝑐𝑑𝑑𝑡 (𝑣 𝑖 ) Set of candidate FPGAs that cell 𝑣 𝑖 can be assigned to</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2"><head></head><label></label><figDesc>0, 4: end for 5: for each 𝑒 ∈ {𝑒 |𝑣 𝑖 ∈ 𝑒, 𝑒 ∈ 𝐸} do 𝑐𝑢𝑡 1 ← 𝑐𝑢𝑡 1 + 𝑐 (𝑒), update relevant elements in 𝐶 1 7: update 𝑆 (𝑒) and 𝐷 (𝑒) for moving 𝑣 𝑖 from v𝑓 to v𝑡 𝑐𝑢𝑡 2 ← 𝑐𝑢𝑡 2 + 𝑐 (𝑒), update relevant elements in 𝐶 2</figDesc><table><row><cell>6:</cell><cell></cell></row><row><cell>8:</cell><cell></cell></row><row><cell>9:</cell><cell>update 𝑆 (𝑒) and 𝐷 (𝑒) for moving 𝑣 𝑖 back to v𝑓</cell></row><row><cell cols="2">10: end for</cell></row><row><cell>11:</cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5"><head>Table 3 : Characteristics of benchmarks.</head><label>3</label><figDesc></figDesc><table><row><cell>Benchmark</cell><cell>|𝑉 |</cell><cell>|𝐸|</cell><cell>Benchmark</cell><cell>|𝑉 |</cell><cell>|𝐸|</cell></row><row><cell cols="3">sparcT1_core 91976 92827</cell><cell>minres</cell><cell cols="2">261359 320540</cell></row><row><cell>neuron</cell><cell cols="5">92290 125305 cholesky_bdti 266422 342688</cell></row><row><cell cols="3">stereo_vision 94050 127085</cell><cell>denoise</cell><cell cols="2">275638 356848</cell></row><row><cell>des90</cell><cell cols="5">111221 139557 sparcT2_core 300109 302663</cell></row><row><cell cols="6">SLAM_spheric 113115 142408 gsm_switch 493260 507821</cell></row><row><cell cols="4">cholesky_mc 113250 144948 mes_noc</cell><cell cols="2">547544 577664</cell></row><row><cell cols="3">segmentation 138295 179051</cell><cell>LU230</cell><cell cols="2">574372 669477</cell></row><row><cell cols="6">bitonic_mesh 192064 235328 LU_Network 635456 726999</cell></row><row><cell>dart</cell><cell cols="5">202354 223301 sparcT1_chip2 820886 821274</cell></row><row><cell>openCV</cell><cell cols="2">217453 284108</cell><cell>directrf</cell><cell cols="2">931275 1374742</cell></row><row><cell>stap_qrd</cell><cell cols="5">240240 290123 bitcoin_miner 1089284 1448151</cell></row><row><cell>industry1</cell><cell cols="2">56295 59343</cell><cell cols="3">industry3 1102782 1416289</cell></row><row><cell cols="6">industry2 112575 115615 industry4 1826808 2988069</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_6"><head>Table 4 : The comparison of hMETIS, TritonPart, and our Easy- Part on the Titan23 benchmarks (𝐾</head><label>4</label><figDesc>= 4, 𝜖 = 5%).</figDesc><table><row><cell>Benchmark</cell><cell cols="6">Cutsize hMETIS TritonPart EasyPart hMETIS TritonPart EasyPart Runtime (s)</cell></row><row><cell cols="2">sparcT1_core 3088</cell><cell>3542</cell><cell>2754</cell><cell>11</cell><cell>3941</cell><cell>38</cell></row><row><cell>neuron</cell><cell>716</cell><cell>712</cell><cell>529</cell><cell>5</cell><cell>146</cell><cell>24</cell></row><row><cell>stereo_vision</cell><cell>518</cell><cell>373</cell><cell>344</cell><cell>6</cell><cell>165</cell><cell>22</cell></row><row><cell>des90</cell><cell>883</cell><cell>1027</cell><cell>858</cell><cell>16</cell><cell>148</cell><cell>32</cell></row><row><cell cols="2">SLAM_spheric 3856</cell><cell>4248</cell><cell>3719</cell><cell>20</cell><cell>7558</cell><cell>40</cell></row><row><cell cols="2">cholesky_mc 1168</cell><cell>1555</cell><cell>1147</cell><cell>10</cell><cell>592</cell><cell>39</cell></row><row><cell>segmentation</cell><cell>589</cell><cell>537</cell><cell>464</cell><cell>16</cell><cell>146</cell><cell>28</cell></row><row><cell cols="2">bitonic_mesh 1291</cell><cell>1332</cell><cell>1300</cell><cell>31</cell><cell>231</cell><cell>60</cell></row><row><cell>dart</cell><cell>1641</cell><cell>1967</cell><cell>1388</cell><cell>19</cell><cell>664</cell><cell>69</cell></row><row><cell>openCV</cell><cell>1415</cell><cell>1347</cell><cell>1288</cell><cell>18</cell><cell>225</cell><cell>68</cell></row><row><cell>stap_qrd</cell><cell>1150</cell><cell>993</cell><cell>1014</cell><cell>25</cell><cell>190</cell><cell>101</cell></row><row><cell>minres</cell><cell>610</cell><cell>543</cell><cell>556</cell><cell>22</cell><cell>260</cell><cell>91</cell></row><row><cell cols="2">cholesky_bdti 2342</cell><cell>2276</cell><cell>2149</cell><cell>34</cell><cell>4863</cell><cell>98</cell></row><row><cell>denoise</cell><cell>1154</cell><cell>1048</cell><cell>987</cell><cell>42</cell><cell>172</cell><cell>52</cell></row><row><cell cols="2">sparcT2_core 2857</cell><cell>3183</cell><cell>2820</cell><cell>64</cell><cell>235</cell><cell>116</cell></row><row><cell cols="2">gsm_switch 14201</cell><cell>4483</cell><cell>4065</cell><cell>51</cell><cell>1514</cell><cell>182</cell></row><row><cell>mes_noc</cell><cell>1573</cell><cell>1785</cell><cell>1546</cell><cell>87</cell><cell>302</cell><cell>152</cell></row><row><cell>LU230</cell><cell>6229</cell><cell>6010</cell><cell>5678</cell><cell>67</cell><cell>10080</cell><cell>161</cell></row><row><cell cols="2">LU_Network 1754</cell><cell>1073</cell><cell>1062</cell><cell>87</cell><cell>230</cell><cell>140</cell></row><row><cell cols="2">sparcT1_chip2 2288</cell><cell>2654</cell><cell>1989</cell><cell>128</cell><cell>343</cell><cell>242</cell></row><row><cell>directrf</cell><cell>1164</cell><cell>1220</cell><cell>1152</cell><cell>153</cell><cell>253</cell><cell>197</cell></row><row><cell cols="2">bitcoin_miner 4496</cell><cell>3984</cell><cell>3869</cell><cell>221</cell><cell>1101</cell><cell>365</cell></row><row><cell>Avg Ratio</cell><cell>1.00</cell><cell>0.97</cell><cell>0.86</cell><cell>1.00</cell><cell>58.69</cell><cell>2.69</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_7"><head>Table 5 : The comparison of different initial partitioning methods on the Titan23 benchmarks with non-hop constraint.</head><label>5</label><figDesc></figDesc><table><row><cell>Benchmark</cell><cell>𝛽 = 3 [17] Ours [17] Ours 𝛽 = 4</cell><cell cols="2">𝛽 = 5 [17] Ours</cell></row><row><cell>sparcT1_core</cell><cell>301 301 2954 301</cell><cell>2196</cell><cell>301</cell></row><row><cell>neuron</cell><cell>460 451 626 437</cell><cell>1227</cell><cell>415</cell></row><row><cell>stereo_vision</cell><cell>164 164 375 163</cell><cell>6620</cell><cell>163</cell></row><row><cell>des90</cell><cell>963 963 933 655</cell><cell>655</cell><cell>655</cell></row><row><cell cols="2">SLAM_spheric 241 525 4405 464</cell><cell>4736</cell><cell>445</cell></row><row><cell>cholesky_mc</cell><cell>570 570 1567 426</cell><cell>427</cell><cell>426</cell></row><row><cell cols="2">segmentation 1156 1156 514 437</cell><cell>404</cell><cell>404</cell></row><row><cell cols="2">bitonic_mesh 1755 1755 1430 699</cell><cell>881</cell><cell>699</cell></row><row><cell>dart</cell><cell>225 225 1494 281</cell><cell>2979</cell><cell>282</cell></row><row><cell>openCV</cell><cell>805 843 1592 491</cell><cell>518</cell><cell>516</cell></row><row><cell>stap_qrd</cell><cell>474 473 1098 473</cell><cell>4870</cell><cell>473</cell></row><row><cell>minres</cell><cell cols="3">339 339 548 461 15444 331</cell></row><row><cell>cholesky_bdti</cell><cell>796 796 3666 593</cell><cell>1050</cell><cell>540</cell></row><row><cell>denoise</cell><cell>818 818 1087 483</cell><cell>1047</cell><cell>430</cell></row><row><cell>sparcT2_core</cell><cell cols="3">233 233 2968 201 142574 201</cell></row><row><cell>gsm_switch</cell><cell cols="3">243 243 4534 248 11939 248</cell></row><row><cell>mes_noc</cell><cell>814 814 1702 302</cell><cell>317</cell><cell>317</cell></row><row><cell>LU230</cell><cell>521 521 8098 321</cell><cell>322</cell><cell>321</cell></row><row><cell cols="4">LU_Network 1074 450 1120 298 39517 332</cell></row><row><cell cols="4">sparcT1_chip2 190 190 1808 172 199450 172</cell></row><row><cell>directrf</cell><cell>820 820 1561 430</cell><cell>430</cell><cell>430</cell></row><row><cell>bitcoin_miner</cell><cell cols="3">160 164 3714 164 54369 164</cell></row><row><cell>Avg Ratio</cell><cell cols="3">1.04 1.00 7.11 1.00 114.06 1.00</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8"><head>Table 6 : Results of EasyPart with different working modes for partitioning the industrial cases on the MFS in Fig. 4.</head><label>6</label><figDesc>Violation is the number of topology violations. TDMmax and TDMavg are the maximum and average TDM ratios, respectively. #Hop is the maximum hop.</figDesc><table><row><cell></cell><cell cols="6">Not consider interconnect/topology constraints</cell><cell></cell><cell cols="3">Interconnection-aware</cell><cell></cell><cell></cell><cell cols="5">Interconnection-aware + Topology-driven</cell></row><row><cell>Case</cell><cell cols="2">Before routing</cell><cell></cell><cell cols="2">After routing</cell><cell></cell><cell cols="2">Before routing</cell><cell></cell><cell cols="2">After routing</cell><cell></cell><cell cols="2">Before routing</cell><cell></cell><cell cols="2">After routing</cell></row><row><cell></cell><cell cols="18">Cutsize #Violation Cutsize TDMmax TDMavg #Hop Cutsize #Violation Cutsize TDMmax TDMavg #Hop Cutsize #Violation Cutsize TDMmax TDMavg #Hop</cell></row><row><cell cols="2">industry1 85</cell><cell>62</cell><cell>186</cell><cell>1.25</cell><cell>1.25</cell><cell>5</cell><cell>103</cell><cell>50</cell><cell>161</cell><cell>1.00</cell><cell>1.00</cell><cell>4</cell><cell>146</cell><cell>30</cell><cell>155</cell><cell>1.00</cell><cell>1.00</cell><cell>2</cell></row><row><cell cols="2">industry2 148</cell><cell>113</cell><cell>352</cell><cell>2.30</cell><cell>1.68</cell><cell>5</cell><cell>187</cell><cell>71</cell><cell>285</cell><cell>1.45</cell><cell>1.23</cell><cell>5</cell><cell>226</cell><cell>50</cell><cell>266</cell><cell>1.40</cell><cell>1.23</cell><cell>3</cell></row><row><cell cols="5">industry3 26227 19469 54283 444</cell><cell>272</cell><cell cols="2">4 32069</cell><cell>6520</cell><cell cols="2">50748 386</cell><cell>231</cell><cell cols="2">5 35475</cell><cell>1887</cell><cell cols="2">37188 200</cell><cell>200</cell><cell>2</cell></row><row><cell cols="5">industry4 25572 21856 57438 741</cell><cell>497</cell><cell cols="2">5 39734</cell><cell>7535</cell><cell cols="2">54324 288</cell><cell>222</cell><cell cols="2">4 49206</cell><cell>1847</cell><cell cols="2">51413 206</cell><cell>171</cell><cell>3</cell></row><row><cell>#</cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell><cell></cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_9"><head>Table 7 : Runtime breakdown of EasyPart for the industrial cases. #cell is the number of cells after completely flattening.</head><label>7</label><figDesc></figDesc><table><row><cell></cell><cell>industry1</cell><cell>industry2</cell><cell cols="2">industry3 industry4</cell></row><row><cell>#cell</cell><cell cols="4">31,779,127 63,536,575 1,921,478 6,267,124</cell></row><row><cell>Tmodel (s)</cell><cell>589</cell><cell>1272</cell><cell>122</cell><cell>480</cell></row><row><cell>Tpart (s)</cell><cell>47</cell><cell>87</cell><cell>511</cell><cell>897</cell></row></table></figure>
+		</body>
+		<back>
+
+			<div type="funding">
+<div><p>supported by <rs type="funder">Beĳing Natural Science Foundation</rs> under Grant No. <rs type="grantNumber">Z230002</rs>. <rs type="person">S. Tong</rs> and <rs type="person">H. Li</rs> contributed equally.</p></div>
+			</div>
+			<listOrg type="funding">
+				<org type="funding" xml:id="_AcAqjZP">
+					<idno type="grant-number">Z230002</idno>
+				</org>
+			</listOrg>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Hyperef: Spectral hypergraph coarsening by effective-resistance clustering</title>
+		<author>
+			<persName><forename type="first">Ali</forename><surname>Aghdaei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhuo</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 41st IEEE/ACM International Conference on Computer-Aided Design</title>
+		<meeting>the 41st IEEE/ACM International Conference on Computer-Aided Design</meeting>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Hypersf: Spectral hypergraph coarsening via flow-based local clustering</title>
+		<author>
+			<persName><forename type="first">Ali</forename><surname>Aghdaei</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiqiang</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhuo</forename><surname>Feng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference On Computer Aided Design (ICCAD). IEEE</title>
+		<imprint>
+			<date type="published" when="2021">2021. 2021</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Recent directions in netlist partitioning: A survey</title>
+		<author>
+			<persName><forename type="first">J</forename><surname>Charles</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Alpert</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Kahng</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Integration</title>
+		<imprint>
+			<biblScope unit="volume">19</biblScope>
+			<biblScope unit="issue">1-2</biblScope>
+			<biblScope unit="page" from="1" to="81" />
+			<date type="published" when="1995">1995. 1995</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b3">
+	<analytic>
+		<title level="a" type="main">An Open-Source Constraints-Driven General Partitioning Multi-Tool for VLSI Physical Design</title>
+		<author>
+			<persName><forename type="first">Ismail</forename><surname>Bustany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Grigor</forename><surname>Gasparyan</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioannis</forename><surname>Koutis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bodhisatta</forename><surname>Pramanik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiang</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer Aided Design (ICCAD)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2023">2023. 2023</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b4">
+	<analytic>
+		<title level="a" type="main">SpecPart: A supervised spectral framework for hypergraph partitioning solution improvement</title>
+		<author>
+			<persName><forename type="first">Ismail</forename><surname>Bustany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioannis</forename><surname>Koutis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bodhisatta</forename><surname>Pramanik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiang</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 41st IEEE/ACM International Conference on Computer-Aided Design</title>
+		<meeting>the 41st IEEE/ACM International Conference on Computer-Aided Design</meeting>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="1" to="9" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b5">
+	<analytic>
+		<title level="a" type="main">K-SpecPart: Supervised Embedding Algorithms and Cut Overlay for Improved Hypergraph Partitioning</title>
+		<author>
+			<persName><forename type="first">Ismail</forename><surname>Bustany</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Andrew</forename><forename type="middle">B</forename><surname>Kahng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ioannis</forename><surname>Koutis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bodhisatta</forename><surname>Pramanik</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhiang</forename><surname>Wang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b6">
+	<monogr>
+		<title level="m" type="main">PaToH (Partitioning Tool for Hypergraphs)</title>
+		<author>
+			<persName><forename type="first">V</forename><surname>Ümit</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Cevdet</forename><surname>Çatalyürek</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Aykanat</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2011">2011</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Multiway partitioning with pairwise movement</title>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Cong</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Sung</forename><forename type="middle">Kyu</forename><surname>Lim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 1998 IEEE/ACM international conference on Computer-aided design</title>
+		<meeting>the 1998 IEEE/ACM international conference on Computer-aided design</meeting>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="512" to="516" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Hypergraph partitioning for multiple communication cost metrics: Model and methods</title>
+		<author>
+			<persName><forename type="first">Mehmet</forename><surname>Deveci</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Kamer</forename><surname>Kaya</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Bora</forename><surname>Uçar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Ümit</forename><forename type="middle">V</forename><surname>Çatalyürek</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Parallel and Distrib. Comput</title>
+		<imprint>
+			<biblScope unit="volume">77</biblScope>
+			<biblScope unit="page" from="69" to="83" />
+			<date type="published" when="2015">2015. 2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b9">
+	<analytic>
+		<title level="a" type="main">A linear-time heuristic for improving network partitions</title>
+		<author>
+			<persName><forename type="first">M</forename><surname>Charles</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Robert</forename><forename type="middle">M</forename><surname>Fiduccia</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Mattheyses</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Papers on Twenty-five years of electronic design automation</title>
+		<imprint>
+			<date type="published" when="1988">1988</date>
+			<biblScope unit="page" from="241" to="247" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Computers and intractability: A guide to the theory of NP-completeness</title>
+		<author>
+			<persName><forename type="first">S</forename><surname>David</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Michael</forename><forename type="middle">R</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName><surname>Garey</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1979">1979</date>
+			<publisher>WH Freeman</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Multilevel hypergraph partitioning: Applications in VLSI domain</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Karypis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Rajat</forename><surname>Aggarwal</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vipin</forename><surname>Kumar</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shashi</forename><surname>Shekhar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Very Large Scale Integration (VLSI) Systems</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="69" to="79" />
+			<date type="published" when="1999">1999. 1999</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b12">
+	<analytic>
+		<title level="a" type="main">A fast and high quality multilevel scheme for partitioning irregular graphs</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Karypis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vipin</forename><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">SIAM Journal on scientific Computing</title>
+		<imprint>
+			<biblScope unit="volume">20</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="359" to="392" />
+			<date type="published" when="1998">1998. 1998</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Multilevel k-way hypergraph partitioning</title>
+		<author>
+			<persName><forename type="first">George</forename><surname>Karypis</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vipin</forename><surname>Kumar</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 36th annual ACM/IEEE design automation conference</title>
+		<meeting>the 36th annual ACM/IEEE design automation conference</meeting>
+		<imprint>
+			<date type="published" when="1999">1999</date>
+			<biblScope unit="page" from="343" to="348" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Combinatorial algorithms for integrated circuit layout</title>
+		<author>
+			<persName><forename type="first">Thomas</forename><surname>Lengauer</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2012">2012</date>
+			<publisher>Springer Science &amp; Business Media</publisher>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b15">
+	<analytic>
+		<title level="a" type="main">High quality hypergraph partitioning for logic emulation</title>
+		<author>
+			<persName><forename type="first">Benzheng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhongdong</forename><surname>Qi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhengguang</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiyi</forename><surname>He</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hailong</forename><surname>You</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Integration</title>
+		<imprint>
+			<biblScope unit="volume">83</biblScope>
+			<biblScope unit="page" from="67" to="76" />
+			<date type="published" when="2022">2022. 2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b16">
+	<analytic>
+		<title level="a" type="main">An Efficient Hypergraph Partitioner under Inter-Block Interconnection Constraints</title>
+		<author>
+			<persName><forename type="first">Benzheng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Hailong</forename><surname>You</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Shunyang</forename><surname>Bi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yuming</forename><surname>Zhang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2024 Design, Automation &amp; Test in Europe Conference &amp; Exhibition (DATE)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2024">2024</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Titan: Enabling large and complex benchmarks in academic CAD</title>
+		<author>
+			<persName><forename type="first">Kevin</forename><forename type="middle">E</forename><surname>Murray</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Scott</forename><surname>Whitty</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Suya</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jason</forename><surname>Luu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Vaughn</forename><surname>Betz</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2013 23rd International Conference on Field programmable Logic and Applications</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2013">2013</date>
+			<biblScope unit="page" from="1" to="8" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b18">
+	<analytic>
+		<title level="a" type="main">High-quality hypergraph partitioning</title>
+		<author>
+			<persName><forename type="first">Sebastian</forename><surname>Schlag</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Tobias</forename><surname>Heuer</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Lars</forename><surname>Gottesbüren</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yaroslav</forename><surname>Akhremtsev</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Christian</forename><surname>Schulz</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Peter</forename><surname>Sanders</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Journal of Experimental Algorithmics</title>
+		<imprint>
+			<biblScope unit="volume">27</biblScope>
+			<biblScope unit="page" from="1" to="39" />
+			<date type="published" when="2023">2023. 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b19">
+	<analytic>
+		<title level="a" type="main">Multiobjective hypergraph-partitioning algorithms for cut and maximum subdomain-degree minimization</title>
+		<author>
+			<persName><forename type="first">Navaratnasothie</forename><surname>Selvakkumaran</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">George</forename><surname>Karypis</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems</title>
+		<imprint>
+			<biblScope unit="volume">25</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="504" to="517" />
+			<date type="published" when="2006">2006. 2006</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b20">
+	<analytic>
+		<title level="a" type="main">CAD contest: System-level FPGA routing with timing division multiplexing technique</title>
+		<author>
+			<persName><forename type="first">Yu-Hsuan</forename><surname>Su</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Richard</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Pei-Hsin</forename><surname>Ho</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference on Computer-Aided Design (ICCAD)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2019">2019. 2019. 2019</date>
+			<biblScope unit="page" from="1" to="2" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Par k way 2.0: A Parallel Multilevel Hypergraph Partitioning Tool</title>
+		<author>
+			<persName><forename type="first">Aleksandar</forename><surname>Trifunovic</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">William</forename><forename type="middle">J</forename><surname>Knottenbelt</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International Symposium on Computer and Information Sciences</title>
+		<imprint>
+			<publisher>Springer</publisher>
+			<date type="published" when="2004">2004</date>
+			<biblScope unit="page" from="789" to="800" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b22">
+	<analytic>
+		<title level="a" type="main">SPARK: A Scalable Partitioning and Routing Framework for Multi-FPGA Systems</title>
+		<author>
+			<persName><forename type="first">Xinshi</forename><surname>Zang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Evangeline Fy</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin Df</forename><surname>Wong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the Great Lakes Symposium on VLSI</title>
+		<meeting>the Great Lakes Symposium on VLSI</meeting>
+		<imprint>
+			<date type="published" when="2023">2023. 2023</date>
+			<biblScope unit="page" from="593" to="598" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b23">
+	<analytic>
+		<title level="a" type="main">Topopart: a multi-level topology-driven partitioning framework for multi-fpga systems</title>
+		<author>
+			<persName><forename type="first">Dan</forename><surname>Zheng</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xinshi</forename><surname>Zang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Martin Df</forename><surname>Wong</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">IEEE/ACM International Conference On Computer Aided Design (ICCAD). IEEE</title>
+		<imprint>
+			<date type="published" when="2021">2021. 2021</date>
+			<biblScope unit="page" from="1" to="8" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct xml:id="b24">
+	<analytic>
+		<title level="a" type="main">Time-division multiplexing based system-level FPGA routing for logic verification</title>
+		<author>
+			<persName><forename type="first">Peng</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Zhifeng</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Xiao</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yingjie</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jianli</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Jun</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Yao-Wen</forename><surname>Chang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">2020 57th ACM/IEEE Design Automation Conference (DAC)</title>
+		<imprint>
+			<publisher>IEEE</publisher>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="page" from="1" to="6" />
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

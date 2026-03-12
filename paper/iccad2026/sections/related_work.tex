@@ -1,0 +1,12 @@
+\section{Related Work}
+\label{sec:rw}
+
+\subsection{Systolic-Array-Specific Placement}
+
+Our previous work on systolic-array placement on FPGAs established that exploiting array regularity can substantially improve placement quality over generic FPGA placement flows~\cite{rsad2023}. That work introduced the \rsad algorithm together with the order-consistency (OC) condition. OC is the most relevant predecessor idea for the present paper: it states that the spatial order of processing elements should follow their array order, thereby turning single-column placement into a structured ordered problem rather than an unconstrained generic placement problem. The \rsad line also motivates the region-wise decomposition used in this paper. In particular, for tall single-column strips, the central row-sweep (CTR) region serves as a structural pattern that can be exploited for acceleration by reducing an $m \times h$ problem to an $h \times h$ core problem before reconstruction.
+
+More recently, \sysmix extended the same research line toward mixed-size placement for hierarchical systolic-array designs~\cite{sysmix2024}. The key message from these works is that systolic-array placement benefits from explicit structural modeling. However, they do not address the weighted shortest-path formulation developed here for timing-driven placement.
+
+\subsection{Timing-Driven FPGA Placement}
+
+Timing-driven placement for FPGAs has been studied from several angles, including heterogeneity-aware timing modeling and critical-path-oriented optimization~\cite{date2021,ispd2017}. Prior work has shown that optimizing wirelength alone is often insufficient for timing closure and that timing-aware modeling must enter the placement flow explicitly. Our work is aligned with this direction, but it targets the narrower setting of DSP placement for systolic arrays and emphasizes a proof-oriented weighted dynamic-programming (DP) core rather than a general heterogeneous FPGA timing model. The technical distinction from \rsad is not that \rsad lacks value, but that \rsad mainly optimizes the OC-constrained \hpwl objective whereas the present work explicitly trades off aggregate wirelength and longest-wire timing pressure.
